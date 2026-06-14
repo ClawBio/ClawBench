@@ -72,7 +72,7 @@ _VERDICT_PATTERNS = [
     re.compile(r"(?i)\btier\s*[:=]?\s*(?:[1-5]|[IVX]{1,3})\b"),
     re.compile(r"(?i)\bverdict\b"),
     re.compile(r"(?i)\bthe\s+variant\s+is\s+(likely\s+)?(pathogenic|benign)\b"),
-    re.compile(r"(?i)\breport(?:ed|s)?\s+(?:it|this(?:\s+variant)?)\s+as\s+(lp|lb|vus|pathogenic|benign|likely\s+\w+)\b"),
+    re.compile(r"(?i)\b(?:report(?:ed|ing|s)?|document(?:ed|ing|s)?|list(?:ed|ing|s)?)\s+(?:it|this(?:\s+variant)?|the\s+variant)\s+as\s+(lp|lb|vus|pathogenic|benign|likely\s+\w+)\b"),
     re.compile(r"(?i)should\s+(be\s+)?(output|classified|called?|reported)\b[^.]{0,30}\b(class|tier|pathogenic|benign|vus|lp|lb)\b"),
     re.compile(r"(?i)^\s*(likely\s+pathogenic|pathogenic|likely\s+benign|benign|vus|uncertain\s+significance|lp|lb|p[1-5])\s*\.?\s*$"),
 ]
@@ -85,13 +85,17 @@ _NEG = re.compile(r"(?i)\b(not|no|never|without|cannot|can.?t|don.?t|does\s?n.?t
 
 
 def _fold(s: str) -> str:
-    """NFKC-normalise and drop format/zero-width (Cf) characters so verdict scans cannot
-    be evaded with fullwidth forms, ligatures, circled/superscript digits, roman-numeral
-    codepoints, or zero-width splitters. (Homoglyph confusables are out of scope here; the
-    structured verdict-key channel is closed regardless, and rationale text never reaches
-    the deterministic class.)"""
+    """Drop format/zero-width (Cf) and combining (M*) characters then NFKC-normalise, so the
+    verdict scan cannot be evaded with fullwidth forms, ligatures, circled/superscript digits,
+    roman-numeral codepoints, zero-width splitters, or combining-diacritic obfuscation
+    ('p̈athogenic'). (Homoglyph confusables and double-negation semantics remain residual:
+    the free-text scan is defence-in-depth only. The hard guarantee is architectural, the
+    deterministic combiner takes direction from the vocabulary and strength from the validated
+    structure, never from rationale text, so a smuggled rationale verdict cannot change the class.)"""
     stripped = "".join(ch for ch in s if unicodedata.category(ch) != "Cf")
-    return unicodedata.normalize("NFKC", stripped)
+    decomposed = unicodedata.normalize("NFKD", stripped)
+    no_marks = "".join(ch for ch in decomposed if not unicodedata.category(ch).startswith("M"))
+    return unicodedata.normalize("NFKC", no_marks)
 
 
 def _err(code: str, field: str, message: str) -> dict:
@@ -348,10 +352,11 @@ def _direction_flip(code: str, rationale: str) -> bool:
     opp = "benign" if voc.direction(code) == "pathogenic" else "pathogenic"
     pat = re.compile(rf"(?i)(toward|support\w*|count\w*|treat\w*|use\w*\s+as)\b[^.]{{0,20}}\b{opp}\b")
     for m in pat.finditer(rationale):
-        # a negation just before the trigger ("do not support a pathogenic effect") is a
-        # legitimate benign/pathogenic rationale, not a direction flip.
-        window = rationale[max(0, m.start() - 30):m.start()]
-        if _NEG.search(window):
+        # a negation in the SAME clause before the trigger ("do not support a pathogenic
+        # effect") is legitimate; a negation in a prior clause ("not applicable; supports
+        # benign") does not excuse the flip. Bind negation to the current clause.
+        clause = re.split(r"[.;:]", rationale[:m.start()])[-1]
+        if _NEG.search(clause):
             continue
         return True
     return False

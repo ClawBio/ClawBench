@@ -490,3 +490,31 @@ def test_extreme_nesting_no_recursion_crash():
     r = validate_evidence_json(payload)
     assert isinstance(r, dict) and not r["valid"]
     assert "SCHEMA_STRUCTURE" in codes(r)
+
+
+# ===========================================================================
+# Round 3 hardening (confirmatory re-verification)
+# ===========================================================================
+
+def test_combining_mark_verdict_caught():
+    sub = valid_submission()
+    sub["submitted_evidence_codes"][0]["rationale"] = "the variant is p̈athogenic"  # combining diaeresis
+    reject(sub, "MODEL_SUPPLIED_CLASSIFICATION")
+
+
+def test_fake_negation_in_prior_clause_still_flips():
+    # negation is in a different clause than the trigger -> not an excuse
+    sub = valid_submission()
+    sub["submitted_evidence_codes"][0] = {
+        "code": "PM2", "strength": "moderate", "source_type": "population_frequency", "source_id": "gnomAD",
+        "rationale": "not applicable; supports benign classification", "confidence": 0.7}
+    reject(sub, "DIRECTION_OVERRIDE")
+
+
+def test_broadened_report_verbs_caught():
+    for r in ("report the variant as pathogenic",
+              "recommend reporting this variant as pathogenic",
+              "document it as pathogenic"):
+        sub = valid_submission()
+        sub["submitted_evidence_codes"][0]["rationale"] = r
+        reject(sub, "MODEL_SUPPLIED_CLASSIFICATION")

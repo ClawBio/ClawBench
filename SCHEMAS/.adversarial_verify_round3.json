@@ -1,0 +1,184 @@
+{
+  "summary": "Confirmatory dry-round check on the round-2 fixes to the ClawBench validator",
+  "agentCount": 2,
+  "logs": [],
+  "result": {
+    "results": [
+      {
+        "lens": "Adversarial verification of round-2 fixes to the ClawBench evidence validator (HARNESS/validate_evidence.py + acmg_vocabulary.py): NFKC _fold verdict scan, negation-aware _direction_flip, tightened report-as pattern, RecursionError catch, truth-independent ClinVar derived flag. Every payload run empirically via validate_evidence_json with /opt/homebrew/bin/python3.",
+        "findings": [
+          {
+            "title": "Combining marks (Unicode category Mn) survive NFKC _fold, letting a readable verdict evade the free-text classification scan",
+            "kind": "bypass",
+            "observed_valid": true,
+            "is_problem": true,
+            "severity": "low",
+            "explanation": "_fold() (line 87-94) strips only Cf (format/zero-width) chars then NFKC-normalises. NFKC does NOT remove combining diacritical marks (category Mn). Inserting U+0308 (combining diaeresis) into a verdict word leaves it human-readable but breaks the verdict-pattern regex word match. Empirically confirmed valid=true end-to-end for rationale 'the variant is p̈athogenic', plus 'classified as p̈athogenic', 'report it as p̈athogenic', standalone 'p̈athogenic.', and 'ver̈dict' (each compared against control ASCII forms that ARE blocked as MODEL_SUPPLIED_CLASSIFICATION). The well-folded cases (fullwidth, circled/superscript digits, roman-numeral codepoints, ZWSP/ZWNJ splitters, fi-ligature, bidi RLO/LRI) are all correctly blocked, so the fold mostly works; the gap is specifically Mn marks. Severity is low because this defeats only the defence-in-depth free-text scan: I verified acmg_engine.classify() reads only direction (taken from voc.direction(code) in to_criteria, never from rationale) and strength; the rationale/detail field is written but never read by the combiner, so a smuggled verdict does not change the deterministic 5-tier class or a benchmark score. The structured verdict-key channel with a combining mark is independently rejected (schema additionalProperties + folded-key check).",
+            "suggested_fix": "Strip combining marks in _fold by decomposing and removing them, e.g. normalize NFKD, drop chars whose category startswith 'M', then NFKC: s = ''.join(c for c in unicodedata.normalize('NFKD', stripped) if not unicodedata.category(c).startswith('M')); return unicodedata.normalize('NFKC', s). Re-run the combining-mark suite to confirm 'the variant is p̈athogenic' now folds to 'the variant is pathogenic'."
+          },
+          {
+            "title": "Negation-aware _direction_flip is evaded by a fake/unrelated negation word within 30 chars before the trigger; double negations also pass",
+            "kind": "bypass",
+            "observed_valid": true,
+            "is_problem": true,
+            "severity": "low",
+            "explanation": "_direction_flip (line 345-357) skips a match if _NEG matches anywhere in rationale[m.start()-30:m.start()]. The window is content-blind: any negation token (even unrelated to the trigger clause) suppresses the flag. Empirically confirmed valid=true end-to-end on a PM2 (pathogenic) code whose rationale asserts the benign direction: 'not applicable; supports benign classification', 'lacks pathogenic features; supports benign', 'cannot rule in; supports benign', 'no. evidence here supports benign effect', and 'the data clearly lack nothing and supports benign'. Boundary probe: a fake 'no' suppresses the flip up to gap=28 chars before the trigger and stops working at gap>=29, confirming the 30-char window is the exact mechanism. Double negation ('this is not insufficient to support benign', semantically a genuine benign assertion) is also NOT flagged, since the single in-window 'not' triggers the skip. Genuine flips without a masking negation are still caught, and legitimate 'does not support benign' phrasings are correctly NOT flagged (no false positive there). Severity low for the same reason as the verdict scan: DIRECTION_OVERRIDE guards rationale coherence only; direction in the combiner comes from the vocabulary, so a defeated check does not flip the class.",
+            "suggested_fix": "Bind the negation to the trigger clause rather than a fixed char window: require the negation to be in the same clause (no intervening sentence boundary . ; :) and grammatically attached to the support/toward verb, e.g. anchor _NEG immediately adjacent to the trigger verb, or require no clause separator between the negation and the trigger. Also special-case double negation (a second negation inside the window should re-enable the flag). Add the five confirmed evasion strings as regression tests."
+          },
+          {
+            "title": "Tightened 'report this/it as' pattern misses verdicts where this variant is the clear subject but the verb/subject token differs ('report the variant as', 'reporting this variant as', synonym verbs)",
+            "kind": "bypass",
+            "observed_valid": true,
+            "is_problem": true,
+            "severity": "low",
+            "explanation": "Pattern 7 is report(?:ed|s)?\\s+(?:it|this(?:\\s+variant)?)\\s+as\\s+<verdict>. It requires the subject token to be exactly 'it' or 'this'/'this variant' and the verb to be report/reported/reports. Empirically confirmed valid=true end-to-end for rationales that name THIS variant unambiguously yet evade it: 'report the variant as pathogenic' ('the variant' subject, not it/this), 'recommend reporting this variant as pathogenic' (gerund 'reporting' not matched by report(?:ed|s)?), 'the final report lists this as pathogenic', and 'document it as pathogenic' (uncovered verb). Controls 'report it as pathogenic', 'report this variant as pathogenic', 'should be classified as pathogenic', 'this should be output as pathogenic' are correctly blocked. So the answer to the round-2 question is yes: a real verdict with this variant as clear subject can still be smuggled. Severity low because, as confirmed, rationale text never reaches the deterministic class (classify() ignores detail/rationale); this defeats the covert-channel free-text scan only.",
+            "suggested_fix": "Broaden the subject token to include 'the variant'/'this' determiner forms and broaden the verb to cover the gerund and synonyms: e.g. (?:report(?:ed|ing|s)?|document(?:ed|ing|s)?|list(?:ed|ing|s)?)\\s+(?:it|this(?:\\s+variant)?|the\\s+variant)\\s+as\\s+<verdict>. Keep the existing pattern-2 'classified as' coverage. Add the four confirmed bypass strings as regression tests. Note this remains best-effort defence-in-depth since the channel is not load-bearing for scoring."
+          },
+          {
+            "title": "RecursionError catch in _strict_load is robust: no depth/width crashes and never returns valid:true",
+            "kind": "none",
+            "observed_valid": false,
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Exercised deep nested lists and dicts at 100..500000 levels, wide list (500k elems) and wide dict (200k keys), the C-scanner boundary (n=990..1005), and degenerate scalars (empty, whitespace, null, number, 5MB string). All rejected, all machine-readable; none returned valid:true and nothing raised an uncaught exception. Deep lists at >=50000 confirmed to raise native RecursionError which the catch (line 153-155) converts to SCHEMA_STRUCTURE 'nesting too deep to parse'; deep dicts parse iteratively in this CPython build and are caught by the _max_depth>64 guard producing SCHEMA_STRUCTURE. Lowering sys.setrecursionlimit to 50/100/200/300 still produced clean rejections with no crash. The _max_depth helper is iterative so it cannot itself overflow.",
+            "suggested_fix": "No change needed. Optionally keep the recursion-limit-lowered cases as regression tests to guard against future refactors that reintroduce a recursive parse path."
+          },
+          {
+            "title": "Truth-independent ClinVar derived flag is correct across all four truth sources",
+            "kind": "none",
+            "observed_valid": false,
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Exercised source_evidence_is_truth_label / _derived via the unblinded control mode (clinvar checks disabled so _derived is reached) using codes without an admissible-source-type restriction (PM3). ClinVar-sourced PM3 is flagged truth_derived=True for ALL of truth in {clinvar, clingen_vcep, lovd, hgmd} (the round-2 fix: ClinVar provenance is intrinsically truth-derived regardless of the active truth label, line 367-373). ClinVar-laundered provenance (source_type relabelled 'other', RCV marker in source_id) is also flagged True for hgmd/lovd truth. Family circularity is correctly symmetric: clingen_vcep and lovd sources flag True for truth in {clinvar,clingen_vcep,lovd} and False for hgmd; hgmd source flags True only for hgmd truth (matching TRUTH_CIRCULAR_FAMILIES). Assertion codes PP5/BP6 flag True for every truth source. Non-circular gnomAD PM3 is NOT over-flagged for any truth source. All 20+ permutations matched expectation.",
+            "suggested_fix": "No change needed."
+          }
+        ]
+      },
+      {
+        "lens": "False-positive sweep: 10 fully-legitimate clinvar_blinded ACMG submissions with natural clinical rationales containing trigger-adjacent words (LoF mechanism, different pathogenic missense at codon (PM5), segregates in 6 meioses, not observed in population databases, predicted benign by all tools, mutational hotspot, stop-gain upstream of last exon, negated direction phrasings). Each written to /tmp/pN.json and run empirically through validate_evidence_json (HARNESS/validate_evidence.py + acmg_vocabulary.py). Reporting only what was actually executed.",
+        "findings": [
+          {
+            "title": "Payload 1 (MSH2 stop_gained): PVS1 LoF + PM2 absent-from-population",
+            "kind": "none",
+            "observed_valid": true,
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Ran /tmp/p1.json. Rationale used 'stop-gain upstream of the last exon', 'loss-of-function is the established mechanism', 'not observed in population databases'. Returned valid:true, empty errors, 64-char content_hash, any_source_is_truth_label:false. No false positive.",
+            "suggested_fix": "None."
+          },
+          {
+            "title": "Payload 2 (BRCA2 missense): PM5 'a different pathogenic missense at this same codon', literature-sourced",
+            "kind": "none",
+            "observed_valid": true,
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Ran /tmp/p2.json. PM5 is a CLINVAR_GATED code (blocked only when ClinVar-sourced); here it carried source_type=literature with a PMID and no ClinVar markers. The trigger-adjacent phrase 'a different pathogenic missense' did not trip the verdict or direction-flip patterns. Returned valid:true. No false positive.",
+            "suggested_fix": "None."
+          },
+          {
+            "title": "Payload 3 (ATM missense): PP1 'segregates with disease in 6 meioses' strong upgrade with strength_basis",
+            "kind": "none",
+            "observed_valid": true,
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Ran /tmp/p3.json. PP1 upgraded to strong with a substantive strength_basis (ClinGen SVI segregation points). Returned valid:true. The endorsed-upgrade path correctly accepted the basis. No false positive.",
+            "suggested_fix": "None."
+          },
+          {
+            "title": "Payload 4 (CFTR synonymous): BP4 'predicted benign by all tools' + BP7",
+            "kind": "none",
+            "observed_valid": true,
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Ran /tmp/p4.json. Benign supporting codes with in_silico/computational source_types. The phrase 'predicted benign by all tools' on a benign code did not trip direction-flip (no pathogenic trigger). Returned valid:true. No false positive.",
+            "suggested_fix": "None."
+          },
+          {
+            "title": "Payload 5 (MLH1 missense): PM1 'in a mutational hotspot' + PP3 moderate upgrade with basis",
+            "kind": "none",
+            "observed_valid": true,
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Ran /tmp/p5.json. 'mutational hotspot ... depleted of benign variation' (PM1) and a PP3 moderate upgrade carrying a Pejaver 2022 strength_basis. Returned valid:true. No false positive.",
+            "suggested_fix": "None."
+          },
+          {
+            "title": "Payload 6 (PALB2 frameshift): PVS1 LoF + negated BP4 'do not support a pathogenic effect'",
+            "kind": "none",
+            "observed_valid": true,
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Ran /tmp/p6.json. BP4 (benign) rationale 'do not support a pathogenic splicing effect' uses a pathogenic trigger preceded by negation; _direction_flip negation-window correctly accepted it. Returned valid:true. No false positive.",
+            "suggested_fix": "None."
+          },
+          {
+            "title": "Payload 7 (MUTYH missense): BS1 'too high to support a pathogenic role' + BP4 benign",
+            "kind": "none",
+            "observed_valid": true,
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Ran /tmp/p7.json. BS1 rationale 'too high to support a pathogenic role' is a negated pathogenic trigger on a benign code; accepted. Returned valid:true. No false positive.",
+            "suggested_fix": "None."
+          },
+          {
+            "title": "Payload 8 (TP53 missense): PS3 functional 'loss-of-function readout' + PM1 hotspot",
+            "kind": "none",
+            "observed_valid": true,
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Ran /tmp/p8.json. PS3 functional with PMID, 'loss-of-function readout ... LoF is the established mechanism', PM1 'mutational hotspot'. Returned valid:true. No false positive.",
+            "suggested_fix": "None."
+          },
+          {
+            "title": "Payload 9 (KRAS missense): negated benign triggers on pathogenic codes 'does not support a benign classification' / 'does not point toward a benign effect'",
+            "kind": "none",
+            "observed_valid": true,
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Ran /tmp/p9.json. PM2 and PP3 (pathogenic) rationales both contain benign triggers immediately preceded by negation; the negation-window logic correctly avoided DIRECTION_OVERRIDE. The phrase 'does not support a benign classification' also did not trip the verdict-classification patterns. Returned valid:true. No false positive.",
+            "suggested_fix": "None."
+          },
+          {
+            "title": "Payload 10 (FANCC splice_donor, primary_hgmd_run3 mode): PVS1 downgrade rationale + PP4 moderate upgrade with basis",
+            "kind": "none",
+            "observed_valid": true,
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Ran /tmp/p10.json. Used a primary_<...> mode pattern with clinvar_blinded_status:true and benchmark_truth_source=hgmd; PVS1 downgraded to strong (allowed, no basis needed) and PP4 upgraded to moderate with a ClinGen SVI strength_basis. Returned valid:true. No false positive.",
+            "suggested_fix": "None."
+          }
+        ]
+      }
+    ],
+    "problems": [
+      {
+        "title": "Combining marks (Unicode category Mn) survive NFKC _fold, letting a readable verdict evade the free-text classification scan",
+        "kind": "bypass",
+        "observed_valid": true,
+        "is_problem": true,
+        "severity": "low",
+        "explanation": "_fold() (line 87-94) strips only Cf (format/zero-width) chars then NFKC-normalises. NFKC does NOT remove combining diacritical marks (category Mn). Inserting U+0308 (combining diaeresis) into a verdict word leaves it human-readable but breaks the verdict-pattern regex word match. Empirically confirmed valid=true end-to-end for rationale 'the variant is p̈athogenic', plus 'classified as p̈athogenic', 'report it as p̈athogenic', standalone 'p̈athogenic.', and 'ver̈dict' (each compared against control ASCII forms that ARE blocked as MODEL_SUPPLIED_CLASSIFICATION). The well-folded cases (fullwidth, circled/superscript digits, roman-numeral codepoints, ZWSP/ZWNJ splitters, fi-ligature, bidi RLO/LRI) are all correctly blocked, so the fold mostly works; the gap is specifically Mn marks. Severity is low because this defeats only the defence-in-depth free-text scan: I verified acmg_engine.classify() reads only direction (taken from voc.direction(code) in to_criteria, never from rationale) and strength; the rationale/detail field is written but never read by the combiner, so a smuggled verdict does not change the deterministic 5-tier class or a benchmark score. The structured verdict-key channel with a combining mark is independently rejected (schema additionalProperties + folded-key check).",
+        "suggested_fix": "Strip combining marks in _fold by decomposing and removing them, e.g. normalize NFKD, drop chars whose category startswith 'M', then NFKC: s = ''.join(c for c in unicodedata.normalize('NFKD', stripped) if not unicodedata.category(c).startswith('M')); return unicodedata.normalize('NFKC', s). Re-run the combining-mark suite to confirm 'the variant is p̈athogenic' now folds to 'the variant is pathogenic'."
+      },
+      {
+        "title": "Negation-aware _direction_flip is evaded by a fake/unrelated negation word within 30 chars before the trigger; double negations also pass",
+        "kind": "bypass",
+        "observed_valid": true,
+        "is_problem": true,
+        "severity": "low",
+        "explanation": "_direction_flip (line 345-357) skips a match if _NEG matches anywhere in rationale[m.start()-30:m.start()]. The window is content-blind: any negation token (even unrelated to the trigger clause) suppresses the flag. Empirically confirmed valid=true end-to-end on a PM2 (pathogenic) code whose rationale asserts the benign direction: 'not applicable; supports benign classification', 'lacks pathogenic features; supports benign', 'cannot rule in; supports benign', 'no. evidence here supports benign effect', and 'the data clearly lack nothing and supports benign'. Boundary probe: a fake 'no' suppresses the flip up to gap=28 chars before the trigger and stops working at gap>=29, confirming the 30-char window is the exact mechanism. Double negation ('this is not insufficient to support benign', semantically a genuine benign assertion) is also NOT flagged, since the single in-window 'not' triggers the skip. Genuine flips without a masking negation are still caught, and legitimate 'does not support benign' phrasings are correctly NOT flagged (no false positive there). Severity low for the same reason as the verdict scan: DIRECTION_OVERRIDE guards rationale coherence only; direction in the combiner comes from the vocabulary, so a defeated check does not flip the class.",
+        "suggested_fix": "Bind the negation to the trigger clause rather than a fixed char window: require the negation to be in the same clause (no intervening sentence boundary . ; :) and grammatically attached to the support/toward verb, e.g. anchor _NEG immediately adjacent to the trigger verb, or require no clause separator between the negation and the trigger. Also special-case double negation (a second negation inside the window should re-enable the flag). Add the five confirmed evasion strings as regression tests."
+      },
+      {
+        "title": "Tightened 'report this/it as' pattern misses verdicts where this variant is the clear subject but the verb/subject token differs ('report the variant as', 'reporting this variant as', synonym verbs)",
+        "kind": "bypass",
+        "observed_valid": true,
+        "is_problem": true,
+        "severity": "low",
+        "explanation": "Pattern 7 is report(?:ed|s)?\\s+(?:it|this(?:\\s+variant)?)\\s+as\\s+<verdict>. It requires the subject token to be exactly 'it' or 'this'/'this variant' and the verb to be report/reported/reports. Empirically confirmed valid=true end-to-end for rationales that name THIS variant unambiguously yet evade it: 'report the variant as pathogenic' ('the variant' subject, not it/this), 'recommend reporting this variant as pathogenic' (gerund 'reporting' not matched by report(?:ed|s)?), 'the final report lists this as pathogenic', and 'document it as pathogenic' (uncovered verb). Controls 'report it as pathogenic', 'report this variant as pathogenic', 'should be classified as pathogenic', 'this should be output as pathogenic' are correctly blocked. So the answer to the round-2 question is yes: a real verdict with this variant as clear subject can still be smuggled. Severity low because, as confirmed, rationale text never reaches the deterministic class (classify() ignores detail/rationale); this defeats the covert-channel free-text scan only.",
+        "suggested_fix": "Broaden the subject token to include 'the variant'/'this' determiner forms and broaden the verb to cover the gerund and synonyms: e.g. (?:report(?:ed|ing|s)?|document(?:ed|ing|s)?|list(?:ed|ing|s)?)\\s+(?:it|this(?:\\s+variant)?|the\\s+variant)\\s+as\\s+<verdict>. Keep the existing pattern-2 'classified as' coverage. Add the four confirmed bypass strings as regression tests. Note this remains best-effort defence-in-depth since the channel is not load-bearing for scoring."
+      }
+    ],
+    "problem_count": 3
+  }
+}
