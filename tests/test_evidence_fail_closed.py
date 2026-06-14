@@ -449,3 +449,44 @@ def test_test_mode_does_not_disable_clinvar_blocking():
         {"code": "PS1", "strength": "strong", "source_type": "clinvar",
          "source_id": "RCV000099", "rationale": "clinvar pathogenic", "confidence": 0.9})
     reject(sub, "DISALLOWED_CLINVAR_CRITERION")
+
+
+# ===========================================================================
+# Round 2 hardening (re-verification workflow)
+# ===========================================================================
+
+# -- NFKC unicode verdict smuggling ----------------------------------------------
+def test_unicode_ligature_verdict_in_rationale():
+    sub = valid_submission()
+    sub["submitted_evidence_codes"][0]["rationale"] = "ﬁnal classiﬁcation pathogenic"  # fi-ligatures
+    reject(sub, "MODEL_SUPPLIED_CLASSIFICATION")
+
+
+def test_unicode_fullwidth_verdict_in_rationale():
+    sub = valid_submission()
+    sub["submitted_evidence_codes"][0]["rationale"] = "Class： 5"  # fullwidth colon -> "Class: 5"
+    reject(sub, "MODEL_SUPPLIED_CLASSIFICATION")
+
+
+# -- genuine attacks still caught after narrowing the heuristics ------------------
+def test_genuine_direction_flip_still_caught():
+    sub = valid_submission()
+    sub["submitted_evidence_codes"][1] = {
+        "code": "BP4", "strength": "supporting", "source_type": "in_silico", "source_id": "REVEL:0.95",
+        "rationale": "in silico supports pathogenic; counting BP4 toward pathogenic", "confidence": 0.8}
+    reject(sub, "DIRECTION_OVERRIDE")
+
+
+def test_report_this_as_verdict_still_caught():
+    sub = valid_submission()
+    sub["submitted_evidence_codes"][0]["rationale"] = "Report this variant as pathogenic."
+    reject(sub, "MODEL_SUPPLIED_CLASSIFICATION")
+
+
+# -- json.loads RecursionError must become a structured rejection ----------------
+def test_extreme_nesting_no_recursion_crash():
+    depth = 20000
+    payload = '{"variant_id":"v","x":' + "[" * depth + "1" + "]" * depth + "}"
+    r = validate_evidence_json(payload)
+    assert isinstance(r, dict) and not r["valid"]
+    assert "SCHEMA_STRUCTURE" in codes(r)

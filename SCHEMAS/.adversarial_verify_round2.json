@@ -1,0 +1,276 @@
+{
+  "summary": "Re-attack the patched ClawBench validator, hunt false-positives, find new bypasses introduced by the fixes",
+  "agentCount": 3,
+  "logs": [],
+  "result": {
+    "results": [
+      {
+        "lens": "Re-attack of the PATCHED ClawBench evidence validator (HARNESS/validate_evidence.py + acmg_vocabulary.py + SCHEMAS/acmg_evidence_schema.json). Confirmed all 12 previously-found bypass classes are now CLOSED (each rejected with the expected machine-readable error code), then hunted new smuggling routes: unicode normalisation / homoglyph verdict text, novel ClinVar accession formats, strength upgrades via modulatable codes with plausible-but-empty basis, mode forgery, abstention tricks, and nesting-depth boundaries. Every payload was run empirically through the exact prescribed command (validate_evidence_json on a temp file via /opt/homebrew/bin/python3). Two genuine problems found: (1) a verdict-channel bypass via NFKC-decomposable unicode in free-text fields, and (2) an uncaught RecursionError crash on deeply nested JSON that breaks the stated fail-closed/never-raises guarantee.",
+        "findings": [
+          {
+            "title": "All 12 previously-found bypass classes are CLOSED",
+            "kind": "none",
+            "payload_summary": "Re-ran one or more concrete payloads for each of the 12 known classes: top-level verdict key (classification/acmg_class), verdict text in rationale ('The variant is pathogenic.'), ClinVar source_type, assertion codes PP5/BP6, modulatable strength upgrade without basis (PP3 strong), off-ladder upgrade (PM2 strong), clingen_vcep truth-family leak, direction flip ('use as benign'), confidence 1.5, empty source_id, clinvar_blinded_status=False mode/status mismatch, and abstention-conflicts-with-assertion. All run via the exact prescribed validate_evidence_json command.",
+            "expected": "Each payload rejected with valid:false and the appropriate error_code.",
+            "observed_valid": false,
+            "observed_error_codes": [
+              "MODEL_SUPPLIED_CLASSIFICATION",
+              "SOURCE_CODE_INCOMPATIBLE",
+              "DISALLOWED_CLINVAR_CRITERION",
+              "UNSUPPORTED_STRENGTH_UPGRADE",
+              "TRUTH_LABEL_LEAKAGE",
+              "DIRECTION_OVERRIDE",
+              "CONFIDENCE_OUT_OF_RANGE",
+              "EMPTY_SOURCE_ID",
+              "MODE_STATUS_MISMATCH",
+              "ABSTENTION_CONFLICTS_WITH_ASSERTION",
+              "EMPTY_NONRESPONSE",
+              "INVALID_ACMG_CODE"
+            ],
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Every one of the 12 prior bypass classes now rejects with a machine-readable error code. Creative variants within these classes also held: novel ClinVar accession formats (VCV12345 with no separator, lowercase rcv000999, SCV in rationale, fullwidth digits after VCV) are all caught by the _CLINVAR_MARKER regex and rejected DISALLOWED_CLINVAR_CRITERION; empty/whitespace/zero-width/punctuation-only strength_basis is correctly rejected because has_content() requires an alphanumeric word char (regex [^\\W_]); mode forgery to dev/unknown/primary_* still triggers clinvar checks (fail-closed via NON_BLINDED_MODES allowlist); abstaining on an assertion code (PP5) in blinded mode is blocked; empty evidence + empty abstentions is EMPTY_NONRESPONSE; depths up to ~5000 are caught by the iterative _max_depth guard with SCHEMA_STRUCTURE. The legitimate control-arm payload (clinvar_unblinded_sensitivity with PP5/clinvar) correctly validates true.",
+            "suggested_fix": "No action needed for these classes."
+          },
+          {
+            "title": "Verdict assertion smuggled via NFKC-decomposable unicode in free-text fields",
+            "kind": "bypass",
+            "payload_summary": "rationale fields containing overt verdict assertions encoded with unicode compatibility characters that NFKC-normalise into text the validator itself rejects. Confirmed-accepted (valid:true) via the exact prescribed command: 'Class： 5' (fullwidth colon -> 'Class: 5'); 'ﬁnal classiﬁcation pathogenic' (fi-ligatures -> 'final classification pathogenic'). Additional accepted variants run in-process: 'Tier： ３' -> 'Tier: 3'; 'Class ⑤' -> 'Class 5'; 'Class¹' -> 'Class1'; 'Class Ⅳ' -> 'Class IV'; fullwidth 'The variant is pathogenic'; fraktur '\\U0001d533erdict: pathogenic' -> 'verdict: pathogenic'. All carry into to_criteria().detail verbatim.",
+            "expected": "Reject with MODEL_SUPPLIED_CLASSIFICATION, the same way the plain-ASCII equivalents are rejected by _VERDICT_PATTERNS in the structural scan.",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_problem": true,
+            "severity": "high",
+            "explanation": "_structural_scan matches _VERDICT_PATTERNS against raw codepoints with no unicode normalisation. NFKC-decomposable compatibility characters (fullwidth forms, ligatures U+FB01, circled/superscript digits, roman-numeral codepoints, mathematical fraktur) let an attacker write a covert overall classification that the validator passes but that any consumer, logger, or human reviewer who NFKC-normalises (the near-universal default) reads as a verdict. I verified end-to-end that to_criteria() carries 'ﬁnal classiﬁcation pathogenic' into EvidenceCriterion.detail unchanged, and that NFKC('...detail') == 'final classification pathogenic'. This re-opens the covert-classification channel the hardening round closed for ASCII. Note the validator already catches NBSP between words (regex \\s+ matches it), so it is aware of some unicode whitespace but never folds compatibility characters. Severity high rather than critical because the verdict lands in a free-text field rather than a structured class field, so impact depends on a downstream consumer trusting/normalising the detail string.",
+            "suggested_fix": "Before running _VERDICT_PATTERNS (and ideally before _VERDICT_KEYS comparison), NFKC-normalise every scanned string: in _structural_scan use unicodedata.normalize('NFKC', node) for the str branch, and strip zero-width/format characters (category Cf) first so 'patho​genic' can't split a keyword. Apply the same normalisation to dict keys so a fullwidth/ligature 'classification' key is also caught. Canonicalising stored strings to NFKC on the accepted path would also remove the channel entirely."
+          },
+          {
+            "title": "Uncaught RecursionError on deeply nested JSON breaks the fail-closed guarantee",
+            "kind": "crash",
+            "payload_summary": "Raw JSON with a deeply nested array under an extra key, e.g. {\"variant_id\":\"v\",\"x\":[[[ ... 1 ... ]]]} at ~10000 levels (about 20 KB). Written to /tmp/p.json and run via the exact prescribed validate_evidence_json command.",
+            "expected": "A machine-readable rejection (SCHEMA_STRUCTURE 'nesting exceeds maximum depth') with valid:false, since the module docstring states the entry point is exception-guarded so it can never raise and that strict parse rejects excessive nesting.",
+            "observed_valid": false,
+            "observed_error_codes": [],
+            "is_problem": true,
+            "severity": "medium",
+            "explanation": "The _MAX_DEPTH (64) guard runs AFTER json.loads succeeds, but json.loads uses native recursion and raises RecursionError once nesting exceeds the interpreter limit (crash threshold observed between depth 5000 and 10000; depths up to ~5000 are correctly rejected SCHEMA_STRUCTURE by the iterative _max_depth). RecursionError subclasses RuntimeError, not ValueError, so the 'except ValueError' in _strict_load does not catch it, and validate_evidence_json calls _strict_load with no surrounding try/except (the broad exception guard lives only in validate_evidence, which runs later). Result: the process terminates with an unhandled traceback and exit code 1 instead of returning a rejection dict. Confirmed via the exact prescribed command (exit code 1, full RecursionError traceback). This violates the explicit 'can never raise / fail-closed' contract and turns a malformed adversarial submission into a denial of the validation path. Not an acceptance bypass (it never returns valid:true), hence medium not high.",
+            "suggested_fix": "Either (a) wrap the json.loads call in _strict_load to also catch RecursionError (e.g. 'except (ValueError, RecursionError)') and map it to a SCHEMA_STRUCTURE/PARSE_ERROR rejection, or (b) wrap the _strict_load call inside validate_evidence_json in the same broad try/except used by validate_evidence, or (c) reject on raw text length / bracket-nesting depth before calling json.loads. Option (a)+(c) is most robust."
+          },
+          {
+            "title": "Cyrillic homoglyph verdict text (lower-confidence, related observation)",
+            "kind": "bypass",
+            "payload_summary": "rationale 'The variant is pаthogenic' (Cyrillic a, U+0430) instead of Latin a. Accepted valid:true via the prescribed command.",
+            "expected": "Arguably should be flagged as a covert 'variant is pathogenic' assertion.",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_problem": false,
+            "severity": "low",
+            "explanation": "Unlike the NFKC cases, a Cyrillic homoglyph does NOT fold to Latin under NFKC, so the validator's own patterns would still not match even after normalisation, and a machine consumer would not read it as 'pathogenic' either. The channel only works against a human reading the glyph visually. I am marking is_problem=false because there is no programmatic verdict leakage and the deterministic combiner never sees it as a class; I include it only so the NFKC fix above is not mistaken for a complete homoglyph defence. A confusables/skeleton (UTS-39) mapping would be needed to close visual homoglyphs, but the security impact is marginal compared with the NFKC bypass.",
+            "suggested_fix": "Optional: run a confusables-skeleton transform (or restrict free-text fields to a known script range) in addition to NFKC if visual-homoglyph verdicts are in scope; otherwise accept as out of scope."
+          }
+        ]
+      },
+      {
+        "lens": "false_positive",
+        "findings": [
+          {
+            "title": "_direction_flip flags NEGATED rationales: legitimate benign codes saying 'do not support a pathogenic effect' are rejected as DIRECTION_OVERRIDE",
+            "kind": "false_positive",
+            "payload_summary": "clinvar_blinded submission, code BP4 (benign, in_silico, dbNSFP:4.4), rationale='Multiple in silico predictors do not support a pathogenic effect', plus BS1 high-AF. Written to /tmp/p_bp4.json and run through validate_evidence_json.",
+            "expected": "valid:true. This is a textbook BP4 rationale: in-silico predictors do NOT support pathogenicity, i.e. benign-supporting computational evidence. The word 'pathogenic' appears only inside a negation.",
+            "observed_valid": false,
+            "observed_error_codes": [
+              "DIRECTION_OVERRIDE"
+            ],
+            "is_problem": true,
+            "severity": "high",
+            "explanation": "_direction_flip (validate_evidence.py L324-328) computes opp='pathogenic' for benign codes and matches re `(toward|support\\w*|count\\w*|treat\\w*|use\\w*\\s+as)\\b[^.]{0,20}\\bpathogenic\\b`. It has no negation handling, so 'do not support ... a pathogenic effect' matches 'support'->'pathogenic' and is wrongly read as asserting the pathogenic direction. Confirmed empirically: rationale returns DIRECTION_OVERRIDE on submitted_evidence_codes[0].rationale. The same bug fires for many natural benign rationales: 'does not support a pathogenic role', 'too high to support a pathogenic role' (BS1), 'do not count toward a pathogenic call' (BP4), 'does not support pathogenic' (BP1), and symmetrically for PATHOGENIC codes: PM2 'frequency does not support a benign classification' and PS3 'results do not support a benign interpretation' both return DIRECTION_OVERRIDE (verified, /tmp/p_pm2.json). A careful clinician routinely phrases evidence by negating the opposite direction; this rule punishes correct ACMG reasoning.",
+            "suggested_fix": "Add negation-awareness to _direction_flip: when a trigger->opposite-direction match is found, skip it if a negation token (not, no, n't, never, without, fails to, does/do not, cannot, insufficient, too ... to) appears in the ~25-char window immediately preceding the trigger. In testing this suppressed all the negated benign/pathogenic rationales while still catching genuine flips ('predictors support a pathogenic effect', 'support a benign role', 'count toward benign' all still flagged True). Widen the pre-trigger negation window to also catch 'No evidence to support ...' and 'too high to support ...'. This narrows the rule without reopening the bypass it targets (a benign code whose rationale genuinely argues FOR pathogenicity)."
+          },
+          {
+            "title": "_VERDICT_PATTERNS[7] flags 'reported as pathogenic' about a DIFFERENT/prior variant: legitimate PS1/PM5 literature rationales rejected as MODEL_SUPPLIED_CLASSIFICATION",
+            "kind": "false_positive",
+            "payload_summary": "clinvar_blinded submission, code PS1 (literature, PMID:12345678), rationale='Same amino acid change previously reported as pathogenic in the literature', plus PM2 absent-from-gnomAD. Written to /tmp/p_ps1.json and run through validate_evidence_json.",
+            "expected": "valid:true. PS1 means 'same amino acid change as a PREVIOUSLY ESTABLISHED pathogenic variant'; describing that prior variant as 'reported as pathogenic' is the definitional rationale for the code, not a verdict on the variant under test.",
+            "observed_valid": false,
+            "observed_error_codes": [
+              "MODEL_SUPPLIED_CLASSIFICATION"
+            ],
+            "is_problem": true,
+            "severity": "high",
+            "explanation": "Pattern index 7 is `(?i)\\breport(?:ed|s)?\\s+(?:it\\s+|this\\s+)?as\\s+(lp|lb|vus|pathogenic|benign|likely\\s+\\w+)\\b`. The `(?:it\\s+|this\\s+)?` is optional, so plain '...reported as pathogenic...' matches even when the subject is a different residue/variant. Confirmed: the PS1 payload returns MODEL_SUPPLIED_CLASSIFICATION on submitted_evidence_codes[0].rationale. Same false positive for PM5 'A different missense at this codon was reported as pathogenic (p.Arg175His)' and 'The adjacent residue p.R248 has been reported as pathogenic in multiple families'. PS1 and PM5 are the two codes whose correct rationale necessarily references a prior variant's pathogenic status, so this pattern systematically rejects their legitimate use even when the source is literature (not ClinVar) and thus allowed in blinded mode.",
+            "suggested_fix": "Make the verdict assertion require the subject to be THIS variant rather than a prior/other one. Two complementary narrowings: (1) require the verb subject to be the variant under test, e.g. tighten to `\\breport(?:ed|s)?\\s+(?:it|this(?:\\s+variant)?)\\s+as\\s+(...)` (drop the optional group so a bare 'reported as pathogenic' no longer matches); and/or (2) suppress the match when the clause is governed by a 'prior-variant' context cue within a short preceding window (previously, a different, another, adjacent, same amino acid, at this residue/codon, in the literature). The real bypass (model telling the combiner 'report this as pathogenic' about the submitted variant) still trips the tightened pattern, as verified: 'Report this as pathogenic' and 'report it as likely pathogenic' still match."
+          }
+        ]
+      },
+      {
+        "lens": "Hardened ClawBench validator (HARNESS/validate_evidence.py + acmg_vocabulary.py): probed the total try/except + per-layer guards, the _MAX_DEPTH iterative walkers, the derived source_evidence_is_truth_label, the fail-closed clinvar_checks_enabled, has_content/content, and canonical hashing. All payloads run empirically via /opt/homebrew/bin/python3 against validate_evidence_json / validate_evidence.",
+        "findings": [
+          {
+            "title": "Derived truth-label flag mislabels ClinVar-sourced evidence as clean when benchmark_truth_source='hgmd' (sensitivity arm circularity instrument under-counts)",
+            "kind": "false_positive",
+            "payload_summary": "Valid submission in benchmark_mode='clinvar_unblinded_sensitivity' with one non-assertion code (PS4) whose source_type='clinvar', source_id='VCV0001234', rationale mentions ClinVar, and benchmark_truth_source='hgmd'. File written to /tmp/p.json and run via validate_evidence_json; also reproduced via validate_evidence() across truth in {clinvar,clingen_vcep,lovd,hgmd}.",
+            "expected": "derived.source_evidence_is_truth_label['PS4']=true and any_source_is_truth_label=true, because the item is explicitly ClinVar-sourced. The existing test test_derived_truth_label_flag_true_for_clinvar_evidence_in_control documents the intended contract: 'sensitivity mode permits ClinVar evidence; the derived check still flags it as truth-derived.'",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_problem": true,
+            "severity": "medium",
+            "explanation": "source_evidence_is_truth_label() (validate_evidence.py:332-345) flags ClinVar provenance only when 'clinvar' is in the truth source's circular family: line 341 gates the clinvar branch on `clinvar_sourced and \"clinvar\" in voc.TRUTH_CIRCULAR_FAMILIES.get(truth_source, {truth_source})`. For truth_source='hgmd' the family is {'hgmd'} (acmg_vocabulary.py:77), which excludes clinvar, so the branch is skipped; the code is not in ASSERTION_CODES or CLINVAR_GATED_CODES; and circular_source_family('clinvar',...,'hgmd') returns None because it iterates only the hgmd family and explicitly skips the clinvar member. Result: a literally ClinVar-sourced item returns derived flag False. This surfaces only where the submission actually passes validation, i.e. the clinvar_unblinded_sensitivity arm (clinvar_checks_enabled=False), which is exactly the control arm whose purpose is to MEASURE ClinVar circularity inflation. Run-confirmed side-by-side: truth=clinvar/clingen_vcep/lovd all report PS4_flag=True; truth=hgmd reports PS4_flag=False and any_source_is_truth_label=False, with valid=True in all four. The existing test only exercises PP5 (an ASSERTION_CODE, flagged via a different branch) with truth defaulting to clinvar, so it does not catch this. Not a fail-open of the primary blinded arm (there the leakage error DISALLOWED_CLINVAR_CRITERION still rejects via the truth-independent is_clinvar_sourced path); it is a silent mislabel of the circularity-measurement instrument: a real ClinVar-derived submission in the sensitivity arm is recorded as having zero truth-derived sources, corrupting the very metric the arm exists to compute.",
+            "suggested_fix": "Make ClinVar provenance flag truth-independent in source_evidence_is_truth_label, mirroring how _leakage_errors uses is_clinvar_sourced regardless of truth. Replace the family-gated clinvar branch with: `if voc.is_clinvar_sourced(src_t, src_id, rationale): return True` before the truth-family check. ClinVar provenance is intrinsically truth-derived for any classification truth label, not only when the active truth family contains clinvar. Add a regression test parametrized over all four truth sources (clinvar, clingen_vcep, lovd, hgmd) asserting a ClinVar-sourced non-assertion code is flagged in the sensitivity arm."
+          },
+          {
+            "title": "Total try/except wrapper and per-layer guards fail closed (no silent pass)",
+            "kind": "none",
+            "payload_summary": "Inputs that force exceptions: a dict subclass whose .get() raises RuntimeError; list and None passed to validate_evidence; nested/array/top-level duplicate keys; NaN/Infinity constants; non-object roots; depth-65 nesting.",
+            "expected": "Every error path yields valid:false with a machine-readable error_code; no path returns valid:true with a hidden violation.",
+            "observed_valid": false,
+            "observed_error_codes": [
+              "SCHEMA_STRUCTURE",
+              "PARSE_ERROR",
+              "DUPLICATE_KEY",
+              "NON_SERIALISABLE_VALUE"
+            ],
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Each of the three layers is wrapped so a crash appends a SCHEMA_STRUCTURE error rather than discarding findings; the outer validate_evidence guard converts any residual exception into PARSE_ERROR. Errors accumulate, so any single finding forces valid:false. The .get()-raises object produced 7 SCHEMA_STRUCTURE errors and valid:false. No way found to make a layer crash drop a security finding while still returning valid:true.",
+            "suggested_fix": "None needed."
+          },
+          {
+            "title": "Depth cap and iterative walkers handle off-by-one, wide-but-shallow, and deep payloads without crash",
+            "kind": "none",
+            "payload_summary": "Nested dicts at depths 63/64/65/66 measured by _max_depth; a 20000-element submitted_evidence_codes array run end-to-end through validate_evidence_json.",
+            "expected": "Reject nesting strictly greater than _MAX_DEPTH=64; process wide payloads without recursion crash or pathological slowdown.",
+            "observed_valid": false,
+            "observed_error_codes": [
+              "SCHEMA_STRUCTURE",
+              "DUPLICATE_CODE"
+            ],
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "_max_depth measured 63/64/65/66 for the respective builds; depths <=64 pass the cap, 65+ rejected with SCHEMA_STRUCTURE. The 20000-item wide payload completed in ~0.7s and returned valid:false with 19999 DUPLICATE_CODE errors, no crash or hang. Both _max_depth and _structural_scan are explicit-stack iterative, so adversarial nesting cannot trigger Python recursion limits.",
+            "suggested_fix": "None needed."
+          },
+          {
+            "title": "Fail-closed clinvar_checks_enabled admits no extra mode strings beyond the exact sensitivity control",
+            "kind": "none",
+            "payload_summary": "Mode strings probed: clinvar_unblinded_sensitivity, plus case/whitespace variants (CLINVAR_UNBLINDED_SENSITIVITY, ' clinvar_unblinded_sensitivity', trailing space, Title-case), plus dev/test/empty/primary_x/clinvar_blinded. Also a duplicate-benchmark_mode JSON to attempt last-value override.",
+            "expected": "Only the exact literal 'clinvar_unblinded_sensitivity' disables ClinVar checks; every other string (including unknown) keeps checks enabled; duplicate keys are rejected.",
+            "observed_valid": false,
+            "observed_error_codes": [
+              "DUPLICATE_KEY"
+            ],
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "clinvar_checks_enabled returned False only for the exact 'clinvar_unblinded_sensitivity'; all case/whitespace variants and unknown modes returned True (checks on). The schema enum also constrains benchmark_mode, and a duplicate benchmark_mode (blinded then sensitivity) is rejected with DUPLICATE_KEY before any value-override could take effect. Note: when the harness passes expected_mode, model self-selection of the sensitivity mode is blocked with MODE_STATUS_MISMATCH; the prompt's bare invocation uses expected_mode=None, but that is the documented harness-must-pin-the-mode contract, not a hardening regression, and there is no production caller in the repo (only the harness library and tests).",
+            "suggested_fix": "None needed for the validator. Operationally ensure the harness always calls with expected_mode set."
+          },
+          {
+            "title": "has_content and EMPTY_SOURCE_ID robust to blanks and zero-width chars; accepts single Unicode word chars by design",
+            "kind": "none",
+            "payload_summary": "has_content over '', spaces, '___', '...', '---', '!!!', U+200B, tabs/newlines, and single chars including '0','a','é','µ','½','²','Ⅷ','一'; plus a full submission with source_id='½'.",
+            "expected": "Blank/punctuation/zero-width strings have no content; any alphanumeric word char (incl. Unicode numerics) counts.",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_problem": false,
+            "severity": "low",
+            "explanation": "All blanks ('', spaces, '___', punctuation runs, U+200B, whitespace) correctly returned has_content=False, so EMPTY_SOURCE_ID fires on them. Single Unicode word characters (½, ², Ⅷ, 一, é, µ) return True, so a junk one-char source_id like '½' passes the EMPTY_SOURCE_ID check (full submission validated True). This matches the documented design ('at least one alphanumeric word character') and is a weak-content tradeoff inherent to the regex, not a bypass of any security invariant. The deterministic combiner does not trust source_id content for blinding decisions.",
+            "suggested_fix": "Optional hardening only: require a minimum meaningful length or a checkable-identifier pattern for source_id if junk one-char ids become a scoring concern. Not required."
+          },
+          {
+            "title": "Canonical hash is stable under evidence/abstention reordering and content-sensitive (no collisions found)",
+            "kind": "none",
+            "payload_summary": "Two submissions with identical evidence items in different array order (PP1/PP2/PP4 vs PP4/PP1/PP2), both run through validate_evidence_json; hashes compared.",
+            "expected": "Reordering yields the same content_hash; differing content yields different hashes.",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "_canonical sorts submitted_evidence_codes and abstentions by code and _hash uses json.dumps(sort_keys=True, separators, ensure_ascii, allow_nan=False). Reordered-but-identical submissions produced the same hash (5329a01b...); all serialized fields participate in the hash so distinct content diverges. Duplicate codes (the only way two items could collide under the code-only sort) are independently rejected with DUPLICATE_CODE. No collision or instability observed.",
+            "suggested_fix": "None needed."
+          },
+          {
+            "title": "Verdict free-text scanner has regex blind spots but does not constitute a structural classification bypass",
+            "kind": "none",
+            "payload_summary": "Rationale strings: 'This variant is pathogenic', 'I conclude pathogenic', 'definitely a disease-causing variant', vs flagged 'pathogenic'/'class 5'/'likely pathogenic'/'this should be reported as pathogenic'.",
+            "expected": "Defense-in-depth detection of overt verdict assertions in free text.",
+            "observed_valid": true,
+            "observed_error_codes": [
+              "MODEL_SUPPLIED_CLASSIFICATION"
+            ],
+            "is_problem": false,
+            "severity": "low",
+            "explanation": "Some verdict phrasings slip the _VERDICT_PATTERNS (e.g. 'This variant is pathogenic' needs the literal 'the variant is'; 'I conclude pathogenic' is not matched), while bare 'pathogenic', 'class 5', 'likely pathogenic', and 'reported as pathogenic' are flagged. These are inherent NL-regex gaps. The actual classification channel is closed structurally: verdict-bearing KEYS are forbidden (additionalProperties:false + _VERDICT_KEYS scan) and the deterministic combiner derives the class from codes only, ignoring rationale text. So a verdict word in rationale cannot influence the scored class. Not a real bypass.",
+            "suggested_fix": "Optional: broaden patterns (e.g. '\\bvariant is (likely\\s+)?(pathogenic|benign)\\b' without requiring 'the') if rationale-channel hygiene matters, but it has no effect on the deterministic class."
+          }
+        ]
+      }
+    ],
+    "problems": [
+      {
+        "title": "Verdict assertion smuggled via NFKC-decomposable unicode in free-text fields",
+        "kind": "bypass",
+        "payload_summary": "rationale fields containing overt verdict assertions encoded with unicode compatibility characters that NFKC-normalise into text the validator itself rejects. Confirmed-accepted (valid:true) via the exact prescribed command: 'Class： 5' (fullwidth colon -> 'Class: 5'); 'ﬁnal classiﬁcation pathogenic' (fi-ligatures -> 'final classification pathogenic'). Additional accepted variants run in-process: 'Tier： ３' -> 'Tier: 3'; 'Class ⑤' -> 'Class 5'; 'Class¹' -> 'Class1'; 'Class Ⅳ' -> 'Class IV'; fullwidth 'The variant is pathogenic'; fraktur '\\U0001d533erdict: pathogenic' -> 'verdict: pathogenic'. All carry into to_criteria().detail verbatim.",
+        "expected": "Reject with MODEL_SUPPLIED_CLASSIFICATION, the same way the plain-ASCII equivalents are rejected by _VERDICT_PATTERNS in the structural scan.",
+        "observed_valid": true,
+        "observed_error_codes": [],
+        "is_problem": true,
+        "severity": "high",
+        "explanation": "_structural_scan matches _VERDICT_PATTERNS against raw codepoints with no unicode normalisation. NFKC-decomposable compatibility characters (fullwidth forms, ligatures U+FB01, circled/superscript digits, roman-numeral codepoints, mathematical fraktur) let an attacker write a covert overall classification that the validator passes but that any consumer, logger, or human reviewer who NFKC-normalises (the near-universal default) reads as a verdict. I verified end-to-end that to_criteria() carries 'ﬁnal classiﬁcation pathogenic' into EvidenceCriterion.detail unchanged, and that NFKC('...detail') == 'final classification pathogenic'. This re-opens the covert-classification channel the hardening round closed for ASCII. Note the validator already catches NBSP between words (regex \\s+ matches it), so it is aware of some unicode whitespace but never folds compatibility characters. Severity high rather than critical because the verdict lands in a free-text field rather than a structured class field, so impact depends on a downstream consumer trusting/normalising the detail string.",
+        "suggested_fix": "Before running _VERDICT_PATTERNS (and ideally before _VERDICT_KEYS comparison), NFKC-normalise every scanned string: in _structural_scan use unicodedata.normalize('NFKC', node) for the str branch, and strip zero-width/format characters (category Cf) first so 'patho​genic' can't split a keyword. Apply the same normalisation to dict keys so a fullwidth/ligature 'classification' key is also caught. Canonicalising stored strings to NFKC on the accepted path would also remove the channel entirely."
+      },
+      {
+        "title": "Uncaught RecursionError on deeply nested JSON breaks the fail-closed guarantee",
+        "kind": "crash",
+        "payload_summary": "Raw JSON with a deeply nested array under an extra key, e.g. {\"variant_id\":\"v\",\"x\":[[[ ... 1 ... ]]]} at ~10000 levels (about 20 KB). Written to /tmp/p.json and run via the exact prescribed validate_evidence_json command.",
+        "expected": "A machine-readable rejection (SCHEMA_STRUCTURE 'nesting exceeds maximum depth') with valid:false, since the module docstring states the entry point is exception-guarded so it can never raise and that strict parse rejects excessive nesting.",
+        "observed_valid": false,
+        "observed_error_codes": [],
+        "is_problem": true,
+        "severity": "medium",
+        "explanation": "The _MAX_DEPTH (64) guard runs AFTER json.loads succeeds, but json.loads uses native recursion and raises RecursionError once nesting exceeds the interpreter limit (crash threshold observed between depth 5000 and 10000; depths up to ~5000 are correctly rejected SCHEMA_STRUCTURE by the iterative _max_depth). RecursionError subclasses RuntimeError, not ValueError, so the 'except ValueError' in _strict_load does not catch it, and validate_evidence_json calls _strict_load with no surrounding try/except (the broad exception guard lives only in validate_evidence, which runs later). Result: the process terminates with an unhandled traceback and exit code 1 instead of returning a rejection dict. Confirmed via the exact prescribed command (exit code 1, full RecursionError traceback). This violates the explicit 'can never raise / fail-closed' contract and turns a malformed adversarial submission into a denial of the validation path. Not an acceptance bypass (it never returns valid:true), hence medium not high.",
+        "suggested_fix": "Either (a) wrap the json.loads call in _strict_load to also catch RecursionError (e.g. 'except (ValueError, RecursionError)') and map it to a SCHEMA_STRUCTURE/PARSE_ERROR rejection, or (b) wrap the _strict_load call inside validate_evidence_json in the same broad try/except used by validate_evidence, or (c) reject on raw text length / bracket-nesting depth before calling json.loads. Option (a)+(c) is most robust."
+      },
+      {
+        "title": "_direction_flip flags NEGATED rationales: legitimate benign codes saying 'do not support a pathogenic effect' are rejected as DIRECTION_OVERRIDE",
+        "kind": "false_positive",
+        "payload_summary": "clinvar_blinded submission, code BP4 (benign, in_silico, dbNSFP:4.4), rationale='Multiple in silico predictors do not support a pathogenic effect', plus BS1 high-AF. Written to /tmp/p_bp4.json and run through validate_evidence_json.",
+        "expected": "valid:true. This is a textbook BP4 rationale: in-silico predictors do NOT support pathogenicity, i.e. benign-supporting computational evidence. The word 'pathogenic' appears only inside a negation.",
+        "observed_valid": false,
+        "observed_error_codes": [
+          "DIRECTION_OVERRIDE"
+        ],
+        "is_problem": true,
+        "severity": "high",
+        "explanation": "_direction_flip (validate_evidence.py L324-328) computes opp='pathogenic' for benign codes and matches re `(toward|support\\w*|count\\w*|treat\\w*|use\\w*\\s+as)\\b[^.]{0,20}\\bpathogenic\\b`. It has no negation handling, so 'do not support ... a pathogenic effect' matches 'support'->'pathogenic' and is wrongly read as asserting the pathogenic direction. Confirmed empirically: rationale returns DIRECTION_OVERRIDE on submitted_evidence_codes[0].rationale. The same bug fires for many natural benign rationales: 'does not support a pathogenic role', 'too high to support a pathogenic role' (BS1), 'do not count toward a pathogenic call' (BP4), 'does not support pathogenic' (BP1), and symmetrically for PATHOGENIC codes: PM2 'frequency does not support a benign classification' and PS3 'results do not support a benign interpretation' both return DIRECTION_OVERRIDE (verified, /tmp/p_pm2.json). A careful clinician routinely phrases evidence by negating the opposite direction; this rule punishes correct ACMG reasoning.",
+        "suggested_fix": "Add negation-awareness to _direction_flip: when a trigger->opposite-direction match is found, skip it if a negation token (not, no, n't, never, without, fails to, does/do not, cannot, insufficient, too ... to) appears in the ~25-char window immediately preceding the trigger. In testing this suppressed all the negated benign/pathogenic rationales while still catching genuine flips ('predictors support a pathogenic effect', 'support a benign role', 'count toward benign' all still flagged True). Widen the pre-trigger negation window to also catch 'No evidence to support ...' and 'too high to support ...'. This narrows the rule without reopening the bypass it targets (a benign code whose rationale genuinely argues FOR pathogenicity)."
+      },
+      {
+        "title": "_VERDICT_PATTERNS[7] flags 'reported as pathogenic' about a DIFFERENT/prior variant: legitimate PS1/PM5 literature rationales rejected as MODEL_SUPPLIED_CLASSIFICATION",
+        "kind": "false_positive",
+        "payload_summary": "clinvar_blinded submission, code PS1 (literature, PMID:12345678), rationale='Same amino acid change previously reported as pathogenic in the literature', plus PM2 absent-from-gnomAD. Written to /tmp/p_ps1.json and run through validate_evidence_json.",
+        "expected": "valid:true. PS1 means 'same amino acid change as a PREVIOUSLY ESTABLISHED pathogenic variant'; describing that prior variant as 'reported as pathogenic' is the definitional rationale for the code, not a verdict on the variant under test.",
+        "observed_valid": false,
+        "observed_error_codes": [
+          "MODEL_SUPPLIED_CLASSIFICATION"
+        ],
+        "is_problem": true,
+        "severity": "high",
+        "explanation": "Pattern index 7 is `(?i)\\breport(?:ed|s)?\\s+(?:it\\s+|this\\s+)?as\\s+(lp|lb|vus|pathogenic|benign|likely\\s+\\w+)\\b`. The `(?:it\\s+|this\\s+)?` is optional, so plain '...reported as pathogenic...' matches even when the subject is a different residue/variant. Confirmed: the PS1 payload returns MODEL_SUPPLIED_CLASSIFICATION on submitted_evidence_codes[0].rationale. Same false positive for PM5 'A different missense at this codon was reported as pathogenic (p.Arg175His)' and 'The adjacent residue p.R248 has been reported as pathogenic in multiple families'. PS1 and PM5 are the two codes whose correct rationale necessarily references a prior variant's pathogenic status, so this pattern systematically rejects their legitimate use even when the source is literature (not ClinVar) and thus allowed in blinded mode.",
+        "suggested_fix": "Make the verdict assertion require the subject to be THIS variant rather than a prior/other one. Two complementary narrowings: (1) require the verb subject to be the variant under test, e.g. tighten to `\\breport(?:ed|s)?\\s+(?:it|this(?:\\s+variant)?)\\s+as\\s+(...)` (drop the optional group so a bare 'reported as pathogenic' no longer matches); and/or (2) suppress the match when the clause is governed by a 'prior-variant' context cue within a short preceding window (previously, a different, another, adjacent, same amino acid, at this residue/codon, in the literature). The real bypass (model telling the combiner 'report this as pathogenic' about the submitted variant) still trips the tightened pattern, as verified: 'Report this as pathogenic' and 'report it as likely pathogenic' still match."
+      },
+      {
+        "title": "Derived truth-label flag mislabels ClinVar-sourced evidence as clean when benchmark_truth_source='hgmd' (sensitivity arm circularity instrument under-counts)",
+        "kind": "false_positive",
+        "payload_summary": "Valid submission in benchmark_mode='clinvar_unblinded_sensitivity' with one non-assertion code (PS4) whose source_type='clinvar', source_id='VCV0001234', rationale mentions ClinVar, and benchmark_truth_source='hgmd'. File written to /tmp/p.json and run via validate_evidence_json; also reproduced via validate_evidence() across truth in {clinvar,clingen_vcep,lovd,hgmd}.",
+        "expected": "derived.source_evidence_is_truth_label['PS4']=true and any_source_is_truth_label=true, because the item is explicitly ClinVar-sourced. The existing test test_derived_truth_label_flag_true_for_clinvar_evidence_in_control documents the intended contract: 'sensitivity mode permits ClinVar evidence; the derived check still flags it as truth-derived.'",
+        "observed_valid": true,
+        "observed_error_codes": [],
+        "is_problem": true,
+        "severity": "medium",
+        "explanation": "source_evidence_is_truth_label() (validate_evidence.py:332-345) flags ClinVar provenance only when 'clinvar' is in the truth source's circular family: line 341 gates the clinvar branch on `clinvar_sourced and \"clinvar\" in voc.TRUTH_CIRCULAR_FAMILIES.get(truth_source, {truth_source})`. For truth_source='hgmd' the family is {'hgmd'} (acmg_vocabulary.py:77), which excludes clinvar, so the branch is skipped; the code is not in ASSERTION_CODES or CLINVAR_GATED_CODES; and circular_source_family('clinvar',...,'hgmd') returns None because it iterates only the hgmd family and explicitly skips the clinvar member. Result: a literally ClinVar-sourced item returns derived flag False. This surfaces only where the submission actually passes validation, i.e. the clinvar_unblinded_sensitivity arm (clinvar_checks_enabled=False), which is exactly the control arm whose purpose is to MEASURE ClinVar circularity inflation. Run-confirmed side-by-side: truth=clinvar/clingen_vcep/lovd all report PS4_flag=True; truth=hgmd reports PS4_flag=False and any_source_is_truth_label=False, with valid=True in all four. The existing test only exercises PP5 (an ASSERTION_CODE, flagged via a different branch) with truth defaulting to clinvar, so it does not catch this. Not a fail-open of the primary blinded arm (there the leakage error DISALLOWED_CLINVAR_CRITERION still rejects via the truth-independent is_clinvar_sourced path); it is a silent mislabel of the circularity-measurement instrument: a real ClinVar-derived submission in the sensitivity arm is recorded as having zero truth-derived sources, corrupting the very metric the arm exists to compute.",
+        "suggested_fix": "Make ClinVar provenance flag truth-independent in source_evidence_is_truth_label, mirroring how _leakage_errors uses is_clinvar_sourced regardless of truth. Replace the family-gated clinvar branch with: `if voc.is_clinvar_sourced(src_t, src_id, rationale): return True` before the truth-family check. ClinVar provenance is intrinsically truth-derived for any classification truth label, not only when the active truth family contains clinvar. Add a regression test parametrized over all four truth sources (clinvar, clingen_vcep, lovd, hgmd) asserting a ClinVar-sourced non-assertion code is flagged in the sensitivity arm."
+      }
+    ],
+    "problem_count": 5
+  }
+}

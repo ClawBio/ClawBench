@@ -145,6 +145,50 @@ def test_to_criteria_direction_from_vocab_then_classify():
     assert classify(criteria) == "Pathogenic"
 
 
+def test_negated_benign_rationale_accepted():
+    # "do not support a pathogenic effect" is a legitimate BP4 rationale, not a direction flip
+    sub = valid_submission()
+    sub["submitted_evidence_codes"] = [
+        {"code": "BP4", "strength": "supporting", "source_type": "in_silico", "source_id": "dbNSFP:4.4",
+         "rationale": "Multiple in silico predictors do not support a pathogenic effect", "confidence": 0.7},
+        {"code": "BS1", "strength": "strong", "source_type": "population_frequency", "source_id": "gnomAD:v4.1",
+         "rationale": "Allele frequency is too high to support a pathogenic role", "confidence": 0.8},
+    ]
+    r = validate_evidence(sub)
+    assert r["valid"] is True, r["errors"]
+
+
+def test_negated_pathogenic_rationale_accepted():
+    sub = valid_submission()
+    sub["submitted_evidence_codes"][0] = {
+        "code": "PM2", "strength": "moderate", "source_type": "population_frequency", "source_id": "gnomAD:v4.1",
+        "rationale": "Frequency does not support a benign classification", "confidence": 0.8}
+    r = validate_evidence(sub)
+    assert r["valid"] is True, r["errors"]
+
+
+def test_ps1_prior_variant_rationale_accepted():
+    # PS1's definitional rationale references a PRIOR variant reported pathogenic; not a verdict
+    sub = valid_submission()
+    sub["submitted_evidence_codes"][1] = {
+        "code": "PS1", "strength": "strong", "source_type": "literature", "source_id": "PMID:12345678",
+        "rationale": "Same amino acid change previously reported as pathogenic in the literature", "confidence": 0.9}
+    r = validate_evidence(sub)
+    assert r["valid"] is True, r["errors"]
+
+
+def test_derived_flag_truth_independent_for_clinvar_source():
+    # ClinVar-sourced evidence is truth-derived regardless of the configured truth source (e.g. hgmd)
+    sub = valid_submission(mode="clinvar_unblinded_sensitivity", truth="hgmd")
+    sub["submitted_evidence_codes"].append(
+        {"code": "PS4", "strength": "strong", "source_type": "clinvar", "source_id": "VCV0001234",
+         "rationale": "case-control per ClinVar", "confidence": 0.8})
+    r = validate_evidence(sub)
+    assert r["valid"], r["errors"]
+    assert r["derived"]["source_evidence_is_truth_label"]["PS4"] is True
+    assert r["derived"]["any_source_is_truth_label"] is True
+
+
 def test_derived_truth_label_flag_false_for_clean_submission():
     r = validate_evidence(valid_submission())
     assert r["valid"], r["errors"]

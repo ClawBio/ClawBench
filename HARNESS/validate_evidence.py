@@ -25,6 +25,7 @@ import hashlib
 import json
 import math
 import re
+import unicodedata
 from pathlib import Path
 
 import acmg_vocabulary as voc
@@ -71,10 +72,26 @@ _VERDICT_PATTERNS = [
     re.compile(r"(?i)\btier\s*[:=]?\s*(?:[1-5]|[IVX]{1,3})\b"),
     re.compile(r"(?i)\bverdict\b"),
     re.compile(r"(?i)\bthe\s+variant\s+is\s+(likely\s+)?(pathogenic|benign)\b"),
-    re.compile(r"(?i)\breport(?:ed|s)?\s+(?:it\s+|this\s+)?as\s+(lp|lb|vus|pathogenic|benign|likely\s+\w+)\b"),
+    re.compile(r"(?i)\breport(?:ed|s)?\s+(?:it|this(?:\s+variant)?)\s+as\s+(lp|lb|vus|pathogenic|benign|likely\s+\w+)\b"),
     re.compile(r"(?i)should\s+(be\s+)?(output|classified|called?|reported)\b[^.]{0,30}\b(class|tier|pathogenic|benign|vus|lp|lb)\b"),
     re.compile(r"(?i)^\s*(likely\s+pathogenic|pathogenic|likely\s+benign|benign|vus|uncertain\s+significance|lp|lb|p[1-5])\s*\.?\s*$"),
 ]
+
+
+# Negation cues; a verdict-direction trigger preceded by one of these in a short window
+# is a legitimate "does NOT support the opposite direction" phrasing, not a direction flip.
+_NEG = re.compile(r"(?i)\b(not|no|never|without|cannot|can.?t|don.?t|does\s?n.?t|did\s?n.?t|"
+                  r"fails?\s+to|insufficient|lack\w*|absence|too\s+\w+\s+to|unlikely)\b")
+
+
+def _fold(s: str) -> str:
+    """NFKC-normalise and drop format/zero-width (Cf) characters so verdict scans cannot
+    be evaded with fullwidth forms, ligatures, circled/superscript digits, roman-numeral
+    codepoints, or zero-width splitters. (Homoglyph confusables are out of scope here; the
+    structured verdict-key channel is closed regardless, and rationale text never reaches
+    the deterministic class.)"""
+    stripped = "".join(ch for ch in s if unicodedata.category(ch) != "Cf")
+    return unicodedata.normalize("NFKC", stripped)
 
 
 def _err(code: str, field: str, message: str) -> dict:
@@ -133,6 +150,9 @@ def _strict_load(text: str):
 
     try:
         obj = json.loads(text, object_pairs_hook=pairs_hook, parse_constant=reject_const)
+    except RecursionError:
+        # json's native scanner recurses; very deep nesting raises before our depth guard.
+        return None, [_err("SCHEMA_STRUCTURE", "<root>", "nesting too deep to parse")]
     except ValueError as exc:
         msg = str(exc)
         if "non-finite" in msg:
@@ -163,7 +183,7 @@ def _structural_scan(obj) -> list[dict]:
                                      f"non-string object key {k!r}"))
                     child = path + (str(k),)
                 else:
-                    if k.lower() in _VERDICT_KEYS:
+                    if _fold(k).lower() in _VERDICT_KEYS:
                         errs.append(_err("MODEL_SUPPLIED_CLASSIFICATION", _json_path(path + (k,)),
                                          f"verdict-bearing key '{k}' is forbidden; the combiner owns the class"))
                     child = path + (k,)
@@ -175,7 +195,8 @@ def _structural_scan(obj) -> list[dict]:
             if not math.isfinite(node):
                 errs.append(_err("NON_SERIALISABLE_VALUE", _json_path(path), f"non-finite number {node}"))
         elif isinstance(node, str):
-            if any(p.search(node) for p in _VERDICT_PATTERNS):
+            folded = _fold(node)
+            if any(p.search(node) or p.search(folded) for p in _VERDICT_PATTERNS):
                 errs.append(_err("MODEL_SUPPLIED_CLASSIFICATION", _json_path(path),
                                  "free-text asserts an overall classification; the combiner owns the class"))
     return errs
@@ -325,7 +346,15 @@ def _direction_flip(code: str, rationale: str) -> bool:
     if not rationale:
         return False
     opp = "benign" if voc.direction(code) == "pathogenic" else "pathogenic"
-    return bool(re.search(rf"(?i)(toward|support\w*|count\w*|treat\w*|use\w*\s+as)\b[^.]{{0,20}}\b{opp}\b", rationale))
+    pat = re.compile(rf"(?i)(toward|support\w*|count\w*|treat\w*|use\w*\s+as)\b[^.]{{0,20}}\b{opp}\b")
+    for m in pat.finditer(rationale):
+        # a negation just before the trigger ("do not support a pathogenic effect") is a
+        # legitimate benign/pathogenic rationale, not a direction flip.
+        window = rationale[max(0, m.start() - 30):m.start()]
+        if _NEG.search(window):
+            continue
+        return True
+    return False
 
 
 # ---- derived truth-label check (invariant 10) ----------------------------------
@@ -337,10 +366,9 @@ def source_evidence_is_truth_label(item: dict, truth_source: str) -> bool:
     rationale = _as_str(item.get("rationale"))
     if code in voc.ASSERTION_CODES:
         return True
-    clinvar_sourced = voc.is_clinvar_sourced(src_t, src_id, rationale)
-    if clinvar_sourced and "clinvar" in voc.TRUTH_CIRCULAR_FAMILIES.get(truth_source, {truth_source}):
-        return True
-    if code in voc.CLINVAR_GATED_CODES and clinvar_sourced:
+    # ClinVar provenance is intrinsically truth-derived for any classification truth label,
+    # not only when the active truth family contains ClinVar.
+    if voc.is_clinvar_sourced(src_t, src_id, rationale):
         return True
     return bool(voc.circular_source_family(src_t, src_id, rationale, truth_source))
 
