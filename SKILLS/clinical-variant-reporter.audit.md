@@ -24,7 +24,14 @@ No combiner replacement is needed. We pin and treat `classify()` as the unit und
 
 ## Findings that gate Exp 1 validity (do not change PASS, but must be handled before the headline run)
 
-### F1 (critical) ClinVar circularity / label leakage
+### F1 (critical) ClinVar circularity / label leakage — RESOLVED 2026-06-14
+Resolved by `HARNESS/blinding.py` (TDD, 7 tests). Two modes: `clinvar_blinded` (primary; nulls
+clinvar_significance, disables PS1/PP5/BP6, records `blinded_criteria_removed=[PS1,PP5,BP6]`,
+`clinvar_used_as_evidence=false`) and `clinvar_unblinded_sensitivity` (control). Skill left pristine; blinding
+is harness-side. Sensitivity demonstration (`HARNESS/demo_blinding_sensitivity.py`): 7/20 (35%) demo variants
+change class when ClinVar evidence is blinded, quantifying the circularity inflation. Original finding below.
+
+
 PS1, PP5 (pathogenic) and BP6 (benign) read `clinvar_significance` directly as input. If Exp 1 ground truth is
 the ClinVar classification, the skill is partly reading the answer key, so the skill-execution arm will look
 artificially perfect and a reviewer will reject it. PP5/BP6 are also deprecated by ClinGen SVI (2018) for this
