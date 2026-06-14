@@ -1,0 +1,24 @@
+# Per-model training cutoffs for the held-out ClinVar slice (temporal memorisation control).
+#
+# The held-out slice admits a variant only if its CURRENT classification first became available
+# AFTER effective_cutoff = max(model cutoffs) + safety_margin_days. So the slice is blinded to
+# EVERY benchmarked model. ALL dates below are ESTIMATES and MUST be confirmed against each
+# model's published model card before any headline run; the validity of Exp 1 depends on them.
+# Strict ISO YYYY-MM-DD only (the builder fails closed on any non-strict date).
+#
+# The safety margin absorbs cutoff uncertainty and the lag between a model's stated cutoff and
+# the freshest data it may have seen. Increase it if cutoffs are poorly documented.
+
+min_review_stars: 2          # 2-star+ / expert-panel labels only (reviewer-grade truth)
+safety_margin_days: 180
+
+models:
+  claude-opus-4:      {cutoff: "2025-03-01", source: "model card (CONFIRM)", confidence: estimated}
+  claude-sonnet-4:    {cutoff: "2025-03-01", source: "model card (CONFIRM)", confidence: estimated}
+  gpt-5.2:            {cutoff: "2025-06-01", source: "model card (CONFIRM)", confidence: estimated}
+  gpt-4.1:            {cutoff: "2024-06-01", source: "model card (CONFIRM)", confidence: estimated}
+  o3:                 {cutoff: "2024-12-01", source: "model card (CONFIRM)", confidence: estimated}
+  o4-mini:            {cutoff: "2024-12-01", source: "model card (CONFIRM)", confidence: estimated}
+  gemini-2.5-flash:   {cutoff: "2025-01-01", source: "model card (CONFIRM)", confidence: estimated}
+  deepseek-v3:        {cutoff: "2024-07-01", source: "model card (CONFIRM)", confidence: estimated}
+  mistral-large-2:    {cutoff: "2024-07-01", source: "model card (CONFIRM)", confidence: estimated}
