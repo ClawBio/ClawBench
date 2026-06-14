@@ -13,8 +13,12 @@ not read the label) is enforced by HARNESS/validate_evidence.py, which blocks Cl
 evidence in primary mode. Here the label is segregated into a `truth` block flagged as a
 scoring artefact, never placed in the genomic context the model sees.
 
-Inputs are normalised ClinVar records (one per variant; produced upstream from variant_summary
-which carries DateLastEvaluated / ReviewStatus / ClinicalSignificance / Submitter / history).
+Inputs are normalised ClinVar records (one per variant). `date_last_evaluated` is metadata only
+and is NEVER used for admission (it is the LAST re-evaluation date, not first-available). Admission
+requires provable first-availability of the CURRENT label, from EITHER dated `history` entries
+matching the current label, OR a `date_created` (first-in-ClinVar) that itself postdates the cutoff.
+A record with neither is excluded (fail closed). variant_summary.txt lacks per-variant history, so
+the upstream normaliser must supply `date_created` and/or history from submission_summary / VCV XML.
 No side effects at import time.
 """
 from __future__ import annotations
@@ -84,11 +88,17 @@ def effective_cutoff(cutoffs: dict, safety_margin_days: int = 0) -> dt.date:
     return max(dates) + dt.timedelta(days=safety_margin_days)
 
 
-def _label_first_available(rec: dict, current: str):
-    """Earliest date the CURRENT label appeared. Returns a date, None (no date), or
-    'AMBIGUOUS' (a matching history entry has an unparseable date -> fail closed)."""
+def _label_first_available(rec: dict, current: str, cutoff: dt.date):
+    """Earliest provable date the CURRENT label became available. Returns a date, None
+    (cannot establish -> exclude), or 'AMBIGUOUS' (a matching history date is unparseable).
+
+    Never falls back to date_last_evaluated (that is the LAST re-evaluation date). If there is
+    no dated history matching the current label, the variant is admissible only if it is a
+    genuinely new variant: date_created present and strictly after the cutoff."""
     matched = []
     for h in rec.get("history", []) or []:
+        if not isinstance(h, dict):
+            raise TypeError("history item is not an object")
         if normalise_clnsig(h.get("clnsig")) == current:
             d = parse_date(h.get("date"))
             if d is None:
@@ -96,7 +106,19 @@ def _label_first_available(rec: dict, current: str):
             matched.append(d)
     if matched:
         return min(matched)
-    return parse_date(rec.get("date_last_evaluated"))
+    # no usable history for the current label: only admit if the whole variant is new post-cutoff
+    dc = parse_date(rec.get("date_created"))
+    if dc is not None and dc > cutoff:
+        return dc
+    return None
+
+
+def _canon_lists(rec: dict):
+    """Stable order for list-valued provenance so the manifest + hash are reproducible."""
+    submitters = sorted(str(s) for s in (rec.get("submitters") or []))
+    history = sorted((rec.get("history") or []),
+                     key=lambda h: (str(h.get("date", "")), str(h.get("clnsig", ""))))
+    return submitters, history
 
 
 def _reclassification(rec: dict, current: str):
@@ -122,59 +144,81 @@ def _entry_hash(entry: dict) -> str:
     return hashlib.sha256(blob.encode()).hexdigest()
 
 
+_REQUIRED_KEYS = ("variant_id", "chrom", "pos", "ref", "alt", "build")
+
+
 def build_slice(records: list[dict], cutoffs: dict, min_stars: int = 2,
                 safety_margin_days: int = 0, build_date: str = "unspecified",
                 strict: bool = False) -> dict:
+    if not isinstance(records, list):
+        raise ValueError("records must be a list")
     cutoff = effective_cutoff(cutoffs, safety_margin_days)
     excluded = {"pre_cutoff": 0, "below_min_stars": 0, "unusable_label": 0,
-                "missing_or_ambiguous_date": 0}
+                "missing_or_ambiguous_date": 0, "malformed": 0}
     variants: list[dict] = []
     reclassified_n = 0
 
     for rec in records:
-        current = normalise_clnsig(rec.get("clnsig"))
-        if current is None:
-            excluded["unusable_label"] += 1
-            continue
-        stars = rec.get("review_stars", 0)
-        if not isinstance(stars, int) or stars < min_stars:
-            excluded["below_min_stars"] += 1
-            continue
-        first = _label_first_available(rec, current)
-        if first is None or first == "AMBIGUOUS":
-            excluded["missing_or_ambiguous_date"] += 1
-            if strict and first == "AMBIGUOUS":
-                raise ValueError(f"ambiguous history date for {rec.get('variant_id')}")
-            continue
-        if first <= cutoff:
-            excluded["pre_cutoff"] += 1
-            continue
+        try:
+            if not isinstance(rec, dict):
+                raise TypeError("record is not an object")
+            current = normalise_clnsig(rec.get("clnsig"))
+            if current is None:
+                excluded["unusable_label"] += 1
+                continue
+            stars = rec.get("review_stars", 0)
+            if isinstance(stars, bool) or not isinstance(stars, int) or stars < min_stars:
+                excluded["below_min_stars"] += 1
+                continue
+            first = _label_first_available(rec, current, cutoff)
+            if first is None or first == "AMBIGUOUS":
+                excluded["missing_or_ambiguous_date"] += 1
+                if strict and first == "AMBIGUOUS":
+                    raise ValueError(f"ambiguous history date for {rec.get('variant_id')}")
+                continue
+            if first <= cutoff:
+                excluded["pre_cutoff"] += 1
+                continue
+            for k in _REQUIRED_KEYS:
+                if k not in rec:
+                    raise KeyError(f"missing required field {k!r}")
 
-        reclassified, from_c, to_c = _reclassification(rec, current)
-        if reclassified:
-            reclassified_n += 1
-        entry = {
-            "variant_id": rec["variant_id"],
-            "genomic_context": {
-                "chrom": rec["chrom"], "pos": rec["pos"], "ref": rec["ref"],
-                "alt": rec["alt"], "build": rec["build"], "gene": rec.get("gene", ""),
-            },
-            "truth": {
-                "clnsig": current,
-                "review_stars": stars,
-                "date_last_evaluated": rec.get("date_last_evaluated"),
-                "label_first_available": first.isoformat(),
-                "submitters": rec.get("submitters", []),
-                "history": rec.get("history", []),
-            },
-            "reclassified": reclassified,
-            "from_class": from_c,
-            "to_class": to_c,
-        }
-        entry["entry_hash"] = _entry_hash(entry)
-        variants.append(entry)
+            submitters, history = _canon_lists(rec)
+            reclassified, from_c, to_c = _reclassification(rec, current)
+            if reclassified:
+                reclassified_n += 1
+            entry = {
+                "variant_id": rec["variant_id"],
+                "genomic_context": {
+                    "chrom": rec["chrom"], "pos": rec["pos"], "ref": rec["ref"],
+                    "alt": rec["alt"], "build": rec["build"], "gene": rec.get("gene", ""),
+                },
+                "truth": {
+                    "clnsig": current,
+                    "review_stars": stars,
+                    "date_created": rec.get("date_created"),
+                    "date_last_evaluated": rec.get("date_last_evaluated"),
+                    "label_first_available": first.isoformat(),
+                    "submitters": submitters,
+                    "history": history,
+                },
+                "reclassified": reclassified,
+                "from_class": from_c,
+                "to_class": to_c,
+            }
+            entry["entry_hash"] = _entry_hash(entry)
+            variants.append(entry)
+        except Exception:
+            excluded["malformed"] += 1
+            if strict:
+                raise
 
-    variants.sort(key=lambda v: v["variant_id"])
+    ids = [v["variant_id"] for v in variants]
+    if len(ids) != len(set(ids)):
+        dupes = sorted({i for i in ids if ids.count(i) > 1})
+        raise ValueError(f"duplicate variant_id(s) in held-out slice (integrity error): {dupes}")
+
+    variants.sort(key=lambda v: (v["variant_id"], v["entry_hash"]))
     content_hash = hashlib.sha256(
         json.dumps([v["entry_hash"] for v in variants], sort_keys=True).encode()).hexdigest()
 

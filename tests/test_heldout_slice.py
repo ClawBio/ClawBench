@@ -15,13 +15,20 @@ import build_heldout_clinvar_slice as B
 CUTOFFS = {"model_a": "2024-01-01", "model_b": "2024-06-01"}
 
 
-def rec(vid, clnsig, stars, date, history=None, gene="BRCA1"):
-    return {
+def rec(vid, clnsig, stars, date, history="AUTO", gene="BRCA1", date_created=None):
+    # By default model a variant whose label first appeared on `date` (single dated assertion),
+    # so first-availability is provable from history. Pass history=[] for the no-provenance case.
+    if history == "AUTO":
+        history = [{"date": date, "clnsig": clnsig}] if date else []
+    r = {
         "variant_id": vid, "chrom": "17", "pos": 43045712, "ref": "C", "alt": "T",
         "build": "GRCh38", "gene": gene,
         "clnsig": clnsig, "review_stars": stars, "date_last_evaluated": date,
-        "submitters": ["LabX"], "history": history or [],
+        "submitters": ["LabX"], "history": history,
     }
+    if date_created is not None:
+        r["date_created"] = date_created
+    return r
 
 
 # ---- cutoff + date primitives --------------------------------------------------
@@ -157,3 +164,63 @@ def test_counts_total_accounting():
     assert c["held_out"] == 1
     excluded_total = sum(c["excluded"].values())
     assert c["held_out"] + excluded_total == c["candidates"]
+
+
+# ---- CRITICAL: never trust date_last_evaluated; require provable first-availability ---------
+def test_empty_history_no_provenance_excluded():
+    # post-cutoff date_last_evaluated but no history and no date_created -> NOT admissible
+    m = _build([rec("NOHIST", "Pathogenic", 3, "2026-01-01", history=[])])
+    assert m["counts"]["held_out"] == 0
+    assert m["counts"]["excluded"]["missing_or_ambiguous_date"] == 1
+
+
+def test_existed_before_cutoff_via_date_created_excluded():
+    # variant created pre-cutoff (memorisable) even though re-evaluated post-cutoff
+    m = _build([rec("OLD", "Pathogenic", 3, "2026-01-01", history=[], date_created="2023-01-01")])
+    assert m["counts"]["held_out"] == 0
+    assert m["counts"]["excluded"]["pre_cutoff"] + m["counts"]["excluded"]["missing_or_ambiguous_date"] == 1
+
+
+def test_new_variant_via_date_created_admitted():
+    # genuinely new variant: first-in-ClinVar after cutoff, even with empty history
+    m = _build([rec("NEW", "Pathogenic", 3, "2026-01-01", history=[], date_created="2026-01-05")])
+    assert m["counts"]["held_out"] == 1
+    v = m["variants"][0]
+    assert v["truth"]["label_first_available"] == "2026-01-05"
+    assert v["reclassified"] is False
+
+
+# ---- determinism / integrity ---------------------------------------------------
+def test_hash_invariant_to_list_order():
+    r1 = rec("V", "Pathogenic", 3, "2025-01-01",
+             history=[{"date": "2024-12-01", "clnsig": "Uncertain significance"},
+                      {"date": "2025-01-01", "clnsig": "Pathogenic"}])
+    r1["submitters"] = ["A", "B"]
+    r2 = rec("V", "Pathogenic", 3, "2025-01-01",
+             history=list(reversed(r1["history"])))
+    r2["submitters"] = ["B", "A"]
+    assert _build([r1])["content_hash"] == _build([r2])["content_hash"]
+
+
+def test_duplicate_variant_id_raises():
+    import pytest
+    a = rec("DUP", "Pathogenic", 3, "2025-01-01")
+    b = rec("DUP", "Benign", 3, "2025-02-01")
+    with pytest.raises(ValueError):
+        _build([a, b])
+
+
+def test_malformed_record_excluded_not_crashed():
+    good = rec("OK", "Pathogenic", 3, "2025-01-01")
+    bad = rec("BAD", "Pathogenic", 3, "2025-01-01")
+    del bad["chrom"]  # passes filters then fails on required genomic key
+    m = _build([good, bad])
+    assert m["counts"]["held_out"] == 1
+    assert m["counts"]["excluded"]["malformed"] == 1
+    assert m["counts"]["held_out"] + sum(m["counts"]["excluded"].values()) == m["counts"]["candidates"]
+
+
+def test_records_not_a_list_raises():
+    import pytest
+    with pytest.raises(ValueError):
+        B.build_slice(None, CUTOFFS, safety_margin_days=0)

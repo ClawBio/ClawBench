@@ -1,0 +1,158 @@
+{
+  "summary": "Adversarially verify the held-out ClinVar slice builder: hunt false-admission of memorizable variants + date/fail-closed bypasses",
+  "agentCount": 2,
+  "logs": [],
+  "result": {
+    "results": [
+      {
+        "lens": "false_admission — can a variant the model could have memorised during pretraining slip INTO the held-out ClinVar slice? Invariant: admit only if CURRENT classification first became available strictly AFTER effective_cutoff = max(model cutoffs)+safety_margin (=2025-11-28 for the shipped config), at >= min_review_stars, with an unambiguous parseable date.",
+        "findings": [
+          {
+            "title": "Empty/absent history falls back to date_last_evaluated, which is LAST-evaluated not FIRST-available -> memorisable pre-cutoff variants admitted",
+            "kind": "false_admission",
+            "is_problem": true,
+            "severity": "critical",
+            "explanation": "RAN EMPIRICALLY. In _label_first_available (lines 87-99), when rec['history'] is empty or absent, the function returns parse_date(rec.get('date_last_evaluated')). That value is then compared against the cutoff at line 149. But ClinVar's DateLastEvaluated is the date the assertion was LAST (re-)evaluated, NOT the date the label first became public. A variant submitted Pathogenic in 2018 and re-reviewed (still Pathogenic) on 2025-12-15, with no per-variant classification history in the normalised record, has date_last_evaluated=2025-12-15 and history=[]. Under the SHIPPED config (effective_cutoff 2025-11-28, margin 180d), I ran build_slice and it was ADMITTED (held_out=1, no exclusion). I confirmed it both with a toy cutoff {'m':'2025-01-01'} (variant_id NOHIST and NOKEY, history empty list and history key entirely absent -> both held_out=1) and with the real model_cutoffs.yaml (BRCA1-style record, dle 2025-12-15 -> held_out=1, excluded all zero). This variant's Pathogenic label was public for ~7 years and is fully memorisable, yet it enters the blinded slice. This is the asymmetric-risk failure: a single such admission breaks Exp 1 validity. Exploitability is high, not contrived: ClinVar variant_summary.txt does NOT contain per-variant classification-change history (that lives in submission_summary.txt / VCV XML), so normalised records will very commonly have empty history with only a date_last_evaluated. The repo's upstream normaliser is not present (ingest_truth.py is only a download/checksum harness), so the lines 16-17 promise that records 'carry history' is unverified and likely false for the common path. The committed heldout_manifest.json happens to have 0 empty-history admissions (only 2 variants), and the test suite (tests/test_heldout_slice.py) has NO test for the empty-history fallback path -- test_label_existed_before_cutoff_excluded and test_history_and_dates_preserved both supply non-empty history, so this path is entirely uncovered.",
+            "suggested_fix": "Do not trust date_last_evaluated as a proxy for first-available when history is empty. Fail closed on empty/insufficient history. Concretely in _label_first_available: if rec.get('history') is empty/absent, return a sentinel (e.g. 'AMBIGUOUS' or None) so the variant is excluded into missing_or_ambiguous_date, rather than returning parse_date(date_last_evaluated). Admission should require an actual dated history assertion matching the current label whose earliest occurrence is strictly after the cutoff AND require that the FULL history (every dated assertion of any tier) begins after the cutoff (i.e. the variant did not exist in ClinVar at all pre-cutoff). Add a 'date_of_creation' / first-submission field to the normalised schema and require min(all history dates, date_created) > cutoff. Add a red test: empty history + post-cutoff date_last_evaluated MUST be excluded. Also audit the upstream normaliser to confirm whether it can populate per-variant history at all; if it cannot, the entire slice must be rebuilt from submission_summary/VCV-XML where first-evaluation dates exist."
+          },
+          {
+            "title": "History oscillation (VUS->P->VUS->P) and same-label pre+post dates correctly take EARLIEST matching date",
+            "kind": "none",
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "RAN EMPIRICALLY. Attack 1: current=Pathogenic with history [VUS 2024-01-01, P 2024-06-01 (pre-cutoff), VUS 2025-03-01, P 2025-09-01 (post-cutoff)]. _label_first_available returned 2024-06-01 (min of matching P dates), and build_slice excluded it as pre_cutoff (held_out=0). Attack 1b: same label P with dle=2025-09-01 (post) but a matching history P at 2024-06-01 (pre) -> first_available=2024-06-01, excluded pre_cutoff. The min(matched) at line 98 correctly defeats history-oscillation re-affirmation when history IS present. (The gap is only when history is ABSENT -- see the critical finding.)",
+            "suggested_fix": "No change needed for the history-present path. Keep the min(matched) logic."
+          },
+          {
+            "title": "Boundary date exactly ON the cutoff is correctly excluded (strictly after enforced)",
+            "kind": "none",
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "RAN EMPIRICALLY. With cutoff exactly 2025-01-01 (margin 0): a variant dated 2025-01-01 (ON) was excluded as pre_cutoff; a variant dated 2025-01-02 (AFTER) was admitted. A history entry matching the current label dated exactly 2025-01-01 also excluded (HIST_ON held_out=0). Line 149 'if first <= cutoff: pre_cutoff' correctly implements strictly-after.",
+            "suggested_fix": "No change needed."
+          },
+          {
+            "title": "Star inflation via non-int types is rejected",
+            "kind": "none",
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "RAN EMPIRICALLY. review_stars of 3.0 (float), '3' (str), None, and 1 (int<min) were all excluded as below_min_stars. bool True is technically an int subclass but True<2 so it is also rejected. Only genuine int >= min_stars (default 2 from yaml) passes (line 140: isinstance(stars,int) and stars>=min_stars). No bypass found.",
+            "suggested_fix": "No change needed."
+          },
+          {
+            "title": "clnsig spoofing to a usable label is blocked by strict 5-tier whitelist",
+            "kind": "none",
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "RAN EMPIRICALLY. normalise_clnsig whitelists only pathogenic/likely pathogenic/uncertain significance/likely benign/benign (case- and whitespace-folded). Slash-combos ('Pathogenic/Likely pathogenic'), 'Conflicting interpretations of pathogenicity', 'drug response', 'risk factor', 'not provided', 'association' all map to None and are excluded as unusable_label (held_out=0). Case/whitespace canonicalization of genuine labels is intentional and correct, not a vuln.",
+            "suggested_fix": "No change needed."
+          },
+          {
+            "title": "Ambiguous (unparseable) history date for the current label correctly fails closed",
+            "kind": "none",
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Verified by reading + the empirical pattern: in _label_first_available (lines 92-95), if any history entry matching the current label has an unparseable date, the function returns 'AMBIGUOUS', and build_slice (lines 144-148) excludes it as missing_or_ambiguous_date (and raises under --strict). This is correct fail-closed behaviour for ambiguous dates. Note this defence only triggers for matching-label entries; combined with the critical finding, a record with one unparseable NON-matching history entry but empty matching-label history still falls through to date_last_evaluated.",
+            "suggested_fix": "No change needed for this path, but folding it into the empty-history fix (fail closed whenever first-available cannot be established from dated history) closes the residual."
+          }
+        ]
+      },
+      {
+        "lens": "FAIL-CLOSED gaps, date handling, accounting, and determinism in ClawBench held-out ClinVar slice builder (/Users/manuelcorpas1/dev/CLAWBENCH/HARNESS/build_heldout_clinvar_slice.py)",
+        "findings": [
+          {
+            "title": "content_hash is non-deterministic under reordering of history/submitters in source records",
+            "kind": "determinism",
+            "is_problem": true,
+            "severity": "high",
+            "explanation": "Empirically confirmed. truth.history and truth.submitters are copied verbatim from the input record (lines 167-168: rec.get('submitters', []) and rec.get('history', [])). entry_hash (line 121, json.dumps with sort_keys=True) sorts dict KEYS but does NOT reorder LIST elements, so the order of items in history[] and submitters[] flows straight into the hash. I ran the same logical variant with history items reversed and with submitters reversed: content_hash differed in both cases (False/False). Since ClinVar history/submitter ordering upstream is not guaranteed stable across variant_summary regenerations, the manifest's 'immutable' + content_hash provenance guarantee can break for byte-identical scientific content. The slice claims immutable:True and uses content_hash as the integrity anchor, so this directly undermines the stated immutability/reproducibility property.",
+            "suggested_fix": "Before hashing, canonicalise list-valued truth fields into a stable order: sort submitters lexicographically and sort history by a stable key (e.g. (date, clnsig, submitter)). Do this in a helper used both for the stored entry and for _entry_hash, so the persisted manifest and the hash agree. Alternatively hash a normalised projection of truth rather than the raw verbatim lists."
+          },
+          {
+            "title": "Duplicate variant_id records are admitted without dedup, and content_hash depends on input order for tied ids",
+            "kind": "determinism",
+            "is_problem": true,
+            "severity": "medium",
+            "explanation": "Confirmed empirically. Two distinct records sharing variant_id='DUP' (different alt) both enter the slice (held_out=2). The final sort variants.sort(key=lambda v: v['variant_id']) (line 177) is keyed ONLY on variant_id, so ties are resolved by Python's stable sort = original input order. I fed the two dup-id records in both orders ([a,b] vs [b,a]); content_hash differed (False). So two runs over the same set of records in a different file order produce different content_hash. There is also no uniqueness invariant: a benchmark slice with two rows claiming the same variant_id with different truth is silently allowed. variant_id is meant to be the primary key of a held-out scoring set.",
+            "suggested_fix": "Make the final sort total and id-stable: sort by (variant_id, entry_hash) (or the full genomic_context tuple). Additionally, detect duplicate variant_ids and either reject (raise, fail closed) or de-duplicate deterministically, since two distinct truths for one key is a benchmark integrity error, not a normal input."
+          },
+          {
+            "title": "build_slice crashes (KeyError/AttributeError/TypeError) on malformed records instead of failing closed into an excluded bucket",
+            "kind": "crash",
+            "is_problem": true,
+            "severity": "medium",
+            "explanation": "Confirmed empirically across many inputs. (a) After a record passes the label/stars/date/cutoff filters, the entry is built with direct subscripting rec['variant_id'], rec['chrom'], rec['pos'], rec['ref'], rec['alt'], rec['build'] (lines 157-160). Any missing one of these keys raises KeyError mid-build and aborts the WHOLE slice (missing variant_id/chrom/pos/ref/build all crashed). (b) Non-dict records crash early: rec=None/list/str -> AttributeError on .get. records=None at top -> TypeError. (c) Malformed history is fragile: history as a dict iterates its keys (str) -> AttributeError; history as a str iterates chars -> AttributeError; history as int -> 'int object is not iterable' TypeError; a None/non-dict ITEM inside history -> AttributeError at h.get (line 92/107). One bad record anywhere in the input therefore takes down the entire build with an opaerror rather than being counted and skipped. This is a fail-closed-completeness gap: the module's docstring promise is that excluded variants are 'accounted for, never silently admitted', but a malformed record produces neither admission nor an accounted exclusion; it crashes. Mitigating factor: records that fail BEFORE the genomic-context access (unusable label, low stars) are excluded safely even if chrom is missing, because those filters run first.",
+            "suggested_fix": "Wrap each record's processing in a per-record try/except (or validate shape up front) that routes malformed records to a new excluded bucket, e.g. excluded['malformed']. Validate rec is a dict, history is a list of dicts (or coerce/skip), and required genomic-context keys are present before building the entry. This keeps the accounting identity intact (held_out + sum(excluded) == candidates) and prevents one bad row from aborting the whole slice. Keep --strict to optionally re-raise."
+          },
+          {
+            "title": "Date parsing (parse_date) is strict and correct: no false admissions, no false exclusions of valid ISO dates",
+            "kind": "none",
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Verified empirically on Python 3.13.2. parse_date rejects: invalid month '2025-13-01', invalid day '2025-02-30', non-leap '2025-02-29', tz suffix '2025-09-01Z'/'...T', leading/trailing whitespace (incl ' 2025-09-01 ' and single trailing space), non-padded '2025-9-01'/'2025-09-1', unicode fullwidth digits, zero-width-space suffix, and en-dash/em-dash separators ('2025–09-01'). It correctly accepts valid '2025-09-01' and leap '2024-02-29'. The len==10 gate plus s[4]=='-' and s[7]=='-' ASCII-hyphen checks defeat Python 3.11+ extended fromisoformat forms (e.g. '20250901', '2025-W01' are length 8 and rejected). No valid ISO YYYY-MM-DD was falsely rejected. Reporting as a non-problem for completeness of the probe.",
+            "suggested_fix": "No change needed."
+          },
+          {
+            "title": "effective_cutoff fails closed on every non-strict cutoff value (correct)",
+            "kind": "none",
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Verified empirically. effective_cutoff raises ValueError for: invalid month '2025-13-01', tz suffix '2025-09-01Z', non-padded '2025-9-1', None, an int 20250101, a mixed set where one model has 'garbage', and the empty dict {}. The validation loop (lines 77-80) raises before any cutoff is used, so a malformed model cutoff can never silently weaken the blinding boundary. Note: lines 76 (dates=[]) and 81 (dates rebuilt) are redundant given the loop, but harmless. Reporting as non-problem.",
+            "suggested_fix": "Optional cleanup only: remove the redundant dates=[] on line 76 and reuse the dates already parsed in the loop instead of re-parsing on line 81."
+          },
+          {
+            "title": "Counts accounting balances exactly for mixed and multi-reason inputs (held_out + sum(excluded) == candidates)",
+            "kind": "none",
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Verified empirically. With 7 input records covering held-out, single-reason exclusions, a double-reason record (low stars AND pre-cutoff), and a triple-reason record (unusable label AND low stars AND pre-cutoff), held_out(1) + sum(excluded)(6) == candidates(7). Each record is counted in exactly one bucket because every exclusion path ends in `continue`, with first-match priority unusable_label > below_min_stars > missing_or_ambiguous_date > pre_cutoff. No double-count and no under-count for well-formed records. Caveat: this identity only holds when no record crashes the build (see the crash finding); a malformed record produces no count at all.",
+            "suggested_fix": "No change for well-formed inputs. The crash finding's malformed bucket fix is what preserves this identity universally."
+          },
+          {
+            "title": "Temporal fail-closed semantics are correct (boundary, default stars, ambiguous-history poisoning, strict raise)",
+            "kind": "none",
+            "is_problem": false,
+            "severity": "none",
+            "explanation": "Verified empirically. A label first-available exactly ON the effective cutoff is excluded as pre_cutoff (strict 'after' semantics); cutoff+1 day is held out. Missing review_stars defaults to 0 -> below_min_stars. A MATCHING history entry with an unparseable date forces 'AMBIGUOUS' and exclusion even when date_last_evaluated is a valid post-cutoff date (correct fail-closed), while a NON-matching bad-date history entry does not poison admission. _label_first_available short-circuits to AMBIGUOUS on the first bad matching date even if a later matching entry has a good earlier date, which is conservative (fail closed) and the right direction. --strict re-raises on ambiguous history dates as documented. content_hash is independent of build_date and stable under input reordering of unique-id records. Reporting as non-problem.",
+            "suggested_fix": "No change needed."
+          }
+        ]
+      }
+    ],
+    "problems": [
+      {
+        "title": "Empty/absent history falls back to date_last_evaluated, which is LAST-evaluated not FIRST-available -> memorisable pre-cutoff variants admitted",
+        "kind": "false_admission",
+        "is_problem": true,
+        "severity": "critical",
+        "explanation": "RAN EMPIRICALLY. In _label_first_available (lines 87-99), when rec['history'] is empty or absent, the function returns parse_date(rec.get('date_last_evaluated')). That value is then compared against the cutoff at line 149. But ClinVar's DateLastEvaluated is the date the assertion was LAST (re-)evaluated, NOT the date the label first became public. A variant submitted Pathogenic in 2018 and re-reviewed (still Pathogenic) on 2025-12-15, with no per-variant classification history in the normalised record, has date_last_evaluated=2025-12-15 and history=[]. Under the SHIPPED config (effective_cutoff 2025-11-28, margin 180d), I ran build_slice and it was ADMITTED (held_out=1, no exclusion). I confirmed it both with a toy cutoff {'m':'2025-01-01'} (variant_id NOHIST and NOKEY, history empty list and history key entirely absent -> both held_out=1) and with the real model_cutoffs.yaml (BRCA1-style record, dle 2025-12-15 -> held_out=1, excluded all zero). This variant's Pathogenic label was public for ~7 years and is fully memorisable, yet it enters the blinded slice. This is the asymmetric-risk failure: a single such admission breaks Exp 1 validity. Exploitability is high, not contrived: ClinVar variant_summary.txt does NOT contain per-variant classification-change history (that lives in submission_summary.txt / VCV XML), so normalised records will very commonly have empty history with only a date_last_evaluated. The repo's upstream normaliser is not present (ingest_truth.py is only a download/checksum harness), so the lines 16-17 promise that records 'carry history' is unverified and likely false for the common path. The committed heldout_manifest.json happens to have 0 empty-history admissions (only 2 variants), and the test suite (tests/test_heldout_slice.py) has NO test for the empty-history fallback path -- test_label_existed_before_cutoff_excluded and test_history_and_dates_preserved both supply non-empty history, so this path is entirely uncovered.",
+        "suggested_fix": "Do not trust date_last_evaluated as a proxy for first-available when history is empty. Fail closed on empty/insufficient history. Concretely in _label_first_available: if rec.get('history') is empty/absent, return a sentinel (e.g. 'AMBIGUOUS' or None) so the variant is excluded into missing_or_ambiguous_date, rather than returning parse_date(date_last_evaluated). Admission should require an actual dated history assertion matching the current label whose earliest occurrence is strictly after the cutoff AND require that the FULL history (every dated assertion of any tier) begins after the cutoff (i.e. the variant did not exist in ClinVar at all pre-cutoff). Add a 'date_of_creation' / first-submission field to the normalised schema and require min(all history dates, date_created) > cutoff. Add a red test: empty history + post-cutoff date_last_evaluated MUST be excluded. Also audit the upstream normaliser to confirm whether it can populate per-variant history at all; if it cannot, the entire slice must be rebuilt from submission_summary/VCV-XML where first-evaluation dates exist."
+      },
+      {
+        "title": "content_hash is non-deterministic under reordering of history/submitters in source records",
+        "kind": "determinism",
+        "is_problem": true,
+        "severity": "high",
+        "explanation": "Empirically confirmed. truth.history and truth.submitters are copied verbatim from the input record (lines 167-168: rec.get('submitters', []) and rec.get('history', [])). entry_hash (line 121, json.dumps with sort_keys=True) sorts dict KEYS but does NOT reorder LIST elements, so the order of items in history[] and submitters[] flows straight into the hash. I ran the same logical variant with history items reversed and with submitters reversed: content_hash differed in both cases (False/False). Since ClinVar history/submitter ordering upstream is not guaranteed stable across variant_summary regenerations, the manifest's 'immutable' + content_hash provenance guarantee can break for byte-identical scientific content. The slice claims immutable:True and uses content_hash as the integrity anchor, so this directly undermines the stated immutability/reproducibility property.",
+        "suggested_fix": "Before hashing, canonicalise list-valued truth fields into a stable order: sort submitters lexicographically and sort history by a stable key (e.g. (date, clnsig, submitter)). Do this in a helper used both for the stored entry and for _entry_hash, so the persisted manifest and the hash agree. Alternatively hash a normalised projection of truth rather than the raw verbatim lists."
+      },
+      {
+        "title": "Duplicate variant_id records are admitted without dedup, and content_hash depends on input order for tied ids",
+        "kind": "determinism",
+        "is_problem": true,
+        "severity": "medium",
+        "explanation": "Confirmed empirically. Two distinct records sharing variant_id='DUP' (different alt) both enter the slice (held_out=2). The final sort variants.sort(key=lambda v: v['variant_id']) (line 177) is keyed ONLY on variant_id, so ties are resolved by Python's stable sort = original input order. I fed the two dup-id records in both orders ([a,b] vs [b,a]); content_hash differed (False). So two runs over the same set of records in a different file order produce different content_hash. There is also no uniqueness invariant: a benchmark slice with two rows claiming the same variant_id with different truth is silently allowed. variant_id is meant to be the primary key of a held-out scoring set.",
+        "suggested_fix": "Make the final sort total and id-stable: sort by (variant_id, entry_hash) (or the full genomic_context tuple). Additionally, detect duplicate variant_ids and either reject (raise, fail closed) or de-duplicate deterministically, since two distinct truths for one key is a benchmark integrity error, not a normal input."
+      },
+      {
+        "title": "build_slice crashes (KeyError/AttributeError/TypeError) on malformed records instead of failing closed into an excluded bucket",
+        "kind": "crash",
+        "is_problem": true,
+        "severity": "medium",
+        "explanation": "Confirmed empirically across many inputs. (a) After a record passes the label/stars/date/cutoff filters, the entry is built with direct subscripting rec['variant_id'], rec['chrom'], rec['pos'], rec['ref'], rec['alt'], rec['build'] (lines 157-160). Any missing one of these keys raises KeyError mid-build and aborts the WHOLE slice (missing variant_id/chrom/pos/ref/build all crashed). (b) Non-dict records crash early: rec=None/list/str -> AttributeError on .get. records=None at top -> TypeError. (c) Malformed history is fragile: history as a dict iterates its keys (str) -> AttributeError; history as a str iterates chars -> AttributeError; history as int -> 'int object is not iterable' TypeError; a None/non-dict ITEM inside history -> AttributeError at h.get (line 92/107). One bad record anywhere in the input therefore takes down the entire build with an opaerror rather than being counted and skipped. This is a fail-closed-completeness gap: the module's docstring promise is that excluded variants are 'accounted for, never silently admitted', but a malformed record produces neither admission nor an accounted exclusion; it crashes. Mitigating factor: records that fail BEFORE the genomic-context access (unusable label, low stars) are excluded safely even if chrom is missing, because those filters run first.",
+        "suggested_fix": "Wrap each record's processing in a per-record try/except (or validate shape up front) that routes malformed records to a new excluded bucket, e.g. excluded['malformed']. Validate rec is a dict, history is a list of dicts (or coerce/skip), and required genomic-context keys are present before building the entry. This keeps the accounting identity intact (held_out + sum(excluded) == candidates) and prevents one bad row from aborting the whole slice. Keep --strict to optionally re-raise."
+      }
+    ],
+    "problem_count": 4
+  }
+}

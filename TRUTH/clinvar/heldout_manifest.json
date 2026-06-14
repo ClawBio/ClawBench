@@ -26,10 +26,11 @@
       "pre_cutoff": 1,
       "below_min_stars": 0,
       "unusable_label": 0,
-      "missing_or_ambiguous_date": 0
+      "missing_or_ambiguous_date": 0,
+      "malformed": 0
     }
   },
-  "content_hash": "a7e38814198a13c294a2966b7b9c0eaf62f06a14eaaa624b6fe3a5a1d52abd67",
+  "content_hash": "c4db668201ccf1487dcaa98c4f8c9c5a43e3eef57f76c4e513fd8bb458ab6a9b",
   "variants": [
     {
       "variant_id": "VCV-EXAMPLE-0001",
@@ -44,6 +45,7 @@
       "truth": {
         "clnsig": "Pathogenic",
         "review_stars": 3,
+        "date_created": "2026-02-10",
         "date_last_evaluated": "2026-02-10",
         "label_first_available": "2026-02-10",
         "submitters": [
@@ -59,7 +61,7 @@
       "reclassified": false,
       "from_class": null,
       "to_class": null,
-      "entry_hash": "3108085f25dd63eac60abdf5cc4da95056186bb6c3500f5ab11988a2010d5bd1"
+      "entry_hash": "3a394d028e8e72f94dda9c79c4c99b1793d4cc2936e6c93e8449cde300c13b52"
     },
     {
       "variant_id": "VCV-EXAMPLE-0002",
@@ -74,6 +76,7 @@
       "truth": {
         "clnsig": "Likely Pathogenic",
         "review_stars": 2,
+        "date_created": "2024-05-01",
         "date_last_evaluated": "2026-03-01",
         "label_first_available": "2026-03-01",
         "submitters": [
@@ -94,7 +97,7 @@
       "reclassified": true,
       "from_class": "Uncertain Significance",
       "to_class": "Likely Pathogenic",
-      "entry_hash": "fd33cd510733640851e95ea646cc43d18caf87ace8b5008c085d0fc169710692"
+      "entry_hash": "4cd9f2ec6acdcc64f12bcf3cda52480c3b4dde842f24d162db45b9c5361fb207"
     }
   ]
 }
