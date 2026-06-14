@@ -1,0 +1,63 @@
+# ClawBench truth manifest. Authoritative source for every ground-truth artifact.
+# The ingestion script downloads each entry, computes sha256, and writes MANIFEST.lock.yaml.
+# If an entry already has a sha256 here, ingestion VERIFIES and fails closed on mismatch.
+# All URLs HEAD-verified 2026-06-14.
+schema_version: 1
+giab_release: NISTv4.2.1
+reference_build: GRCh38
+dev_region: chr20            # development scope; full genomes used only for headline confirmation
+
+reference:
+  - id: grch38_no_alt
+    url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/references/GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta.gz
+    dest: reference/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta.gz
+    license: public-domain (NCBI)
+    sha256: null
+
+stratifications:
+  - id: grch38_stratifications_v3.5
+    url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.5/genome-stratifications-GRCh38@all.tar.gz
+    dest: giab/strat/genome-stratifications-GRCh38@all.tar.gz
+    notes: low-complexity, segdup, MHC, homopolymer BEDs for GA4GH stratified scoring
+    license: public-domain (NIST)
+    sha256: null
+
+# GIAB small-variant truth: benchmark VCF + high-confidence BED per sample.
+# Ancestry: HG001 EUR; HG002-4 Ashkenazi trio; HG005-7 Han Chinese trio.
+giab_samples:
+  - id: HG001
+    ancestry: EUR
+    vcf: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv4.2.1/GRCh38/HG001_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
+    bed: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv4.2.1/GRCh38/HG001_GRCh38_1_22_v4.2.1_benchmark.bed
+  - id: HG002
+    ancestry: AJ
+    vcf: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/NISTv4.2.1/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
+    bed: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/NISTv4.2.1/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
+  - id: HG003
+    ancestry: AJ
+    vcf: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG003_NA24149_father/NISTv4.2.1/GRCh38/HG003_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
+    bed: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG003_NA24149_father/NISTv4.2.1/GRCh38/HG003_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
+  - id: HG005
+    ancestry: EAS
+    vcf: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/ChineseTrio/HG005_NA24631_son/NISTv4.2.1/GRCh38/HG005_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
+    bed: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/ChineseTrio/HG005_NA24631_son/NISTv4.2.1/GRCh38/HG005_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
+
+# ClinVar for Exp 1 interpretation truth. The held-out slice (post-model-cutoff deposits) is derived
+# from these by HARNESS/build_clinvar_heldout.py using the per-model cutoff table below.
+clinvar:
+  - id: clinvar_grch38_latest
+    url: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar.vcf.gz
+    dest: clinvar/clinvar_GRCh38_latest.vcf.gz
+    notes: weekly releases under .../vcf_GRCh38/weekly/ ; pin a dated release for reproducibility
+    license: public-domain (NCBI)
+    sha256: null
+
+# Per-model training cutoffs drive the held-out slice (variants first deposited after the latest cutoff).
+# Fill with each benchmarked model's documented cutoff before deriving the slice.
+model_cutoffs: {}
+
+# FASTQ chr20 read subsets for Exp 2. PENDING: choose source (extract chr20 from GIAB 30x BAM, or use a
+# precomputed chr20 read set). Do not add a URL until HEAD-verified. Method recorded so it is reproducible.
+fastq:
+  pending: true
+  method: "Extract chr20 reads from the GIAB-published 30x Illumina BAM per sample, or use a precomputed chr20 subset; verify URL before adding."

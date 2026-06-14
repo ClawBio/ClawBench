@@ -1,0 +1,6 @@
+# Python >=3.11
+pyyaml>=6.0
+pysam>=0.22          # VCF parsing for scorers (Exp 1/2)
+pandas>=2.0
+pytest>=8.0
+# external (not pip): hap.py or vcfeval (RTG Tools) for calling concordance; nextflow + java for sarek

@@ -1,0 +1,18 @@
+# Fetched truth data is large and reproducible from MANIFEST.yaml; never commit it.
+TRUTH/giab/*
+TRUTH/clinvar/*
+TRUTH/reference/*
+TRUTH/fastq/*
+!TRUTH/**/.gitkeep
+# keep the authoritative manifest and the computed lock
+!TRUTH/MANIFEST.yaml
+!TRUTH/MANIFEST.lock.yaml
+
+RESULTS/*
+!RESULTS/.gitkeep
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.DS_Store
