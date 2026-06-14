@@ -145,6 +145,25 @@ def test_to_criteria_direction_from_vocab_then_classify():
     assert classify(criteria) == "Pathogenic"
 
 
+def test_derived_truth_label_flag_false_for_clean_submission():
+    r = validate_evidence(valid_submission())
+    assert r["valid"], r["errors"]
+    assert r["derived"]["any_source_is_truth_label"] is False
+
+
+def test_derived_truth_label_flag_true_for_clinvar_evidence_in_control():
+    # sensitivity mode permits ClinVar evidence; the derived check still flags it as truth-derived
+    sub = valid_submission(mode="clinvar_unblinded_sensitivity", truth=None)
+    sub["submitted_evidence_codes"].append(
+        {"code": "PP5", "strength": "supporting", "source_type": "clinvar",
+         "source_id": "VCV000012345", "rationale": "reputable source reports pathogenic", "confidence": 0.6})
+    r = validate_evidence(sub)
+    assert r["valid"], r["errors"]
+    assert r["derived"]["any_source_is_truth_label"] is True
+    assert r["derived"]["source_evidence_is_truth_label"]["PP5"] is True
+    assert r["derived"]["source_evidence_is_truth_label"]["PM2"] is False
+
+
 def test_error_codes_are_in_published_vocabulary():
     sub = valid_submission()
     sub["submitted_evidence_codes"][0]["confidence"] = 1.5

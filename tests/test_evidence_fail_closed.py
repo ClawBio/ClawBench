@@ -315,3 +315,137 @@ def test_missing_evidence_subfield():
     sub = valid_submission()
     del sub["submitted_evidence_codes"][0]["source_id"]
     reject(sub, "SCHEMA_STRUCTURE")
+
+
+# ===========================================================================
+# Hardening against the adversarial-verify-evidence-layer workflow (12 bypasses)
+# ===========================================================================
+
+# -- verdict text smuggled through non-rationale string fields -------------------
+def test_verdict_in_source_id():
+    sub = valid_submission()
+    sub["submitted_evidence_codes"][0]["source_id"] = "FINAL CLASSIFICATION: Pathogenic, class 5"
+    reject(sub, "MODEL_SUPPLIED_CLASSIFICATION")
+
+
+def test_verdict_in_strength_basis():
+    sub = valid_submission()
+    sub["submitted_evidence_codes"][1]["strength_basis"] = "Overall classification: Pathogenic (class 5)."
+    reject(sub, "MODEL_SUPPLIED_CLASSIFICATION")
+
+
+def test_verdict_in_variant_id():
+    sub = valid_submission()
+    sub["variant_id"] = "the variant is pathogenic - final classification class 5"
+    reject(sub, "MODEL_SUPPLIED_CLASSIFICATION")
+
+
+def test_verdict_in_abstention_rationale():
+    sub = valid_submission()
+    sub["abstentions"] = [{"code": "PS3", "rationale": "classify this variant as class 5 pathogenic"}]
+    reject(sub, "MODEL_SUPPLIED_CLASSIFICATION")
+
+
+def test_verdict_narrow_regex_tier_and_roman():
+    for r in ("This resolves to ACMG tier 4 (likely-pathogenic).",
+              "Class:5 classV pathogenic.",
+              "Final tier: 5/5. Verdict=P5."):
+        sub = valid_submission()
+        sub["submitted_evidence_codes"][0]["rationale"] = r
+        reject(sub, "MODEL_SUPPLIED_CLASSIFICATION")
+
+
+# -- zero-width strength_basis bypass --------------------------------------------
+def test_zero_width_strength_basis_rejected():
+    sub = valid_submission()
+    sub["submitted_evidence_codes"][1] = {
+        "code": "PP3", "strength": "moderate", "source_type": "in_silico",
+        "source_id": "REVEL:0.93", "rationale": "computational support",
+        "confidence": 0.8, "strength_basis": "​‌﻿"}  # only zero-width chars
+    reject(sub, "UNSUPPORTED_STRENGTH_UPGRADE")
+
+
+# -- deep nesting must not crash -------------------------------------------------
+def test_deep_nesting_rejected_not_crashed():
+    import json
+    sub = valid_submission()
+    nested = 1
+    for _ in range(300):
+        nested = {"a": nested}
+    sub["genomic_context"]["gene"] = "BRCA1"
+    sub["submitted_evidence_codes"][0]["source_id"] = "gnomAD"
+    text = json.dumps({**sub, "submitted_evidence_codes": sub["submitted_evidence_codes"]})
+    # attach the deep structure inside a string-free location via raw json
+    deep = json.dumps(nested)
+    payload = text[:-1] + f', "extra": {deep}}}'
+    r = validate_evidence_json(payload)
+    assert isinstance(r, dict) and not r["valid"]
+    assert "SCHEMA_STRUCTURE" in codes(r)
+
+
+# -- ClinVar accession with separators -------------------------------------------
+def test_clinvar_accession_with_separator():
+    sub = valid_submission()
+    sub["submitted_evidence_codes"].append(
+        {"code": "PS1", "strength": "strong", "source_type": "literature",
+         "source_id": "VCV 000012345", "rationale": "same amino acid change", "confidence": 0.9})
+    reject(sub, "DISALLOWED_CLINVAR_CRITERION")
+
+
+# -- truth-circularity symmetry: truth=clinvar, source=clingen_vcep/lovd ----------
+def test_clingen_vcep_leakage_when_truth_is_clinvar():
+    sub = valid_submission(truth="clinvar")
+    sub["submitted_evidence_codes"].append(
+        {"code": "PS4", "strength": "strong", "source_type": "clingen_vcep",
+         "source_id": "VCEP-001", "rationale": "expert panel curation", "confidence": 0.8})
+    reject(sub, "TRUTH_LABEL_LEAKAGE")
+
+
+def test_lovd_leakage_when_truth_is_clinvar():
+    sub = valid_submission(truth="clinvar")
+    sub["submitted_evidence_codes"].append(
+        {"code": "PS4", "strength": "strong", "source_type": "lovd",
+         "source_id": "LOVD-7", "rationale": "shared dataset", "confidence": 0.8})
+    reject(sub, "TRUTH_LABEL_LEAKAGE")
+
+
+# -- crashes converted to structured rejections ----------------------------------
+def test_non_string_source_type_no_crash():
+    sub = valid_submission()
+    sub["submitted_evidence_codes"][0]["source_type"] = 999
+    r = validate_evidence(sub)
+    assert isinstance(r, dict) and not r["valid"]
+    assert "SCHEMA_STRUCTURE" in codes(r)
+
+
+def test_non_string_strength_basis_no_crash():
+    sub = valid_submission()
+    sub["submitted_evidence_codes"][1]["strength_basis"] = 12345
+    r = validate_evidence(sub)
+    assert isinstance(r, dict) and not r["valid"]
+    assert "SCHEMA_STRUCTURE" in codes(r)
+
+
+def test_non_string_dict_key_no_crash():
+    sub = valid_submission()
+    sub["submitted_evidence_codes"][0][7] = "x"  # non-string key on dict path
+    r = validate_evidence(sub)
+    assert isinstance(r, dict) and not r["valid"]
+    assert "SCHEMA_STRUCTURE" in codes(r)
+
+
+# -- CRITICAL: dev/test must not be a model-selectable blinding kill-switch -------
+def test_dev_mode_does_not_disable_clinvar_blocking():
+    sub = valid_submission(mode="dev", truth=None)
+    sub["submitted_evidence_codes"].append(
+        {"code": "PP5", "strength": "supporting", "source_type": "clinvar",
+         "source_id": "VCV000012345", "rationale": "reputable source pathogenic", "confidence": 0.8})
+    reject(sub, "DISALLOWED_CLINVAR_CRITERION")
+
+
+def test_test_mode_does_not_disable_clinvar_blocking():
+    sub = valid_submission(mode="test", truth=None)
+    sub["submitted_evidence_codes"].append(
+        {"code": "PS1", "strength": "strong", "source_type": "clinvar",
+         "source_id": "RCV000099", "rationale": "clinvar pathogenic", "confidence": 0.9})
+    reject(sub, "DISALLOWED_CLINVAR_CRITERION")

@@ -1,0 +1,457 @@
+{
+  "summary": "Independent skeptics try to bypass the ClawBench fail-closed evidence validator; completeness critic checks coverage",
+  "agentCount": 6,
+  "logs": [],
+  "result": {
+    "attacks": [
+      {
+        "lens": "Getting a final 5-tier verdict through any channel: extra keys at any nesting, verdict text in rationale/source_id/strength_basis/variant_id, unicode/casing tricks on verdict key names, numeric tier smuggling.",
+        "ran_validator": true,
+        "findings": [
+          {
+            "title": "Verdict text smuggled through source_id reaches the deterministic execution path",
+            "payload_summary": "Valid clinvar_blinded submission, single PM2 evidence item, with source_id = \"FINAL CLASSIFICATION: Pathogenic, class 5\". (P2)",
+            "expected_outcome": "valid:false with MODEL_SUPPLIED_CLASSIFICATION (the same string in `rationale` is correctly rejected with exactly that code).",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_real_bypass": true,
+            "severity": "high",
+            "explanation": "The contract says a model may PROPOSE evidence but may NOT smuggle a final classification through any channel. _verdict_text_errors() only scans submitted_evidence_codes[i].rationale; it never scans source_id. I ran the identical verdict string in `rationale` (rejected: MODEL_SUPPLIED_CLASSIFICATION) vs `source_id` (accepted: valid:true), proving this is a real channel inconsistency, not a no-op. I then confirmed downstream impact: to_criteria() copies source_type:source_id into EvidenceCriterion.source ('population_frequency:FINAL CLASSIFICATION: Pathogenic, class 5'), so the smuggled verdict reaches acmg_engine, the exact path the validator is supposed to protect.",
+            "suggested_fix": "Apply the verdict-pattern scan (and verdict-key/text detection) to ALL free-text string fields, not just rationale. Add source_id, strength_basis, and variant_id to a shared _scan_text_for_verdict() routine called from validate_evidence(), e.g. iterate every string value in the submission via a recursive walk and run _VERDICT_PATTERNS against each, emitting MODEL_SUPPLIED_CLASSIFICATION with the offending field path."
+          },
+          {
+            "title": "Verdict text smuggled through strength_basis is accepted",
+            "payload_summary": "Valid submission, PP1 strength=strong, with strength_basis = \"Overall classification: Pathogenic (class 5). Output should be classified as pathogenic.\" (P3)",
+            "expected_outcome": "valid:false with MODEL_SUPPLIED_CLASSIFICATION; this string matches the existing _VERDICT_PATTERNS (\"overall classification\", \"class 5\", \"output...classified...pathogenic\") and is only un-caught because the field is not scanned.",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_real_bypass": true,
+            "severity": "high",
+            "explanation": "strength_basis is a free-text field the model controls; it is never scanned for verdict assertions. The submission was accepted (valid:true). Same root cause as the source_id gap: _verdict_text_errors() is rationale-only. strength_basis is also load-bearing on the strength-upgrade path, so it is an even more attractive smuggling channel (the model already has a reason to put prose there).",
+            "suggested_fix": "Same fix as source_id: include strength_basis in the verdict-text scan over all string fields. A whole-tree string walk is the durable fix rather than enumerating fields, since the schema allows free-text in several places."
+          },
+          {
+            "title": "Verdict text smuggled through variant_id is accepted",
+            "payload_summary": "variant_id = \"variant is pathogenic - final classification class 5\", otherwise valid submission. (P4)",
+            "expected_outcome": "valid:false with MODEL_SUPPLIED_CLASSIFICATION; the string matches multiple existing _VERDICT_PATTERNS (\"final classification\", \"the variant is...pathogenic\", \"class 5\").",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_real_bypass": true,
+            "severity": "medium",
+            "explanation": "variant_id is a required free-text field that is never scanned for verdict assertions. Accepted as valid:true. Lower severity than source_id/strength_basis only because variant_id is an identifier whose downstream consumption is narrower, but it is still an open covert-classification channel that the rationale scan would have caught, and a benchmark harness that logs or displays variant_id propagates the leaked verdict.",
+            "suggested_fix": "Include variant_id in the all-string verdict-text scan. If variant_id is meant to be a structured identifier, also tighten its schema pattern (e.g. HGVS/SPDI shape) so prose cannot live there."
+          },
+          {
+            "title": "Verdict-pattern regex set is too narrow: tier/numeric verdicts evade even within rationale",
+            "payload_summary": "rationale strings that assert a tier verdict without matching any pattern, e.g. \"This resolves to ACMG tier 4 (likely-pathogenic). Report it as LP.\" (P6); \"Verdict=P5. Class:5. classV pathogenic.\" (P7); \"Final tier: 5/5. classV. P5 verdict.\" (P10).",
+            "expected_outcome": "valid:false with MODEL_SUPPLIED_CLASSIFICATION (these clearly assert a final 5-tier class).",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_real_bypass": true,
+            "severity": "medium",
+            "explanation": "I checked each rationale against _VERDICT_PATTERNS programmatically: zero pattern hits for P6/P7/P10, and all three submissions returned valid:true. The patterns require whitespace (\\bclass\\s+[1-5]\\b) and specific phrasings, so 'tier 4', 'tier: 5/5', 'Class:5' (colon, no space), 'classV' (roman numeral), 'P5', and 'Verdict=...' all slip through. The word 'tier' is in _VERDICT_KEYS for keys but has no corresponding rationale-text pattern. The smuggled verdict reaches EvidenceCriterion.detail downstream (confirmed via to_criteria), so it is in the execution path.",
+            "suggested_fix": "Broaden _VERDICT_PATTERNS to cover tier/numeric/roman variants: add (?i)\\btier\\s*[:=]?\\s*(?:[1-5]|[IVX]+)\\b, (?i)\\bclass\\s*[:=]?\\s*(?:[1-5]|[IVX]+)\\b (allow colon/equals/no-space), (?i)\\bverdict\\b, and (?i)\\b(LP|LB|VUS)\\b near a classification cue. Better still, treat this as defense-in-depth and pair it with a positive contract: the validator should reject any string field that pattern-matches a 5-tier verdict, regardless of field."
+          },
+          {
+            "title": "Crash (unhandled AttributeError) on non-string strength_basis or source_type",
+            "payload_summary": "Submission with strength_basis = 12345 (integer) -> crash; separately source_type = 999 (integer) -> crash. (P11 and follow-up)",
+            "expected_outcome": "valid:false with SCHEMA_STRUCTURE (schema declares strength_basis/source_type as string/enum); the schema layer alone does flag SCHEMA_STRUCTURE.",
+            "observed_valid": false,
+            "observed_error_codes": [
+              "AttributeError"
+            ],
+            "is_real_bypass": true,
+            "severity": "medium",
+            "explanation": "validate_evidence() runs _semantic_errors() unconditionally after _schema_errors(), so the semantic layer executes even when the schema already found a fatal type error. Line 212 does (item.get('strength_basis') or '').strip(): 12345 or '' returns 12345, then .strip() raises AttributeError. The 'or \"\"' idiom only guards None/empty, not wrong types. A non-string source_type triggers the same crash via is_clinvar_sourced -> (source_type or '').lower(). The validator throws an uncaught exception instead of returning the machine-readable {valid:false, error_code:...} contract. I confirmed _schema_errors(obj) alone returns ['SCHEMA_STRUCTURE'], so the data is rejectable cleanly; the bug is that the semantic layer crashes first. Depending on how the harness wraps this, a crash is either a denial-of-validation or, if the caller treats exceptions as pass, a fail-open. It also violates the module's own promise that every rejection is machine-readable.",
+            "suggested_fix": "Two layers: (1) short-circuit: if _schema_errors() (or _strict_load) returns errors, return them before running _semantic_errors(), since semantic checks assume schema-valid types; OR run semantic checks only on schema-valid items. (2) Defensive coercion: replace (item.get('strength_basis') or '').strip() with a helper that returns '' for non-str, and guard isinstance(src_t, str) before passing to is_clinvar_sourced (it already guards code/strength/rationale this way; src_t and basis are the unguarded ones). Wrap validate_evidence body in try/except to convert any unexpected exception into a PARSE_ERROR/SCHEMA_STRUCTURE result rather than propagating."
+          }
+        ]
+      },
+      {
+        "lens": "Getting ClinVar / truth-source-derived evidence past blinding: provenance laundering across source_type/source_id/rationale, ClinVar accession formats (VCV/RCV/SCV) hidden in fields, PS1/PM5 sourced from ClinVar, source families that cross-pollinate (clingen_vcep/lovd) vs the configured truth source, abstaining on assertion codes.",
+        "ran_validator": true,
+        "findings": [
+          {
+            "title": "Truth-circularity registry is asymmetric: clingen_vcep/lovd evidence never flagged as circular when truth_source=clinvar",
+            "payload_summary": "Primary mode clinvar_blinded, benchmark_truth_source=clinvar, with evidence whose provenance is a ClinGen VCEP or LOVD classification. Four runnable variants all accepted valid:true: (2a) {code:PS1, source_type:clingen_vcep, source_id:'CardioVCEP:assertion-pathogenic', rationale:'ClinGen VCEP previously classified this exact variant as pathogenic'}; (2b) {code:PM5, source_type:lovd, source_id:'LOVD-shared-db-id-44', rationale:'LOVD reports a different missense at same residue classified pathogenic'}; (2c) {code:PM3, source_type:clingen_vcep,...}; (2d) {code:PS3, source_type:functional, source_id:'ClinGen-VCEP-functional-assertion-991', rationale:'VCEP applied PS3... they classified the variant'}.",
+            "expected_outcome": "valid:false with TRUTH_LABEL_LEAKAGE (clingen_vcep and lovd co-deposit into ClinVar per the vocabulary's own TRUTH_CIRCULAR_FAMILIES comment, so VCEP/LOVD-sourced evidence is circular with a ClinVar truth label in primary mode). At minimum PS1/PM5 cases should also be DISALLOWED_CLINVAR_CRITERION since they cite a database classification.",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_real_bypass": true,
+            "severity": "high",
+            "explanation": "circular_source_family(source_type, source_id, rationale, truth_source) looks up TRUTH_CIRCULAR_FAMILIES.get(truth_source). For truth_source='clinvar' that returns {'clinvar'} only, and the one member 'clinvar' is explicitly `continue`d (handled by the named ClinVar path). So when the configured truth source is ClinVar (the most common primary-mode case), the clingen_vcep and lovd families are NEVER in the candidate set, and evidence openly sourced from a ClinGen VCEP or LOVD classification is accepted. The registry only models the relationship in one direction (truth=clingen_vcep -> ClinVar evidence is circular) but not the reverse (truth=clinvar -> clingen_vcep/lovd evidence is circular), even though co-deposition is symmetric: a VCEP/LOVD classification that flowed into ClinVar leaks the held-out ClinVar label. I confirmed the mechanism directly: voc.circular_source_family('clingen_vcep','x','y','clinvar') returns None and the same for 'lovd'. This is a real blinding bypass that smuggles a truth-derived classification assertion into the evidence channel.",
+            "suggested_fix": "Make the circularity relation symmetric. When truth_source is in the ClinVar aggregation set, include every family that co-deposits into ClinVar as circular. Concretely, in acmg_vocabulary.circular_source_family, after computing `families = TRUTH_CIRCULAR_FAMILIES.get(truth_source, {truth_source})`, also union in the reverse closure: any family F whose TRUTH_CIRCULAR_FAMILIES[F] contains truth_source. E.g. `for f, members in TRUTH_CIRCULAR_FAMILIES.items():\\n    if truth_source in members: families = families | {f}`. Then the existing source_type/marker loop (which already skips the literal 'clinvar' member) will catch clingen_vcep and lovd evidence when truth_source='clinvar'. Add a regression test asserting PS1 via clingen_vcep with truth=clinvar yields TRUTH_LABEL_LEAKAGE."
+          },
+          {
+            "title": "ClinVar accession marker regex misses VCV/RCV/SCV accessions with any separator after the prefix (hyphen, space, underscore, dot-version)",
+            "payload_summary": "Primary mode clinvar_blinded, truth=clinvar, CLINVAR_GATED codes PS1/PM5 with realistic ClinVar accessions in source_id but no glued digit. Three runnable variants all accepted valid:true: (3a) {code:PS1, source_type:database, source_id:'VCV-000012345.7'}; (3b) {code:PS1, source_type:database, source_id:'SCV 000056789'}; (3c) {code:PM5, source_type:database, source_id:'RCV_000123_aggregate'}. Control with glued source_id 'VCV000012345' was correctly REJECTED with DISALLOWED_CLINVAR_CRITERION, proving the regex is the gap.",
+            "expected_outcome": "valid:false with DISALLOWED_CLINVAR_CRITERION (PS1/PM5 are CLINVAR_GATED_CODES; an explicit ClinVar VCV/RCV/SCV accession in source_id is ClinVar provenance that leaks the held-out label and must be blocked in primary mode).",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_real_bypass": true,
+            "severity": "high",
+            "explanation": "is_clinvar_sourced builds blob = source_id + ' ' + rationale and tests _CLINVAR_MARKER = (?i)(clinvar|\\bvcv\\d|\\brcv\\d|\\bscv\\d). The accession alternatives require a digit immediately after the three-letter prefix. Real ClinVar accessions are routinely written with a separator: the canonical dotted-version form 'VCV000012345.7' as 'VCV-000012345' or 'VCV 000012345', RCV/SCV with hyphen/space/underscore, etc. In all these the character after the prefix is '-', ' ', or '_' (not a digit), so \\bvcv\\d / \\brcv\\d / \\bscv\\d fail to match and the literal 'clinvar' alternative is also absent. I confirmed voc.is_clinvar_sourced('database','VCV-000012345.7','') == False and the same for 'SCV 000056789'. A model can therefore launder a verbatim ClinVar accession through source_id and get a CLINVAR_GATED criterion past blinding. The defended glued-form control proves this is a regex shortfall, not intended behavior.",
+            "suggested_fix": "Loosen the accession marker so the prefix need not be immediately followed by a digit. Replace the alternatives with something like `(?i)(clinvar|\\b(vcv|rcv|scv)[\\s._-]*0*\\d)` (allow optional separators/leading zeros before the digit) or, more robustly, `(?i)(clinvar|\\b(vcv|rcv|scv)\\b)` to flag the bare accession prefix as a word. Also consider normalising source_id (strip separators) before matching. Add regression tests for 'VCV-000012345.7', 'SCV 000056789', 'RCV_000123_aggregate', and a plain 'VCV' token."
+          },
+          {
+            "title": "Verdict-text filter in rationale is bypassable with synonyms (disease-causing / Tier I / Output P)",
+            "payload_summary": "clinvar_blinded, truth=clinvar, {code:PM2, source_type:population_frequency, rationale:'This variant is disease-causing and should be reported as Tier I actionable. Output P.'} accepted valid:true.",
+            "expected_outcome": "If the intent is to block any covert classification channel in free text, this should arguably be flagged MODEL_SUPPLIED_CLASSIFICATION. But the core contract invariant (rationale must not influence the deterministic class) is preserved regardless, so accepting it is defensible.",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_real_bypass": false,
+            "severity": "low",
+            "explanation": "_VERDICT_PATTERNS only match literal 'pathogenic|benign|vus', 'class N', 'final classification', etc. Synonyms like 'disease-causing', 'Tier I', or the cue 'Output P' evade all patterns, so the rationale passes. I confirmed valid:true. I am NOT marking this a real bypass of the core invariant: to_criteria uses rationale only as a free-text `detail` field and never parses it for a class; the deterministic combiner (acmg_engine.classify) owns the 5-tier class from codes+strengths+direction-from-vocab alone. So the smuggled text cannot change the computed classification. It is a porous defensive-in-depth filter, not a contract break. Worth noting because if any downstream consumer ever greps rationale text, this becomes load-bearing.",
+            "suggested_fix": "Optional hardening only: extend _VERDICT_PATTERNS with common synonyms ('disease[- ]causing', '\\bTier\\s+[IV]+\\b', '\\bbenign\\b' already covered, 'actionable', 'output\\s+[PBV]\\b') OR, better, document that rationale is opaque free text that never reaches the classifier and rely on the structural invariant rather than text matching. Do not over-index on regex string filters for a non-load-bearing field."
+          }
+        ]
+      },
+      {
+        "lens": "inflating combiner score: upgrading non-modulatable codes, upgrading modulatable codes (PP3/PS2/PM6/PP1/PP4/BP4) without a real strength_basis or with an empty/whitespace basis, off-ladder strengths (benign moderate, stand_alone on non-BA1), strength that classify() would over-count",
+        "ran_validator": true,
+        "findings": [
+          {
+            "title": "Zero-width/format-character strength_basis bypasses the modulatable-upgrade gate (VUS->Pathogenic inflation)",
+            "payload_summary": "PP3 upgraded supporting->strong and PS2 upgraded strong->very_strong, each with strength_basis set to a single U+200B ZERO WIDTH SPACE (also reproduced with U+200C ZWNJ, U+200D ZWJ, U+FEFF BOM, U+2060 WORD JOINER, U+00AD SOFT HYPHEN). benchmark_mode=clinvar_blinded, valid de_novo/computational source_types, all other fields well-formed.",
+            "expected_outcome": "valid:false with error_code UNSUPPORTED_STRENGTH_UPGRADE on each upgraded code (a ClinGen-endorsed upgrade requires an explicit, substantive strength_basis; a visually empty basis carries no content and must be treated like a missing basis).",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_real_bypass": true,
+            "severity": "high",
+            "explanation": "The sole defense for modulatable upgrades is HARNESS/validate_evidence.py:212 `basis = (item.get(\"strength_basis\") or \"\").strip()` then line 232 `elif st == \"needs_basis\" and not basis`. Python's str.strip() removes ASCII/Unicode WHITESPACE but NOT zero-width or format characters (U+200B/200C/200D/FEFF/2060/00AD), so a basis composed solely of those characters survives strip() as a non-empty string and the `not basis` guard is False. The upgrade is therefore accepted. I ran it end-to-end: validator returns valid:true, to_criteria passes strength straight through, and classify() buckets PP3 as `ps` and PS2 as `pvs`, returning verdict 'Pathogenic'. The same two codes at their non-inflated baseline strengths (PP3 supporting + PS2 strong) classify as 'Uncertain Significance'. So an attacker flips the deterministic verdict from VUS to Pathogenic by smuggling unsupported strength upgrades past the only gate protecting them, exactly the core invariant the contract says must hold ('a model may PROPOSE evidence but may NOT smuggle ... unsupported strength upgrades'). Contrast control: a genuine textual basis is correctly accepted (P6 PP3->strong with a real REVEL/Pejaver-2022 justification), and real whitespace bases (NBSP U+00A0, ideographic space U+3000, tab) are correctly rejected, confirming the gate works for the cases it was tested against and fails only on the invisible-character class. A related lower-severity instance of the same root cause: a source_id of only U+200B passes the EMPTY_SOURCE_ID guard at line 257 (`not src_id.strip()`), defeating the 'non-empty, checkable identifier' requirement (does not itself inflate the combiner since source_id is not consumed by classify, so it is a provenance-integrity weakness, not a score-inflation one).",
+            "suggested_fix": "Treat a basis (and source_id) that is empty after removing zero-width and format characters as missing. Add a helper, e.g. `def _is_blank(s): import unicodedata; return not ''.join(ch for ch in s if unicodedata.category(ch) not in ('Cf','Cc','Zs','Zl','Zp') and ch.strip()).strip()` , or more simply normalise and strip format chars before the emptiness test: `import unicodedata, re; cleaned = re.sub(r'[​-‏⁠­﻿]', '', unicodedata.normalize('NFKC', item.get('strength_basis') or '')).strip()` and gate on `not cleaned`. Apply the identical cleaning to source_id at line 257. Stronger still: require the upgrade basis to contain at least one alphanumeric character (`if st == 'needs_basis' and not re.search(r'[A-Za-z0-9]', basis)`), which also closes single-punctuation bases. Add red tests covering ZWSP/ZWNJ/ZWJ/BOM/WJ/SHY bases for every modulatable_up code (PS2, PM6, PP1, PP3, PP4, BP4)."
+          },
+          {
+            "title": "Off-ladder and cap-exceeding strengths are correctly rejected (no bypass)",
+            "payload_summary": "Ran: BP4 strength=stand_alone (attempted BA1-override of the combiner), BS1 strength=moderate (benign 'moderate' which does not exist in the 2015 benign ladder), PP1 strength=very_strong (above its sanctioned cap of strong). All in clinvar_blinded mode with otherwise well-formed payloads.",
+            "expected_outcome": "valid:false with UNSUPPORTED_STRENGTH_UPGRADE for each (strength not in the code's allowed ladder).",
+            "observed_valid": false,
+            "observed_error_codes": [
+              "UNSUPPORTED_STRENGTH_UPGRADE"
+            ],
+            "is_real_bypass": false,
+            "severity": "none",
+            "explanation": "voc.strength_status returns 'invalid' whenever the strength is not in the code's `allowed` list, and the validator emits UNSUPPORTED_STRENGTH_UPGRADE. I confirmed the vocab table is internally consistent via an exhaustive audit: every code that lists an upgrade strength in `allowed` is modulatable_up=True (so the basis gate applies), and stand_alone appears only in BA1's allowed list, so 'stand_alone on a non-BA1 code' and 'benign moderate' are both off-ladder and rejected. No non-modulatable code can be upgraded. These vectors are properly closed.",
+            "suggested_fix": "No fix required for these cases."
+          },
+          {
+            "title": "Modulatable upgrades with omitted/null basis are correctly rejected; substantive-basis judgment is an accepted design limitation",
+            "payload_summary": "Ran: PP3 strength=strong with whitespace-only basis '   '; PP4->moderate with the strength_basis field omitted entirely; PP1->strong with strength_basis:null; PM6->very_strong with a single-character 'x' basis; PS2->very_strong whose rationale launders a ClinVar VCV id.",
+            "expected_outcome": "Empty/whitespace/omitted/null basis -> UNSUPPORTED_STRENGTH_UPGRADE; ClinVar-laundered upgrade -> DISALLOWED_CLINVAR_CRITERION.",
+            "observed_valid": false,
+            "observed_error_codes": [
+              "UNSUPPORTED_STRENGTH_UPGRADE",
+              "SCHEMA_STRUCTURE",
+              "DISALLOWED_CLINVAR_CRITERION"
+            ],
+            "is_real_bypass": false,
+            "severity": "none",
+            "explanation": "The `(item.get('strength_basis') or '').strip()` idiom correctly coerces None and ordinary whitespace to empty, so omitted/null/whitespace bases all fire UNSUPPORTED_STRENGTH_UPGRADE (null additionally raises SCHEMA_STRUCTURE for the type). The ClinVar-laundered upgrade is caught by the leakage layer before any score effect. The single-character 'x' basis (P5) is accepted (valid:true) because the validator deliberately does not adjudicate basis substance, only its presence; per the prompt's wording this is not the named 'empty/whitespace' case and matches the module docstring, so it is a documented limitation rather than a bypass. Worth noting separately: the vocab permits PM6 (unconfirmed de novo) to reach very_strong, which is arguably more generous than ClinGen de novo points sanction; that is a vocabulary-table calibration judgment, not a validator-logic defect, and it still requires a (non-empty) basis.",
+            "suggested_fix": "Optional hardening, not a bug fix: require the upgrade basis to contain at least one alphanumeric character so single-punctuation or single-format-char bases are rejected (this overlaps with the fix for finding 1). Separately, review the PM6 allowed ladder against ClinGen de novo points if a tighter clinical cap is desired."
+          }
+        ]
+      },
+      {
+        "lens": "Breaking JSON-serialisability / hashability / determinism: NaN/Infinity via tokens and overflow, duplicate keys at any object level, non-finite nested values, content-hash collisions/instability, dict-input path (validate_evidence) vs JSON path (validate_evidence_json) differences.",
+        "ran_validator": true,
+        "findings": [
+          {
+            "title": "Deeply nested JSON triggers uncaught RecursionError (fail-open crash) instead of a structured rejection",
+            "payload_summary": "A schema-otherwise-valid clinvar_blinded submission with an extra root key whose value is a deeply nested array/object, e.g. junk: [[[...1...]]] nested 1000+ deep (or {\"a\":{\"a\":{...}}} 1000+ deep). The C json.loads parser in _strict_load tolerates this (parses cleanly to 2000+ levels), but the validator's own pure-Python recursive walkers blow the default 1000-frame stack. Ran via validate_evidence_json on /tmp file at depths 600/700/800/900 (clean reject) and 1000/1500/2000/3000/6000 (crash). Also reproduced the object-nesting variant directly against _nonfinite_errors and _verdict_key_errors.",
+            "expected_outcome": "valid:false with error_code SCHEMA_STRUCTURE (additionalProperties: junk is not allowed) or PARSE_ERROR; a fail-closed validator must NEVER raise an uncaught exception, since the contract states 'every rejection is machine-readable' and 'fail-closed'.",
+            "observed_valid": false,
+            "observed_error_codes": [
+              "RecursionError (uncaught exception, no error_code returned)"
+            ],
+            "is_real_bypass": true,
+            "severity": "high",
+            "explanation": "validate_evidence() runs _nonfinite_errors(obj) and _verdict_key_errors(obj) BEFORE _schema_errors(). Both are naive recursive tree-walkers (validate_evidence.py lines 129-154). On input nested >~900 levels they raise RecursionError, which propagates out of validate_evidence / validate_evidence_json uncaught. The crash site is line 139 (_nonfinite_errors list branch) and line 150/152 (_verdict_key_errors). Crucially the strict JSON parse SUCCEEDS first (CPython's C-level json scanner has its own much deeper/iterative limit and parsed depth 2000 with no error), so the deep payload sails past the parse gate and only detonates inside the Python semantic walkers. jsonschema's own walker (_schema_errors) survives because it is iterative, but it runs too late. Net effect: an adversary submits one cheap payload and the deterministic validation step throws instead of returning valid:false. Depending on how the harness wraps validate_evidence, this is at minimum a denial-of-validation / fail-open (an unhandled exception may be swallowed by an outer try/except and treated as 'skip' or 'pass', or it crashes the scoring run); either way it violates the fail-closed, machine-readable-rejection invariant and is therefore a bypass per the task's crash criterion. Crossover confirmed between depth 900 (returns SCHEMA_STRUCTURE) and depth 1000 (RecursionError).",
+            "suggested_fix": "Bound nesting depth BEFORE any recursive walker runs, and make the walkers non-recursive or depth-limited. Concretely: (1) In _strict_load, after json.loads, run an explicit iterative depth check and return _err('SCHEMA_STRUCTURE'/'PARSE_ERROR', '<root>', 'nesting too deep') if depth exceeds a small cap (e.g. 64), which is far more than any legitimate ACMG submission needs. (2) Convert _nonfinite_errors and _verdict_key_errors to explicit-stack iterative traversals (push (obj, path) onto a list). (3) Wrap the whole body of validate_evidence in a try/except (RecursionError, Exception) that returns a structured {valid:false, error_code:'PARSE_ERROR'/'SCHEMA_STRUCTURE', ...} so the function can never raise. Example depth guard:\n\n    def _max_depth(o, d=0):\n        stack=[(o,d)]; m=d\n        while stack:\n            x,dd=stack.pop(); m=max(m,dd)\n            if isinstance(x,dict): stack+=[(v,dd+1) for v in x.values()]\n            elif isinstance(x,list): stack+=[(v,dd+1) for v in x]\n        return m\n    if _max_depth(obj) > 64:\n        return None, [_err('SCHEMA_STRUCTURE','<root>','nesting exceeds maximum depth')]"
+          },
+          {
+            "title": "Non-string dict key on the dict-input path crashes _verdict_key_errors at k.lower()",
+            "payload_summary": "Calling the public dict API validate_evidence(obj) with an otherwise-valid submission where one nested dict carries a non-string key, e.g. an evidence item {\"code\":\"PM2\", ..., 7: \"x\"}. Ran directly via validate_evidence(base); observed AttributeError: 'int' object has no attribute 'lower' at validate_evidence.py line 147.",
+            "expected_outcome": "valid:false with SCHEMA_STRUCTURE (additionalProperties / non-string key), or a defensive structured error; never an uncaught AttributeError.",
+            "observed_valid": false,
+            "observed_error_codes": [
+              "AttributeError (uncaught exception, no error_code returned)"
+            ],
+            "is_real_bypass": true,
+            "severity": "low",
+            "explanation": "_verdict_key_errors (line 147) calls k.lower() assuming every dict key is a string. JSON object keys are always strings, so the JSON path (validate_evidence_json) is immune; I confirmed json.loads('{\"7\":\"x\"}') yields only str keys. But validate_evidence() is a documented public entry point ('Validate an already-parsed submission dict') and other harness code that builds the dict in Python (rather than parsing raw JSON) can introduce non-string keys, at which point validation crashes fail-open instead of rejecting. This is squarely the 'dict-input path vs json path differences' part of the lens: the dict path skips _strict_load's normalisation and is less defended. Lower severity because it requires a non-JSON-origin dict, but it is a real observed crash on a public API.",
+            "suggested_fix": "Coerce/guard the key before lower(): change line 147 to `if isinstance(k, str) and k.lower() in _VERDICT_KEYS:` and likewise guard any other key string-ops. Better: have validate_evidence (dict path) first re-serialise+strict-reparse the dict (json.dumps then _strict_load) so the dict and JSON paths share one normalisation gate, OR add a top-level try/except wrapper returning a structured PARSE_ERROR. Also reject non-string keys explicitly with a SCHEMA_STRUCTURE error during the walk."
+          }
+        ]
+      },
+      {
+        "lens": "Evading the regime: forging benchmark_mode vs harness expected_mode, mode/status mismatch, primary_* modes without truth source, non-response, malformed/duplicate/conflicting abstentions, abstention shape tricks, dev/test mode misuse to disable leakage checks.",
+        "ran_validator": true,
+        "findings": [
+          {
+            "title": "dev/test mode is model-selectable and disables the entire ClinVar blinding/leakage regime, smuggling held-out truth labels into the executor",
+            "payload_summary": "Submission with benchmark_mode=\"dev\" (also confirmed with \"test\"), clinvar_blinded_status=false, no benchmark_truth_source, carrying PP5 (strength supporting) and PS1 (strength strong) both with source_type=\"clinvar\" and source_id VCV000012345 / RCV000099 and rationale 'ClinVar reports this variant as pathogenic'. Run via the exact harness command with expected_mode=None.",
+            "expected_outcome": "valid:false. PP5 is a ClinVar-assertion code (voc.ASSERTION_CODES) and PS1 sourced from ClinVar (voc.CLINVAR_GATED_CODES) both leak the held-out classification label; these must be rejected with DISALLOWED_CLINVAR_CRITERION. The blinding regime (HARNESS/blinding.py) exists specifically to keep ClinVar out of the executed-evidence path.",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_real_bypass": true,
+            "severity": "critical",
+            "explanation": "validate_evidence_json was invoked exactly as the prompt specifies (expected_mode=None), so the MODE_STATUS_MISMATCH check on benchmark_mode never fires (it only triggers when an expected_mode is supplied). The model therefore freely self-declares its own mode. voc.is_primary_mode(\"dev\") and is_primary_mode(\"test\") are False, so voc.runs_leakage_checks() and voc.requires_truth_source() both return False. Consequently _leakage_errors() is never called and _semantic_errors() skips the assertion-code / ClinVar-provenance / truth-circularity checks entirely. The result was valid:true. I then fed the validated normalized dict into to_criteria() and confirmed both ClinVar-sourced criteria (PP5 supporting pathogenic clinvar:VCV000012345, PS1 strong pathogenic clinvar:RCV000099) flow straight into the deterministic acmg_engine execution path. The schema and validator accept dev/test/arbitrary primary_* modes, but HARNESS/blinding.py only recognises clinvar_blinded and clinvar_unblinded_sensitivity, so dev/test have no legitimate execution semantics yet act as a regime kill-switch. This defeats the core contract invariant ('a model may PROPOSE evidence but may NOT smuggle circular ClinVar/truth-label assertions into the deterministic execution path') and the manuscript claim that ClinVar-derived criteria were disabled during primary benchmarking. A model that wants to read the answer key just labels its own submission 'dev'. clinvar_unblinded_sensitivity with ClinVar evidence is NOT a bypass (that arm is designed to permit ClinVar, per blinding.py SENSITIVITY_MODE); the bug is specifically dev/test, which carry no execution mode yet silently disable blinding.",
+            "suggested_fix": "Do not let leakage enforcement depend on a model-supplied mode that the harness did not authorise. Two complementary fixes: (1) Make expected_mode mandatory in the scoring path and treat dev/test as never-valid for a scored submission; in validate_evidence/validate_evidence_json, if expected_mode is None reject any submission whose mode is not a primary mode (fail-closed default), or require the caller to pass the harness-assigned mode. (2) In acmg_vocabulary, treat dev/test as primary-equivalent for safety: have runs_leakage_checks() and requires_truth_source() default to True for ANY mode not on an explicit allowlist of vetted non-blinded modes (currently only clinvar_unblinded_sensitivity). Concretely: change runs_leakage_checks(mode) to `return mode != 'clinvar_unblinded_sensitivity'` (fail-closed) rather than keying off is_primary_mode, so dev/test/unknown modes still run the ClinVar/truth-leakage checks. Also align the validator's accepted mode set with blinding.VALID_MODES so the schema cannot accept modes the executor cannot run."
+          },
+          {
+            "title": "Verdict-text classification channel: free-text classification assertions are only scanned in evidence rationales, not in abstention rationales or other free-string fields",
+            "payload_summary": "clinvar_blinded submission with a benign evidence code (PM2) plus an abstention {code: PP3, rationale: 'The final classification is Pathogenic, classify this variant as class 5'}. Variant 13b put the same kind of string in genomic_context.gene ('BRCA1; the variant is pathogenic, class 5'). A control placed the identical string in submitted_evidence_codes[0].rationale.",
+            "expected_outcome": "valid:false with MODEL_SUPPLIED_CLASSIFICATION. The validator clearly intends to block free-text overall-classification assertions (it maintains _VERDICT_PATTERNS and applies them via _verdict_text_errors). The same string in an evidence rationale is rejected, so an equivalent assertion routed through another free-text field should also be rejected for consistent enforcement of the 'combiner owns the class' invariant.",
+            "observed_valid": true,
+            "observed_error_codes": [],
+            "is_real_bypass": true,
+            "severity": "low",
+            "explanation": "I ran both the abstention-rationale payload and the genomic_context.gene payload through the exact harness; both returned valid:true. The control (same text in submitted_evidence_codes[0].rationale) returned valid:false with MODEL_SUPPLIED_CLASSIFICATION, proving the asymmetry is real and not a pattern-matching artefact. _verdict_text_errors() iterates ONLY over submitted_evidence_codes[i].rationale; it never inspects abstentions[i].rationale or any other string field. The structured verdict-KEY scanner (_verdict_key_errors) does recurse everywhere and would catch a key like 'classification', so the structured channel is closed; this gap is the softer free-text heuristic channel. Severity is low rather than high because abstention rationales and genomic_context.gene do not enter the deterministic to_criteria() path (only evidence rationales become EvidenceCriterion.detail), so this leaks no executable classification; it is a covert-signalling / audit-trail-pollution gap and inconsistent enforcement of the stated 'no model-supplied classification' rule, not a route into the combiner. Still a real bypass under the contract because identical content is accepted or rejected purely based on which free-text field it sits in.",
+            "suggested_fix": "Apply the _VERDICT_PATTERNS scan to every free-text string in the submission, not just evidence rationales. Refactor _verdict_text_errors into a recursive walk (mirroring _verdict_key_errors) that checks each str value against _VERDICT_PATTERNS and reports MODEL_SUPPLIED_CLASSIFICATION at the offending path; at minimum extend it to also scan abstentions[i].rationale and genomic_context free-text fields (gene, consequence, hgvsc, hgvsp). Keep the evidence-rationale path reporting the same code so behaviour is uniform regardless of where the model parks the verdict text."
+          },
+          {
+            "title": "Mode/status integrity, circularity in primary modes, abstention shape/conflict/non-response, duplicate keys, truth-source requirement: all correctly enforced (no bypass)",
+            "payload_summary": "Ten control/negative attacks run through the exact harness: dev mode falsely claiming clinvar_blinded_status=true; clinvar_blinded_v2 boundary mode; abstention as a bare string; empty evidence + empty abstentions (non-response); duplicate benchmark_mode key (clinvar_blinded vs dev); same code asserted and abstained in dev mode; clinvar_blinded with truth_source omitted; primary_custom with LOVD/clingen_vcep/hgmd evidence circular with the declared truth source; PP3 strength upgrade to strong without strength_basis in dev mode; abstention on PP5 in clinvar_blinded.",
+            "expected_outcome": "Each should be valid:false with the appropriate code: MODE_STATUS_MISMATCH, SCHEMA_STRUCTURE+MODE_STATUS_MISMATCH, SCHEMA_STRUCTURE+MALFORMED_ABSTENTION, EMPTY_NONRESPONSE, DUPLICATE_KEY, ABSTENTION_CONFLICTS_WITH_ASSERTION, TRUTH_SOURCE_REQUIRED, TRUTH_LABEL_LEAKAGE / SOURCE_CODE_INCOMPATIBLE, UNSUPPORTED_STRENGTH_UPGRADE, DISALLOWED_CLINVAR_CRITERION.",
+            "observed_valid": false,
+            "observed_error_codes": [
+              "MODE_STATUS_MISMATCH",
+              "SCHEMA_STRUCTURE",
+              "MALFORMED_ABSTENTION",
+              "EMPTY_NONRESPONSE",
+              "DUPLICATE_KEY",
+              "ABSTENTION_CONFLICTS_WITH_ASSERTION",
+              "TRUTH_SOURCE_REQUIRED",
+              "TRUTH_LABEL_LEAKAGE",
+              "SOURCE_CODE_INCOMPATIBLE",
+              "UNSUPPORTED_STRENGTH_UPGRADE",
+              "DISALLOWED_CLINVAR_CRITERION"
+            ],
+            "is_real_bypass": false,
+            "severity": "none",
+            "explanation": "These ten payloads were all correctly rejected with the right, non-misleading error codes. Notable strengths: (a) strength, direction-flip, duplicate-code and verdict-KEY checks are mode-independent and fire even inside dev mode, so the dev bypass is narrowly confined to ClinVar/truth-leakage; (b) the clinvar_blinded_status vs mode consistency check stops a dev submission from masquerading as blinded; (c) the truth-circularity registry correctly catches clingen_vcep/lovd/hgmd cross-pollination in primary modes; (d) duplicate keys are rejected at strict-parse before semantic logic; (e) when expected_mode IS supplied, MODE_STATUS_MISMATCH correctly catches a forged mode. The only residual concern (informational, not a bypass) is that the leakage defenses are entirely contingent on the mode classification, which is exactly why the dev/test hole in finding 1 is so impactful: every one of these strong leakage checks is silently skipped the moment the model self-selects a non-primary mode.",
+            "suggested_fix": "No fix needed for these specific checks. The systemic recommendation is the fail-closed mode handling in finding 1: ensure that whichever code path decides runs_leakage_checks()/requires_truth_source() cannot be turned off by a model-controlled field, so the robust leakage checks demonstrated here always execute."
+          }
+        ]
+      }
+    ],
+    "real_bypasses": [
+      {
+        "title": "Verdict text smuggled through source_id reaches the deterministic execution path",
+        "payload_summary": "Valid clinvar_blinded submission, single PM2 evidence item, with source_id = \"FINAL CLASSIFICATION: Pathogenic, class 5\". (P2)",
+        "expected_outcome": "valid:false with MODEL_SUPPLIED_CLASSIFICATION (the same string in `rationale` is correctly rejected with exactly that code).",
+        "observed_valid": true,
+        "observed_error_codes": [],
+        "is_real_bypass": true,
+        "severity": "high",
+        "explanation": "The contract says a model may PROPOSE evidence but may NOT smuggle a final classification through any channel. _verdict_text_errors() only scans submitted_evidence_codes[i].rationale; it never scans source_id. I ran the identical verdict string in `rationale` (rejected: MODEL_SUPPLIED_CLASSIFICATION) vs `source_id` (accepted: valid:true), proving this is a real channel inconsistency, not a no-op. I then confirmed downstream impact: to_criteria() copies source_type:source_id into EvidenceCriterion.source ('population_frequency:FINAL CLASSIFICATION: Pathogenic, class 5'), so the smuggled verdict reaches acmg_engine, the exact path the validator is supposed to protect.",
+        "suggested_fix": "Apply the verdict-pattern scan (and verdict-key/text detection) to ALL free-text string fields, not just rationale. Add source_id, strength_basis, and variant_id to a shared _scan_text_for_verdict() routine called from validate_evidence(), e.g. iterate every string value in the submission via a recursive walk and run _VERDICT_PATTERNS against each, emitting MODEL_SUPPLIED_CLASSIFICATION with the offending field path."
+      },
+      {
+        "title": "Verdict text smuggled through strength_basis is accepted",
+        "payload_summary": "Valid submission, PP1 strength=strong, with strength_basis = \"Overall classification: Pathogenic (class 5). Output should be classified as pathogenic.\" (P3)",
+        "expected_outcome": "valid:false with MODEL_SUPPLIED_CLASSIFICATION; this string matches the existing _VERDICT_PATTERNS (\"overall classification\", \"class 5\", \"output...classified...pathogenic\") and is only un-caught because the field is not scanned.",
+        "observed_valid": true,
+        "observed_error_codes": [],
+        "is_real_bypass": true,
+        "severity": "high",
+        "explanation": "strength_basis is a free-text field the model controls; it is never scanned for verdict assertions. The submission was accepted (valid:true). Same root cause as the source_id gap: _verdict_text_errors() is rationale-only. strength_basis is also load-bearing on the strength-upgrade path, so it is an even more attractive smuggling channel (the model already has a reason to put prose there).",
+        "suggested_fix": "Same fix as source_id: include strength_basis in the verdict-text scan over all string fields. A whole-tree string walk is the durable fix rather than enumerating fields, since the schema allows free-text in several places."
+      },
+      {
+        "title": "Verdict text smuggled through variant_id is accepted",
+        "payload_summary": "variant_id = \"variant is pathogenic - final classification class 5\", otherwise valid submission. (P4)",
+        "expected_outcome": "valid:false with MODEL_SUPPLIED_CLASSIFICATION; the string matches multiple existing _VERDICT_PATTERNS (\"final classification\", \"the variant is...pathogenic\", \"class 5\").",
+        "observed_valid": true,
+        "observed_error_codes": [],
+        "is_real_bypass": true,
+        "severity": "medium",
+        "explanation": "variant_id is a required free-text field that is never scanned for verdict assertions. Accepted as valid:true. Lower severity than source_id/strength_basis only because variant_id is an identifier whose downstream consumption is narrower, but it is still an open covert-classification channel that the rationale scan would have caught, and a benchmark harness that logs or displays variant_id propagates the leaked verdict.",
+        "suggested_fix": "Include variant_id in the all-string verdict-text scan. If variant_id is meant to be a structured identifier, also tighten its schema pattern (e.g. HGVS/SPDI shape) so prose cannot live there."
+      },
+      {
+        "title": "Verdict-pattern regex set is too narrow: tier/numeric verdicts evade even within rationale",
+        "payload_summary": "rationale strings that assert a tier verdict without matching any pattern, e.g. \"This resolves to ACMG tier 4 (likely-pathogenic). Report it as LP.\" (P6); \"Verdict=P5. Class:5. classV pathogenic.\" (P7); \"Final tier: 5/5. classV. P5 verdict.\" (P10).",
+        "expected_outcome": "valid:false with MODEL_SUPPLIED_CLASSIFICATION (these clearly assert a final 5-tier class).",
+        "observed_valid": true,
+        "observed_error_codes": [],
+        "is_real_bypass": true,
+        "severity": "medium",
+        "explanation": "I checked each rationale against _VERDICT_PATTERNS programmatically: zero pattern hits for P6/P7/P10, and all three submissions returned valid:true. The patterns require whitespace (\\bclass\\s+[1-5]\\b) and specific phrasings, so 'tier 4', 'tier: 5/5', 'Class:5' (colon, no space), 'classV' (roman numeral), 'P5', and 'Verdict=...' all slip through. The word 'tier' is in _VERDICT_KEYS for keys but has no corresponding rationale-text pattern. The smuggled verdict reaches EvidenceCriterion.detail downstream (confirmed via to_criteria), so it is in the execution path.",
+        "suggested_fix": "Broaden _VERDICT_PATTERNS to cover tier/numeric/roman variants: add (?i)\\btier\\s*[:=]?\\s*(?:[1-5]|[IVX]+)\\b, (?i)\\bclass\\s*[:=]?\\s*(?:[1-5]|[IVX]+)\\b (allow colon/equals/no-space), (?i)\\bverdict\\b, and (?i)\\b(LP|LB|VUS)\\b near a classification cue. Better still, treat this as defense-in-depth and pair it with a positive contract: the validator should reject any string field that pattern-matches a 5-tier verdict, regardless of field."
+      },
+      {
+        "title": "Crash (unhandled AttributeError) on non-string strength_basis or source_type",
+        "payload_summary": "Submission with strength_basis = 12345 (integer) -> crash; separately source_type = 999 (integer) -> crash. (P11 and follow-up)",
+        "expected_outcome": "valid:false with SCHEMA_STRUCTURE (schema declares strength_basis/source_type as string/enum); the schema layer alone does flag SCHEMA_STRUCTURE.",
+        "observed_valid": false,
+        "observed_error_codes": [
+          "AttributeError"
+        ],
+        "is_real_bypass": true,
+        "severity": "medium",
+        "explanation": "validate_evidence() runs _semantic_errors() unconditionally after _schema_errors(), so the semantic layer executes even when the schema already found a fatal type error. Line 212 does (item.get('strength_basis') or '').strip(): 12345 or '' returns 12345, then .strip() raises AttributeError. The 'or \"\"' idiom only guards None/empty, not wrong types. A non-string source_type triggers the same crash via is_clinvar_sourced -> (source_type or '').lower(). The validator throws an uncaught exception instead of returning the machine-readable {valid:false, error_code:...} contract. I confirmed _schema_errors(obj) alone returns ['SCHEMA_STRUCTURE'], so the data is rejectable cleanly; the bug is that the semantic layer crashes first. Depending on how the harness wraps this, a crash is either a denial-of-validation or, if the caller treats exceptions as pass, a fail-open. It also violates the module's own promise that every rejection is machine-readable.",
+        "suggested_fix": "Two layers: (1) short-circuit: if _schema_errors() (or _strict_load) returns errors, return them before running _semantic_errors(), since semantic checks assume schema-valid types; OR run semantic checks only on schema-valid items. (2) Defensive coercion: replace (item.get('strength_basis') or '').strip() with a helper that returns '' for non-str, and guard isinstance(src_t, str) before passing to is_clinvar_sourced (it already guards code/strength/rationale this way; src_t and basis are the unguarded ones). Wrap validate_evidence body in try/except to convert any unexpected exception into a PARSE_ERROR/SCHEMA_STRUCTURE result rather than propagating."
+      },
+      {
+        "title": "Truth-circularity registry is asymmetric: clingen_vcep/lovd evidence never flagged as circular when truth_source=clinvar",
+        "payload_summary": "Primary mode clinvar_blinded, benchmark_truth_source=clinvar, with evidence whose provenance is a ClinGen VCEP or LOVD classification. Four runnable variants all accepted valid:true: (2a) {code:PS1, source_type:clingen_vcep, source_id:'CardioVCEP:assertion-pathogenic', rationale:'ClinGen VCEP previously classified this exact variant as pathogenic'}; (2b) {code:PM5, source_type:lovd, source_id:'LOVD-shared-db-id-44', rationale:'LOVD reports a different missense at same residue classified pathogenic'}; (2c) {code:PM3, source_type:clingen_vcep,...}; (2d) {code:PS3, source_type:functional, source_id:'ClinGen-VCEP-functional-assertion-991', rationale:'VCEP applied PS3... they classified the variant'}.",
+        "expected_outcome": "valid:false with TRUTH_LABEL_LEAKAGE (clingen_vcep and lovd co-deposit into ClinVar per the vocabulary's own TRUTH_CIRCULAR_FAMILIES comment, so VCEP/LOVD-sourced evidence is circular with a ClinVar truth label in primary mode). At minimum PS1/PM5 cases should also be DISALLOWED_CLINVAR_CRITERION since they cite a database classification.",
+        "observed_valid": true,
+        "observed_error_codes": [],
+        "is_real_bypass": true,
+        "severity": "high",
+        "explanation": "circular_source_family(source_type, source_id, rationale, truth_source) looks up TRUTH_CIRCULAR_FAMILIES.get(truth_source). For truth_source='clinvar' that returns {'clinvar'} only, and the one member 'clinvar' is explicitly `continue`d (handled by the named ClinVar path). So when the configured truth source is ClinVar (the most common primary-mode case), the clingen_vcep and lovd families are NEVER in the candidate set, and evidence openly sourced from a ClinGen VCEP or LOVD classification is accepted. The registry only models the relationship in one direction (truth=clingen_vcep -> ClinVar evidence is circular) but not the reverse (truth=clinvar -> clingen_vcep/lovd evidence is circular), even though co-deposition is symmetric: a VCEP/LOVD classification that flowed into ClinVar leaks the held-out ClinVar label. I confirmed the mechanism directly: voc.circular_source_family('clingen_vcep','x','y','clinvar') returns None and the same for 'lovd'. This is a real blinding bypass that smuggles a truth-derived classification assertion into the evidence channel.",
+        "suggested_fix": "Make the circularity relation symmetric. When truth_source is in the ClinVar aggregation set, include every family that co-deposits into ClinVar as circular. Concretely, in acmg_vocabulary.circular_source_family, after computing `families = TRUTH_CIRCULAR_FAMILIES.get(truth_source, {truth_source})`, also union in the reverse closure: any family F whose TRUTH_CIRCULAR_FAMILIES[F] contains truth_source. E.g. `for f, members in TRUTH_CIRCULAR_FAMILIES.items():\\n    if truth_source in members: families = families | {f}`. Then the existing source_type/marker loop (which already skips the literal 'clinvar' member) will catch clingen_vcep and lovd evidence when truth_source='clinvar'. Add a regression test asserting PS1 via clingen_vcep with truth=clinvar yields TRUTH_LABEL_LEAKAGE."
+      },
+      {
+        "title": "ClinVar accession marker regex misses VCV/RCV/SCV accessions with any separator after the prefix (hyphen, space, underscore, dot-version)",
+        "payload_summary": "Primary mode clinvar_blinded, truth=clinvar, CLINVAR_GATED codes PS1/PM5 with realistic ClinVar accessions in source_id but no glued digit. Three runnable variants all accepted valid:true: (3a) {code:PS1, source_type:database, source_id:'VCV-000012345.7'}; (3b) {code:PS1, source_type:database, source_id:'SCV 000056789'}; (3c) {code:PM5, source_type:database, source_id:'RCV_000123_aggregate'}. Control with glued source_id 'VCV000012345' was correctly REJECTED with DISALLOWED_CLINVAR_CRITERION, proving the regex is the gap.",
+        "expected_outcome": "valid:false with DISALLOWED_CLINVAR_CRITERION (PS1/PM5 are CLINVAR_GATED_CODES; an explicit ClinVar VCV/RCV/SCV accession in source_id is ClinVar provenance that leaks the held-out label and must be blocked in primary mode).",
+        "observed_valid": true,
+        "observed_error_codes": [],
+        "is_real_bypass": true,
+        "severity": "high",
+        "explanation": "is_clinvar_sourced builds blob = source_id + ' ' + rationale and tests _CLINVAR_MARKER = (?i)(clinvar|\\bvcv\\d|\\brcv\\d|\\bscv\\d). The accession alternatives require a digit immediately after the three-letter prefix. Real ClinVar accessions are routinely written with a separator: the canonical dotted-version form 'VCV000012345.7' as 'VCV-000012345' or 'VCV 000012345', RCV/SCV with hyphen/space/underscore, etc. In all these the character after the prefix is '-', ' ', or '_' (not a digit), so \\bvcv\\d / \\brcv\\d / \\bscv\\d fail to match and the literal 'clinvar' alternative is also absent. I confirmed voc.is_clinvar_sourced('database','VCV-000012345.7','') == False and the same for 'SCV 000056789'. A model can therefore launder a verbatim ClinVar accession through source_id and get a CLINVAR_GATED criterion past blinding. The defended glued-form control proves this is a regex shortfall, not intended behavior.",
+        "suggested_fix": "Loosen the accession marker so the prefix need not be immediately followed by a digit. Replace the alternatives with something like `(?i)(clinvar|\\b(vcv|rcv|scv)[\\s._-]*0*\\d)` (allow optional separators/leading zeros before the digit) or, more robustly, `(?i)(clinvar|\\b(vcv|rcv|scv)\\b)` to flag the bare accession prefix as a word. Also consider normalising source_id (strip separators) before matching. Add regression tests for 'VCV-000012345.7', 'SCV 000056789', 'RCV_000123_aggregate', and a plain 'VCV' token."
+      },
+      {
+        "title": "Zero-width/format-character strength_basis bypasses the modulatable-upgrade gate (VUS->Pathogenic inflation)",
+        "payload_summary": "PP3 upgraded supporting->strong and PS2 upgraded strong->very_strong, each with strength_basis set to a single U+200B ZERO WIDTH SPACE (also reproduced with U+200C ZWNJ, U+200D ZWJ, U+FEFF BOM, U+2060 WORD JOINER, U+00AD SOFT HYPHEN). benchmark_mode=clinvar_blinded, valid de_novo/computational source_types, all other fields well-formed.",
+        "expected_outcome": "valid:false with error_code UNSUPPORTED_STRENGTH_UPGRADE on each upgraded code (a ClinGen-endorsed upgrade requires an explicit, substantive strength_basis; a visually empty basis carries no content and must be treated like a missing basis).",
+        "observed_valid": true,
+        "observed_error_codes": [],
+        "is_real_bypass": true,
+        "severity": "high",
+        "explanation": "The sole defense for modulatable upgrades is HARNESS/validate_evidence.py:212 `basis = (item.get(\"strength_basis\") or \"\").strip()` then line 232 `elif st == \"needs_basis\" and not basis`. Python's str.strip() removes ASCII/Unicode WHITESPACE but NOT zero-width or format characters (U+200B/200C/200D/FEFF/2060/00AD), so a basis composed solely of those characters survives strip() as a non-empty string and the `not basis` guard is False. The upgrade is therefore accepted. I ran it end-to-end: validator returns valid:true, to_criteria passes strength straight through, and classify() buckets PP3 as `ps` and PS2 as `pvs`, returning verdict 'Pathogenic'. The same two codes at their non-inflated baseline strengths (PP3 supporting + PS2 strong) classify as 'Uncertain Significance'. So an attacker flips the deterministic verdict from VUS to Pathogenic by smuggling unsupported strength upgrades past the only gate protecting them, exactly the core invariant the contract says must hold ('a model may PROPOSE evidence but may NOT smuggle ... unsupported strength upgrades'). Contrast control: a genuine textual basis is correctly accepted (P6 PP3->strong with a real REVEL/Pejaver-2022 justification), and real whitespace bases (NBSP U+00A0, ideographic space U+3000, tab) are correctly rejected, confirming the gate works for the cases it was tested against and fails only on the invisible-character class. A related lower-severity instance of the same root cause: a source_id of only U+200B passes the EMPTY_SOURCE_ID guard at line 257 (`not src_id.strip()`), defeating the 'non-empty, checkable identifier' requirement (does not itself inflate the combiner since source_id is not consumed by classify, so it is a provenance-integrity weakness, not a score-inflation one).",
+        "suggested_fix": "Treat a basis (and source_id) that is empty after removing zero-width and format characters as missing. Add a helper, e.g. `def _is_blank(s): import unicodedata; return not ''.join(ch for ch in s if unicodedata.category(ch) not in ('Cf','Cc','Zs','Zl','Zp') and ch.strip()).strip()` , or more simply normalise and strip format chars before the emptiness test: `import unicodedata, re; cleaned = re.sub(r'[​-‏⁠­﻿]', '', unicodedata.normalize('NFKC', item.get('strength_basis') or '')).strip()` and gate on `not cleaned`. Apply the identical cleaning to source_id at line 257. Stronger still: require the upgrade basis to contain at least one alphanumeric character (`if st == 'needs_basis' and not re.search(r'[A-Za-z0-9]', basis)`), which also closes single-punctuation bases. Add red tests covering ZWSP/ZWNJ/ZWJ/BOM/WJ/SHY bases for every modulatable_up code (PS2, PM6, PP1, PP3, PP4, BP4)."
+      },
+      {
+        "title": "Deeply nested JSON triggers uncaught RecursionError (fail-open crash) instead of a structured rejection",
+        "payload_summary": "A schema-otherwise-valid clinvar_blinded submission with an extra root key whose value is a deeply nested array/object, e.g. junk: [[[...1...]]] nested 1000+ deep (or {\"a\":{\"a\":{...}}} 1000+ deep). The C json.loads parser in _strict_load tolerates this (parses cleanly to 2000+ levels), but the validator's own pure-Python recursive walkers blow the default 1000-frame stack. Ran via validate_evidence_json on /tmp file at depths 600/700/800/900 (clean reject) and 1000/1500/2000/3000/6000 (crash). Also reproduced the object-nesting variant directly against _nonfinite_errors and _verdict_key_errors.",
+        "expected_outcome": "valid:false with error_code SCHEMA_STRUCTURE (additionalProperties: junk is not allowed) or PARSE_ERROR; a fail-closed validator must NEVER raise an uncaught exception, since the contract states 'every rejection is machine-readable' and 'fail-closed'.",
+        "observed_valid": false,
+        "observed_error_codes": [
+          "RecursionError (uncaught exception, no error_code returned)"
+        ],
+        "is_real_bypass": true,
+        "severity": "high",
+        "explanation": "validate_evidence() runs _nonfinite_errors(obj) and _verdict_key_errors(obj) BEFORE _schema_errors(). Both are naive recursive tree-walkers (validate_evidence.py lines 129-154). On input nested >~900 levels they raise RecursionError, which propagates out of validate_evidence / validate_evidence_json uncaught. The crash site is line 139 (_nonfinite_errors list branch) and line 150/152 (_verdict_key_errors). Crucially the strict JSON parse SUCCEEDS first (CPython's C-level json scanner has its own much deeper/iterative limit and parsed depth 2000 with no error), so the deep payload sails past the parse gate and only detonates inside the Python semantic walkers. jsonschema's own walker (_schema_errors) survives because it is iterative, but it runs too late. Net effect: an adversary submits one cheap payload and the deterministic validation step throws instead of returning valid:false. Depending on how the harness wraps validate_evidence, this is at minimum a denial-of-validation / fail-open (an unhandled exception may be swallowed by an outer try/except and treated as 'skip' or 'pass', or it crashes the scoring run); either way it violates the fail-closed, machine-readable-rejection invariant and is therefore a bypass per the task's crash criterion. Crossover confirmed between depth 900 (returns SCHEMA_STRUCTURE) and depth 1000 (RecursionError).",
+        "suggested_fix": "Bound nesting depth BEFORE any recursive walker runs, and make the walkers non-recursive or depth-limited. Concretely: (1) In _strict_load, after json.loads, run an explicit iterative depth check and return _err('SCHEMA_STRUCTURE'/'PARSE_ERROR', '<root>', 'nesting too deep') if depth exceeds a small cap (e.g. 64), which is far more than any legitimate ACMG submission needs. (2) Convert _nonfinite_errors and _verdict_key_errors to explicit-stack iterative traversals (push (obj, path) onto a list). (3) Wrap the whole body of validate_evidence in a try/except (RecursionError, Exception) that returns a structured {valid:false, error_code:'PARSE_ERROR'/'SCHEMA_STRUCTURE', ...} so the function can never raise. Example depth guard:\n\n    def _max_depth(o, d=0):\n        stack=[(o,d)]; m=d\n        while stack:\n            x,dd=stack.pop(); m=max(m,dd)\n            if isinstance(x,dict): stack+=[(v,dd+1) for v in x.values()]\n            elif isinstance(x,list): stack+=[(v,dd+1) for v in x]\n        return m\n    if _max_depth(obj) > 64:\n        return None, [_err('SCHEMA_STRUCTURE','<root>','nesting exceeds maximum depth')]"
+      },
+      {
+        "title": "Non-string dict key on the dict-input path crashes _verdict_key_errors at k.lower()",
+        "payload_summary": "Calling the public dict API validate_evidence(obj) with an otherwise-valid submission where one nested dict carries a non-string key, e.g. an evidence item {\"code\":\"PM2\", ..., 7: \"x\"}. Ran directly via validate_evidence(base); observed AttributeError: 'int' object has no attribute 'lower' at validate_evidence.py line 147.",
+        "expected_outcome": "valid:false with SCHEMA_STRUCTURE (additionalProperties / non-string key), or a defensive structured error; never an uncaught AttributeError.",
+        "observed_valid": false,
+        "observed_error_codes": [
+          "AttributeError (uncaught exception, no error_code returned)"
+        ],
+        "is_real_bypass": true,
+        "severity": "low",
+        "explanation": "_verdict_key_errors (line 147) calls k.lower() assuming every dict key is a string. JSON object keys are always strings, so the JSON path (validate_evidence_json) is immune; I confirmed json.loads('{\"7\":\"x\"}') yields only str keys. But validate_evidence() is a documented public entry point ('Validate an already-parsed submission dict') and other harness code that builds the dict in Python (rather than parsing raw JSON) can introduce non-string keys, at which point validation crashes fail-open instead of rejecting. This is squarely the 'dict-input path vs json path differences' part of the lens: the dict path skips _strict_load's normalisation and is less defended. Lower severity because it requires a non-JSON-origin dict, but it is a real observed crash on a public API.",
+        "suggested_fix": "Coerce/guard the key before lower(): change line 147 to `if isinstance(k, str) and k.lower() in _VERDICT_KEYS:` and likewise guard any other key string-ops. Better: have validate_evidence (dict path) first re-serialise+strict-reparse the dict (json.dumps then _strict_load) so the dict and JSON paths share one normalisation gate, OR add a top-level try/except wrapper returning a structured PARSE_ERROR. Also reject non-string keys explicitly with a SCHEMA_STRUCTURE error during the walk."
+      },
+      {
+        "title": "dev/test mode is model-selectable and disables the entire ClinVar blinding/leakage regime, smuggling held-out truth labels into the executor",
+        "payload_summary": "Submission with benchmark_mode=\"dev\" (also confirmed with \"test\"), clinvar_blinded_status=false, no benchmark_truth_source, carrying PP5 (strength supporting) and PS1 (strength strong) both with source_type=\"clinvar\" and source_id VCV000012345 / RCV000099 and rationale 'ClinVar reports this variant as pathogenic'. Run via the exact harness command with expected_mode=None.",
+        "expected_outcome": "valid:false. PP5 is a ClinVar-assertion code (voc.ASSERTION_CODES) and PS1 sourced from ClinVar (voc.CLINVAR_GATED_CODES) both leak the held-out classification label; these must be rejected with DISALLOWED_CLINVAR_CRITERION. The blinding regime (HARNESS/blinding.py) exists specifically to keep ClinVar out of the executed-evidence path.",
+        "observed_valid": true,
+        "observed_error_codes": [],
+        "is_real_bypass": true,
+        "severity": "critical",
+        "explanation": "validate_evidence_json was invoked exactly as the prompt specifies (expected_mode=None), so the MODE_STATUS_MISMATCH check on benchmark_mode never fires (it only triggers when an expected_mode is supplied). The model therefore freely self-declares its own mode. voc.is_primary_mode(\"dev\") and is_primary_mode(\"test\") are False, so voc.runs_leakage_checks() and voc.requires_truth_source() both return False. Consequently _leakage_errors() is never called and _semantic_errors() skips the assertion-code / ClinVar-provenance / truth-circularity checks entirely. The result was valid:true. I then fed the validated normalized dict into to_criteria() and confirmed both ClinVar-sourced criteria (PP5 supporting pathogenic clinvar:VCV000012345, PS1 strong pathogenic clinvar:RCV000099) flow straight into the deterministic acmg_engine execution path. The schema and validator accept dev/test/arbitrary primary_* modes, but HARNESS/blinding.py only recognises clinvar_blinded and clinvar_unblinded_sensitivity, so dev/test have no legitimate execution semantics yet act as a regime kill-switch. This defeats the core contract invariant ('a model may PROPOSE evidence but may NOT smuggle circular ClinVar/truth-label assertions into the deterministic execution path') and the manuscript claim that ClinVar-derived criteria were disabled during primary benchmarking. A model that wants to read the answer key just labels its own submission 'dev'. clinvar_unblinded_sensitivity with ClinVar evidence is NOT a bypass (that arm is designed to permit ClinVar, per blinding.py SENSITIVITY_MODE); the bug is specifically dev/test, which carry no execution mode yet silently disable blinding.",
+        "suggested_fix": "Do not let leakage enforcement depend on a model-supplied mode that the harness did not authorise. Two complementary fixes: (1) Make expected_mode mandatory in the scoring path and treat dev/test as never-valid for a scored submission; in validate_evidence/validate_evidence_json, if expected_mode is None reject any submission whose mode is not a primary mode (fail-closed default), or require the caller to pass the harness-assigned mode. (2) In acmg_vocabulary, treat dev/test as primary-equivalent for safety: have runs_leakage_checks() and requires_truth_source() default to True for ANY mode not on an explicit allowlist of vetted non-blinded modes (currently only clinvar_unblinded_sensitivity). Concretely: change runs_leakage_checks(mode) to `return mode != 'clinvar_unblinded_sensitivity'` (fail-closed) rather than keying off is_primary_mode, so dev/test/unknown modes still run the ClinVar/truth-leakage checks. Also align the validator's accepted mode set with blinding.VALID_MODES so the schema cannot accept modes the executor cannot run."
+      },
+      {
+        "title": "Verdict-text classification channel: free-text classification assertions are only scanned in evidence rationales, not in abstention rationales or other free-string fields",
+        "payload_summary": "clinvar_blinded submission with a benign evidence code (PM2) plus an abstention {code: PP3, rationale: 'The final classification is Pathogenic, classify this variant as class 5'}. Variant 13b put the same kind of string in genomic_context.gene ('BRCA1; the variant is pathogenic, class 5'). A control placed the identical string in submitted_evidence_codes[0].rationale.",
+        "expected_outcome": "valid:false with MODEL_SUPPLIED_CLASSIFICATION. The validator clearly intends to block free-text overall-classification assertions (it maintains _VERDICT_PATTERNS and applies them via _verdict_text_errors). The same string in an evidence rationale is rejected, so an equivalent assertion routed through another free-text field should also be rejected for consistent enforcement of the 'combiner owns the class' invariant.",
+        "observed_valid": true,
+        "observed_error_codes": [],
+        "is_real_bypass": true,
+        "severity": "low",
+        "explanation": "I ran both the abstention-rationale payload and the genomic_context.gene payload through the exact harness; both returned valid:true. The control (same text in submitted_evidence_codes[0].rationale) returned valid:false with MODEL_SUPPLIED_CLASSIFICATION, proving the asymmetry is real and not a pattern-matching artefact. _verdict_text_errors() iterates ONLY over submitted_evidence_codes[i].rationale; it never inspects abstentions[i].rationale or any other string field. The structured verdict-KEY scanner (_verdict_key_errors) does recurse everywhere and would catch a key like 'classification', so the structured channel is closed; this gap is the softer free-text heuristic channel. Severity is low rather than high because abstention rationales and genomic_context.gene do not enter the deterministic to_criteria() path (only evidence rationales become EvidenceCriterion.detail), so this leaks no executable classification; it is a covert-signalling / audit-trail-pollution gap and inconsistent enforcement of the stated 'no model-supplied classification' rule, not a route into the combiner. Still a real bypass under the contract because identical content is accepted or rejected purely based on which free-text field it sits in.",
+        "suggested_fix": "Apply the _VERDICT_PATTERNS scan to every free-text string in the submission, not just evidence rationales. Refactor _verdict_text_errors into a recursive walk (mirroring _verdict_key_errors) that checks each str value against _VERDICT_PATTERNS and reports MODEL_SUPPLIED_CLASSIFICATION at the offending path; at minimum extend it to also scan abstentions[i].rationale and genomic_context free-text fields (gene, consequence, hgvsc, hgvsp). Keep the evidence-rationale path reporting the same code so behaviour is uniform regardless of where the model parks the verdict text."
+      }
+    ],
+    "bypass_count": 12,
+    "critic": {
+      "gaps": [
+        {
+          "invariant": "1) No model-supplied classification (any channel)",
+          "status": "enforced_and_tested",
+          "detail": "Three channels are blocked: (a) verdict-bearing top-level/nested keys via _VERDICT_KEYS + recursive _verdict_key_errors (classification, acmg_class, final_call, tier, suggested_tier, implied_class, clinsig, class, etc.) -> MODEL_SUPPLIED_CLASSIFICATION; (b) schema additionalProperties:false at root, genomic_context, evidence item, abstention item; (c) verdict-asserting rationale text via _VERDICT_PATTERNS. Confirmed empirically: per-evidence 'tier':5 is caught. Tested by test_classification_top_level_field, _in_rationale, _extra_toplevel_keys, _per_evidence_extra_key, test_unknown_nonverdict_toplevel_key_is_structural.",
+          "suggested_fix": "None required. Minor: _VERDICT_PATTERNS rely on English phrasing and could be bypassed by non-English or obfuscated verdict text in a rationale, but the structural key + additionalProperties layers are the hard guarantee."
+        },
+        {
+          "invariant": "2) No ClinVar-derived PP5/BP6, no clinvar-sourced PS1/PM5, no any-clinvar-source in primary mode",
+          "status": "enforced_and_tested",
+          "detail": "_leakage_errors (gated by runs_leakage_checks = primary mode): ASSERTION_CODES {PP5,BP6} always blocked regardless of source_type (verified empirically with source_type=functional); CLINVAR_GATED_CODES {PS1,PM5} blocked when clinvar-sourced; ANY code with ClinVar provenance blocked. is_clinvar_sourced catches source_type=='clinvar' AND laundering markers (clinvar/VCV/RCV/SCV regex) in source_id/rationale. Tested: pp5_blocked, bp6_blocked, source_type_clinvar_on_any_code, ps1_from_clinvar, pm5_from_clinvar, clinvar_relabelled_as_literature, plus abstention_on_clinvar_code_in_blinded and the sensitivity-mode control (PP5 allowed when leakage off).",
+          "suggested_fix": "None required. Strong coverage including the laundering/relabelling path."
+        },
+        {
+          "invariant": "3) General TRUTH_LABEL_LEAKAGE for non-clinvar truth sources",
+          "status": "partial",
+          "detail": "DIRECTIONAL GAP. circular_source_family() only expands TRUTH_CIRCULAR_FAMILIES for the ACTIVE truth source and then explicitly skips the 'clinvar' family member (handled separately). Consequence: when benchmark_truth_source='clinvar' (the schema's default/primary case), evidence sourced from clingen_vcep or lovd is NOT flagged, even though the vocabulary's own comment states ClinGen VCEP and LOVD classifications co-deposit into ClinVar and are therefore circular with a ClinVar truth label. Verified empirically: clingen_vcep evidence with truth=clinvar returns [] (no error); lovd evidence with truth=clinvar returns []. The leakage check only fires symmetrically (truth=lovd+source=lovd, truth=clingen_vcep+source=clingen_vcep, truth=hgmd+source=hgmd) and for the direct clinvar-source path. The only test (test_truth_label_leakage_non_clinvar_source) uses truth='lovd' + source='lovd', so it passes while the more important truth='clinvar' + source='clingen_vcep'/'lovd' cross-pollination case is both unenforced and untested.",
+          "suggested_fix": "Make family membership bidirectional: when truth='clinvar', treat any source whose family CONTAINS clinvar (clingen_vcep, lovd) as leakage. Either build a reverse index (source_family -> {truth sources it pollutes}) or, in circular_source_family, also check whether the evidence source's own family includes the truth_source. Then add tests for truth=clinvar with source_type in {clingen_vcep, lovd} (and laundered markers like 'ClinGen VCEP'/'LOVD' in rationale) expecting TRUTH_LABEL_LEAKAGE."
+        },
+        {
+          "invariant": "4) Invalid ACMG codes",
+          "status": "enforced_and_tested",
+          "detail": "Two layers: schema pattern ^[A-Z]{2,3}[0-9]$ catches malformed tokens -> SCHEMA_STRUCTURE; semantic voc.is_valid_code against the 28-code VALID_CODES catches well-formed-but-nonexistent codes -> INVALID_ACMG_CODE, in both evidence and abstentions. Tested: test_invalid_acmg_code (PX9), test_noncanonical_code_token_is_structural ('pm 2'), test_abstention_on_invalid_code (PZ7). Vocab integrity tested by test_vocab_has_28_codes.",
+          "suggested_fix": "None required."
+        },
+        {
+          "invariant": "5) Unsupported strength upgrades (with modulatable+strength_basis exception)",
+          "status": "enforced_and_tested",
+          "detail": "strength_status returns invalid (off-ladder / beyond cap) -> UNSUPPORTED_STRENGTH_UPGRADE; needs_basis (upgrade above baseline) without a non-empty strength_basis -> UNSUPPORTED_STRENGTH_UPGRADE; with basis -> allowed. Ladder is per-direction (benign has no moderate). Tested: test_pm2_upgraded_to_strong (off-ladder), test_pp3_to_moderate_without_basis (needs basis), test_endorsed_strength_upgrade_with_basis_passes (exception works), and modulatable set asserted by test_modulatable_codes_match_clingen_set.",
+          "suggested_fix": "Minor untested edge: an upgrade to a strength that is on the allowed ladder but where strength_basis is present-yet-empty/whitespace ('   ') -- code strips it so it is handled, but no test covers whitespace-only basis. Optional: add a test that whitespace-only strength_basis is rejected."
+        },
+        {
+          "invariant": "6) JSON-serialisable & hashable (NaN/Infinity/dup-keys)",
+          "status": "enforced_and_tested",
+          "detail": "_strict_load uses parse_constant to reject NaN/Infinity literals -> NON_SERIALISABLE_VALUE; object_pairs_hook detects duplicate keys (recursively, since it runs per-object: verified nested genomic_context.chrom x2 -> DUPLICATE_KEY) -> DUPLICATE_KEY; non-object root -> PARSE_ERROR; _nonfinite_errors recursively catches inf from overflow (1e400). _hash uses allow_nan=False, sort_keys, separators -> stable 64-char sha256 (verified hashable). Tested: confidence_nan_json, infinity_nested_in_rationale_json, duplicate_top_level_keys_json, payload_not_object_json, non_finite_via_overflow_json, plus hash order-invariance and content-sensitivity.",
+          "suggested_fix": "Coverage gap: DUPLICATE_KEY is only tested at top level; nested duplicate keys work but are untested. Add a test for a duplicate key inside genomic_context or an evidence item. Also note validate_evidence (dict entry point, used by most tests) cannot see source-text dup keys or NaN literals -- only validate_evidence_json does; this is correct but worth a comment so callers route raw model output through the _json variant."
+        },
+        {
+          "invariant": "7) Explicit abstention allowed and scored, disjoint from assertions",
+          "status": "partial",
+          "detail": "ALLOWED and DISJOINT are enforced and tested: abstentions[] is a first-class schema array {code, rationale}; a code that is both asserted and abstained -> ABSTENTION_CONFLICTS_WITH_ASSERTION (test_code_asserted_and_abstained); malformed abstention -> MALFORMED_ABSTENTION; duplicate abstention -> DUPLICATE_CODE; invalid abstention code -> INVALID_ACMG_CODE; ClinVar-assertion code as abstention in blinded mode -> DISALLOWED_CLINVAR_CRITERION. The 'SCORED' half is NOT in these files: there is no scoring module here. README states scoring lives in a separate ACMG-concordance scorer in HARNESS, and grep found no abstention-aware scoring code. So whether abstentions are actually scored (e.g. credited vs wrong assertions) is unverified and out of scope of the audited contract files.",
+          "suggested_fix": "Confirm/locate the concordance scorer and verify it ingests the abstentions field and scores it (e.g. abstention != incorrect assertion). If the scorer ignores abstentions, the 'scored' guarantee is unmet. Add a scorer test asserting an abstained code is not penalised as a wrong call."
+        },
+        {
+          "invariant": "8) Required fields (top-level + nested evidence/abstention/genomic_context)",
+          "status": "enforced_and_tested",
+          "detail": "Schema required at root: variant_id, genomic_context, submitted_evidence_codes, abstentions, benchmark_mode, clinvar_blinded_status. Evidence item required: code, strength, source_type, source_id, rationale, confidence (strength_basis optional). Abstention required: code, rationale. genomic_context required: chrom,pos,ref,alt,build. All missing-field cases -> SCHEMA_STRUCTURE. Tested: missing_required_field (variant_id), missing_evidence_field, missing_evidence_subfield (source_id), evidence_must_be_a_list, evidence_wrong_container_type, malformed_abstention_missing_code.",
+          "suggested_fix": "Coverage is good but not exhaustive per-field. Missing genomic_context sub-fields (e.g. missing build, missing pos) are enforced by the schema but have no dedicated test. Optional: add one parametrised test deleting each required field to lock the contract."
+        },
+        {
+          "invariant": "9) benchmark_truth_source conditionally required",
+          "status": "enforced_and_tested",
+          "detail": "Schema allOf requires benchmark_truth_source when benchmark_mode matches ^(clinvar_blinded|primary_.+)$; validator also enforces semantically via requires_truth_source -> TRUTH_SOURCE_REQUIRED (with the schema 'required' message deliberately suppressed in _schema_errors so the better-named code wins). Sensitivity and dev/test modes do not require it. Tested: test_truth_source_required_in_primary, test_dev_mode_optional_truth_source, test_sensitivity_mode_allows_clinvar_evidence (truth=None). Enum restricts truth source to {clinvar, clingen_vcep, lovd, hgmd}.",
+          "suggested_fix": "Untested sub-case: a primary_* custom mode (e.g. 'primary_giab') without truth source. The regex supports it and requires_truth_source would fire, but no test exercises a primary_* mode at all. Optional: add a test for benchmark_mode='primary_foo' missing truth -> TRUTH_SOURCE_REQUIRED, and one well-formed primary_* happy path."
+        },
+        {
+          "invariant": "10) source_evidence_is_truth_label derived check",
+          "status": "missing",
+          "detail": "There is NO field, function, or check named source_evidence_is_truth_label (or any is_truth_label derivation) anywhere in the schema, vocabulary, validator, or tests. grep across HARNESS/, SCHEMAS/, tests/, and SKILLS/ returns nothing. The conceptual intent (flagging that a submitted evidence source IS the truth label) is partially realised by the leakage checks in invariant 2/3, but there is no explicit derived boolean/flag that names this condition, and nothing emits or tests it. If the contract spec promises a derived 'source_evidence_is_truth_label' artefact (e.g. in the normalized output or as an audit annotation), it is absent.",
+          "suggested_fix": "Decide whether this is meant to be (a) a derived annotation added to the normalized result (e.g. normalized.source_evidence_is_truth_label = True when any evidence overlaps the truth source) or (b) simply the leakage error already raised. If (a), implement it in _canonical/validate_evidence and test it; if it is just an alias for the leakage rule, document that and drop the separate invariant. As written it is unenforced and untested."
+        },
+        {
+          "invariant": "11) Machine-readable errors {valid,error_code,field,message} with stable error_code vocab",
+          "status": "enforced_and_tested",
+          "detail": "Every _err returns exactly {valid:False, error_code, field, message}. ERROR_CODES tuple (19 codes) is the published vocabulary. test_error_codes_are_in_published_vocabulary asserts every emitted error_code is in ERROR_CODES AND that each error dict has exactly the four keys. Result contract also includes errors[], normalized, content_hash; reject() helper asserts normalized/content_hash are None on failure.",
+          "suggested_fix": "Minor: the test only triggers one error type (confidence 1.5) so only CONFIDENCE_OUT_OF_RANGE is shape-checked live; the others are checked structurally by construction. Optional hardening: assert that no _err call site uses a code outside ERROR_CODES (e.g. a meta-test grepping the source), to prevent vocab drift. EMPTY_NONRESPONSE and a few codes have no direct presence in the shape-check test."
+        },
+        {
+          "invariant": "12) Principle: 'Truth labels are scoring artefacts, not interpretive evidence.'",
+          "status": "enforced_not_tested",
+          "detail": "The principle is stated verbatim in the schema x-provenance.principle, in acmg_vocabulary module docstring, and is operationally enforced by the whole leakage/blinding apparatus (invariants 2,3) plus the separate test_blinding.py (clinvar nulled before evidence, label retained only as truth, blinded classification independent of clinvar label). The principle is realised in behaviour. However, no test asserts the principle STRING is present in the schema/provenance, and (per invariant 3) the enforcement has the clingen_vcep/lovd-into-clinvar hole, so the principle is not fully airtight in the truth=clinvar case.",
+          "suggested_fix": "Close the invariant-3 directional gap (that is the concrete enforcement weakness in this principle). Optionally add a doc/provenance test asserting schema['x-provenance']['principle'] equals the canonical string so the stated contract cannot silently drift."
+        }
+      ],
+      "overall_assessment": "The ClawBench evidence contract is well-engineered and the audited files form a coherent fail-closed design: the schema handles structure (additionalProperties:false everywhere, required fields, code/strength patterns, conditional truth-source requirement), the validator adds a strict JSON parse layer (NaN/Infinity/dup-keys/non-object-root) plus a semantic cross-field layer, and all errors are machine-readable against a stable 19-code vocabulary. All 54 tests pass (0.06s). 8 of the 12 invariants are enforced AND tested. Concrete findings: (1) INVARIANT 10 (source_evidence_is_truth_label derived check) is entirely absent: no field, function, or test by that name exists anywhere. Either it must be implemented as a derived annotation or the spec should drop it as a duplicate of the leakage rule. (2) INVARIANT 3 has a real directional enforcement gap: when benchmark_truth_source='clinvar' (the primary/default case), evidence sourced from clingen_vcep or lovd is NOT flagged as leakage, despite the vocabulary's own TRUTH_CIRCULAR_FAMILIES declaring these co-deposit into ClinVar; circular_source_family only expands families for the active truth source and skips the clinvar member. Verified empirically (returns [] no error). The single non-clinvar leakage test (truth=lovd+source=lovd) is symmetric and masks this. (3) INVARIANT 7's 'scored' half and abstention scoring are out of scope of these files (scoring lives in a separate concordance scorer per README) and are unverified. Secondary coverage gaps (lower priority): nested duplicate keys work but are untested; primary_* custom modes are never exercised by a test; individual genomic_context required sub-fields have no dedicated deletion test; whitespace-only strength_basis is handled but untested. Files: /Users/manuelcorpas1/dev/CLAWBENCH/HARNESS/acmg_vocabulary.py (circular_source_family + TRUTH_CIRCULAR_FAMILIES are the locus of the invariant-3 fix), /Users/manuelcorpas1/dev/CLAWBENCH/HARNESS/validate_evidence.py (_leakage_errors), /Users/manuelcorpas1/dev/CLAWBENCH/tests/test_evidence_fail_closed.py (test_truth_label_leakage_non_clinvar_source needs the truth=clinvar cross-family case added)."
+    }
+  }
+}

@@ -66,17 +66,29 @@ ASSERTION_CODES = frozenset({"PP5", "BP6"})
 CLINVAR_GATED_CODES = frozenset({"PS1", "PM5"})
 
 # Truth-source circularity registry: a truth label cross-pollinates with these source
-# families (e.g. ClinGen VCEP and LOVD classifications co-deposit into ClinVar), so in
-# primary mode evidence from any member is circular with that truth label. Extensible.
+# families. ClinGen VCEP and LOVD classifications co-deposit into ClinVar (and reach each
+# other through it), so the relation is symmetric: when truth is ClinVar, evidence from
+# clingen_vcep/lovd is circular, and vice versa. In primary mode evidence from any member
+# of the active truth source's family is circular with that truth label. Extensible.
 TRUTH_CIRCULAR_FAMILIES = {
-    "clinvar": {"clinvar"},
-    "clingen_vcep": {"clingen_vcep", "clinvar"},
-    "lovd": {"lovd", "clinvar"},
+    "clinvar": {"clinvar", "clingen_vcep", "lovd"},
+    "clingen_vcep": {"clingen_vcep", "clinvar", "lovd"},
+    "lovd": {"lovd", "clinvar", "clingen_vcep"},
     "hgmd": {"hgmd"},
 }
 
-# Markers that betray a ClinVar provenance even when source_type is relabelled.
-_CLINVAR_MARKER = re.compile(r"(?i)(clinvar|\bvcv\d|\brcv\d|\bscv\d)")
+# Markers that betray a ClinVar provenance even when source_type is relabelled. The
+# accession prefix may be followed by separators / leading zeros (e.g. "VCV 0012345",
+# "RCV-99", "SCV_1.2"), so do not require a digit immediately after the prefix.
+_CLINVAR_MARKER = re.compile(r"(?i)(clinvar|\b(?:vcv|rcv|scv)[\s._-]*0*\d)")
+
+# A string has content if it contains at least one alphanumeric word character. This is
+# robust to zero-width / format characters (U+200B etc.) that survive str.strip().
+_HAS_CONTENT = re.compile(r"[^\W_]", re.UNICODE)
+
+
+def has_content(s) -> bool:
+    return isinstance(s, str) and bool(_HAS_CONTENT.search(s))
 # Markers for other curated assertion DBs, used for general truth-leakage detection.
 _SOURCE_MARKERS = {
     "clingen_vcep": re.compile(r"(?i)(clingen|vcep|variant curation expert panel)"),
@@ -143,6 +155,12 @@ def strength_status(code: str, strength: str) -> str:
 # ---- mode registry -------------------------------------------------------------
 PRIMARY_MODE_RE = re.compile(r"^(clinvar_blinded|primary_.+)$")
 
+# The ONLY vetted mode in which ClinVar/assertion evidence is legitimately permitted
+# (the control arm that measures circularity inflation). ClinVar checks are fail-closed:
+# enabled for every other mode, including dev/test and any unknown mode, so a model can
+# never disable blinding by self-selecting a mode the harness did not authorise.
+NON_BLINDED_MODES = frozenset({"clinvar_unblinded_sensitivity"})
+
 
 def is_primary_mode(mode: str) -> bool:
     return bool(PRIMARY_MODE_RE.match(mode or ""))
@@ -152,8 +170,9 @@ def requires_truth_source(mode: str) -> bool:
     return is_primary_mode(mode)
 
 
-def runs_leakage_checks(mode: str) -> bool:
-    return is_primary_mode(mode)
+def clinvar_checks_enabled(mode: str) -> bool:
+    """Fail-closed: block ClinVar/assertion evidence in every mode except the vetted control."""
+    return mode not in NON_BLINDED_MODES
 
 
 def expected_blinded_status(mode: str) -> bool:
