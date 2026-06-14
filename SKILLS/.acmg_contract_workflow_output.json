@@ -1,0 +1,688 @@
+{
+  "vocab": [
+    {
+      "code": "PVS1",
+      "direction": "pathogenic",
+      "baseline_strength": "very_strong",
+      "allowed_strengths": [
+        "very_strong",
+        "strong",
+        "moderate",
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Null variant (nonsense, frameshift, canonical +/-1 or 2 splice, initiation codon, single/multi-exon deletion) in a gene where loss of function is an established disease mechanism; ClinGen/Abou Tayoun 2018 decision tree permits downgrade to strong/moderate/supporting but never above very_strong."
+    },
+    {
+      "code": "PS1",
+      "direction": "pathogenic",
+      "baseline_strength": "strong",
+      "allowed_strengths": [
+        "strong",
+        "moderate",
+        "supporting"
+      ],
+      "clinvar_derived": true,
+      "modulatable_up": false,
+      "definition": "Same amino-acid change as a previously established pathogenic variant regardless of nucleotide change; clinvar_derived when the prior pathogenic assertion is read from ClinVar, in which case it is circular to use against ClinVar ground truth."
+    },
+    {
+      "code": "PS2",
+      "direction": "pathogenic",
+      "baseline_strength": "strong",
+      "allowed_strengths": [
+        "very_strong",
+        "strong",
+        "moderate",
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": true,
+      "definition": "De novo (both maternity and paternity confirmed) in a patient with the disease and no family history; ClinGen SVI de novo point system (2021) scales strength supporting->moderate->strong->very_strong (>=4 points), so this code is modulatable up to very_strong."
+    },
+    {
+      "code": "PS3",
+      "direction": "pathogenic",
+      "baseline_strength": "strong",
+      "allowed_strengths": [
+        "strong",
+        "moderate",
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Well-established in vitro or in vivo functional studies show a damaging effect; ClinGen SVI/Brnich 2019 framework caps functional evidence at strong (with downgrade to moderate/supporting by assay validation), no endorsed upgrade above strong."
+    },
+    {
+      "code": "PS4",
+      "direction": "pathogenic",
+      "baseline_strength": "strong",
+      "allowed_strengths": [
+        "strong",
+        "moderate",
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Prevalence of the variant significantly increased in affected individuals vs controls (OR>5, CI excluding 1) or proband-counting; ClinGen specifications scale supporting/moderate/strong by OR lower-CI or proband count, no endorsed upgrade above strong."
+    },
+    {
+      "code": "PM1",
+      "direction": "pathogenic",
+      "baseline_strength": "moderate",
+      "allowed_strengths": [
+        "moderate",
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Located in a mutational hotspot and/or critical, well-established functional domain without benign variation; downgrade to supporting permitted, no SVI-endorsed upgrade."
+    },
+    {
+      "code": "PM2",
+      "direction": "pathogenic",
+      "baseline_strength": "moderate",
+      "allowed_strengths": [
+        "moderate",
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Absent from controls (or extremely low frequency, e.g. in gnomAD) in population databases; ClinGen SVI (2020) recommends default downgrade to supporting, no endorsed upgrade."
+    },
+    {
+      "code": "PM3",
+      "direction": "pathogenic",
+      "baseline_strength": "moderate",
+      "allowed_strengths": [
+        "moderate",
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "For recessive disorders, detected in trans with a pathogenic variant; ClinGen point/phasing scaling reaches strong/very_strong only via expert-panel specifications, so the default contract treats baseline moderate with downgrade to supporting and no generic SVI upgrade."
+    },
+    {
+      "code": "PM4",
+      "direction": "pathogenic",
+      "baseline_strength": "moderate",
+      "allowed_strengths": [
+        "moderate",
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Protein length change from in-frame indels in a non-repeat region or stop-loss variants; downgrade to supporting permitted, no SVI-endorsed upgrade."
+    },
+    {
+      "code": "PM5",
+      "direction": "pathogenic",
+      "baseline_strength": "moderate",
+      "allowed_strengths": [
+        "moderate",
+        "supporting"
+      ],
+      "clinvar_derived": true,
+      "modulatable_up": false,
+      "definition": "Novel missense change at an amino-acid residue where a different pathogenic missense change has been seen before; clinvar_derived when the prior pathogenic assertion at that residue is read from ClinVar, making it circular against ClinVar ground truth."
+    },
+    {
+      "code": "PM6",
+      "direction": "pathogenic",
+      "baseline_strength": "moderate",
+      "allowed_strengths": [
+        "very_strong",
+        "strong",
+        "moderate",
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": true,
+      "definition": "Assumed de novo without confirmation of paternity and maternity; ClinGen SVI de novo point system (2021) scales strength supporting->moderate->strong->very_strong, so this code is modulatable up above moderate (use PS2 when parentage is confirmed)."
+    },
+    {
+      "code": "PP1",
+      "direction": "pathogenic",
+      "baseline_strength": "supporting",
+      "allowed_strengths": [
+        "supporting",
+        "moderate",
+        "strong"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": true,
+      "definition": "Cosegregation with disease in multiple affected family members in a gene definitively known to cause the disease; ClinGen SVI endorses scaling cosegregation strength upward (supporting->moderate->strong) with increasing meioses/LOD, so this code is modulatable up."
+    },
+    {
+      "code": "PP2",
+      "direction": "pathogenic",
+      "baseline_strength": "supporting",
+      "allowed_strengths": [
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Missense variant in a gene with low rate of benign missense variation and where missense is a common mechanism of disease; supporting only, no SVI-endorsed upgrade."
+    },
+    {
+      "code": "PP3",
+      "direction": "pathogenic",
+      "baseline_strength": "supporting",
+      "allowed_strengths": [
+        "supporting",
+        "moderate",
+        "strong"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": true,
+      "definition": "Multiple computational lines of evidence support a deleterious effect; ClinGen SVI/Pejaver 2022 calibration endorses scaling in silico evidence upward to moderate and strong using calibrated tool thresholds (REVEL/BayesDel/VEST4/MutPred2)."
+    },
+    {
+      "code": "PP4",
+      "direction": "pathogenic",
+      "baseline_strength": "supporting",
+      "allowed_strengths": [
+        "supporting",
+        "moderate"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": true,
+      "definition": "Patient phenotype or family history highly specific for a disease with a single genetic etiology; ClinGen expert-panel phenotype specificity scaling can raise this to moderate, so it is treated as modulatable up to moderate."
+    },
+    {
+      "code": "PP5",
+      "direction": "pathogenic",
+      "baseline_strength": "supporting",
+      "allowed_strengths": [
+        "supporting"
+      ],
+      "clinvar_derived": true,
+      "modulatable_up": false,
+      "definition": "Reputable source recently reports the variant as pathogenic but evidence is unavailable to the lab; always clinvar_derived (it is a database assertion) and circular against ClinVar ground truth; deprecated by ClinGen SVI, supporting only."
+    },
+    {
+      "code": "BA1",
+      "direction": "benign",
+      "baseline_strength": "stand_alone",
+      "allowed_strengths": [
+        "stand_alone",
+        "strong",
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Allele frequency above a population threshold (e.g. >5%) in a control database such as gnomAD; stand-alone benign evidence, downgrade permitted, no upgrade (already the top of the benign ladder)."
+    },
+    {
+      "code": "BS1",
+      "direction": "benign",
+      "baseline_strength": "strong",
+      "allowed_strengths": [
+        "strong",
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Allele frequency greater than expected for the disorder; downgrade to supporting permitted, no SVI-endorsed upgrade (benign ladder has no moderate)."
+    },
+    {
+      "code": "BS2",
+      "direction": "benign",
+      "baseline_strength": "strong",
+      "allowed_strengths": [
+        "strong",
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Observed in a healthy adult individual at full penetrance expected age (homozygous for recessive, heterozygous for dominant, or hemizygous for X-linked); downgrade to supporting permitted, no SVI-endorsed upgrade."
+    },
+    {
+      "code": "BS3",
+      "direction": "benign",
+      "baseline_strength": "strong",
+      "allowed_strengths": [
+        "strong",
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Well-established functional studies show no damaging effect on protein function or splicing; ClinGen SVI/Brnich 2019 caps functional benign evidence at strong with downgrade to supporting by assay validation, no upgrade (benign ladder has no moderate)."
+    },
+    {
+      "code": "BS4",
+      "direction": "benign",
+      "baseline_strength": "strong",
+      "allowed_strengths": [
+        "strong",
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Lack of segregation in affected members of a family; downgrade to supporting permitted, no SVI-endorsed upgrade."
+    },
+    {
+      "code": "BP1",
+      "direction": "benign",
+      "baseline_strength": "supporting",
+      "allowed_strengths": [
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Missense variant in a gene for which primarily truncating variants cause disease; supporting only, no SVI-endorsed upgrade."
+    },
+    {
+      "code": "BP2",
+      "direction": "benign",
+      "baseline_strength": "supporting",
+      "allowed_strengths": [
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Observed in trans with a pathogenic variant for a fully penetrant dominant disorder, or in cis with a pathogenic variant in any inheritance pattern; supporting only, no SVI-endorsed upgrade."
+    },
+    {
+      "code": "BP3",
+      "direction": "benign",
+      "baseline_strength": "supporting",
+      "allowed_strengths": [
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "In-frame indels in a repetitive region without known function; supporting only, no SVI-endorsed upgrade."
+    },
+    {
+      "code": "BP4",
+      "direction": "benign",
+      "baseline_strength": "supporting",
+      "allowed_strengths": [
+        "supporting",
+        "strong"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": true,
+      "definition": "Multiple computational lines of evidence suggest no impact; ClinGen SVI/Pejaver 2022 calibration endorses scaling in silico benign evidence upward to strong via calibrated thresholds (benign ladder has no moderate, so moderate-equivalent points map onto supporting/strong)."
+    },
+    {
+      "code": "BP5",
+      "direction": "benign",
+      "baseline_strength": "supporting",
+      "allowed_strengths": [
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Variant found in a case with an alternate molecular basis for disease; supporting only, no SVI-endorsed upgrade."
+    },
+    {
+      "code": "BP6",
+      "direction": "benign",
+      "baseline_strength": "supporting",
+      "allowed_strengths": [
+        "supporting"
+      ],
+      "clinvar_derived": true,
+      "modulatable_up": false,
+      "definition": "Reputable source recently reports the variant as benign but evidence is unavailable to the lab; always clinvar_derived (a database assertion) and circular against ClinVar ground truth; deprecated by ClinGen SVI, supporting only."
+    },
+    {
+      "code": "BP7",
+      "direction": "benign",
+      "baseline_strength": "supporting",
+      "allowed_strengths": [
+        "supporting"
+      ],
+      "clinvar_derived": false,
+      "modulatable_up": false,
+      "definition": "Synonymous (silent) variant with no predicted splice impact and the nucleotide not highly conserved; supporting only, no SVI-endorsed upgrade."
+    }
+  ],
+  "disagreements": [
+    {
+      "code": "PS2",
+      "field": "modulatable_up",
+      "value_a": "true",
+      "value_b": "false",
+      "resolution": "true",
+      "reason": "ClinGen SVI de novo point system (Apr 2021) explicitly scales de novo evidence supporting->moderate->strong->very_strong; >=2 points reaches strong and >=4 points reaches very_strong with confirmed parentage. Table A captures this SVI endorsement, Table B does not. Rule: upward modulation is allowed when SVI endorses it (it does, via the de novo points framework). Resolved in favour of web-grounded Table A."
+    },
+    {
+      "code": "PS2",
+      "field": "allowed_strengths",
+      "value_a": "very_strong, strong, moderate, supporting",
+      "value_b": "strong, moderate, supporting",
+      "resolution": "very_strong, strong, moderate, supporting",
+      "reason": "Follows from the modulatable_up resolution: the SVI de novo point system permits PS2 to reach very_strong, so very_strong is added to the baseline-plus-weaker ladder. Adopted Table A's set."
+    },
+    {
+      "code": "PM6",
+      "field": "modulatable_up",
+      "value_a": "true",
+      "value_b": "false",
+      "resolution": "true",
+      "reason": "PM6 (assumed de novo, parentage unconfirmed) is governed by the same ClinGen SVI de novo point system as PS2; the points scale runs supporting->moderate->strong->very_strong, so PM6 is modulatable above its moderate baseline. Table A reflects the SVI specification; Table B treats it as a static 2015 code. Resolved in favour of web-grounded Table A."
+    },
+    {
+      "code": "PM6",
+      "field": "allowed_strengths",
+      "value_a": "very_strong, strong, moderate, supporting",
+      "value_b": "moderate, supporting",
+      "resolution": "very_strong, strong, moderate, supporting",
+      "reason": "Consequence of the modulatable_up resolution. The SVI de novo points framework lets PM6 scale up to very_strong, so the allowed ladder spans very_strong down to supporting. Adopted Table A's set."
+    },
+    {
+      "code": "PP1",
+      "field": "modulatable_up",
+      "value_a": "true",
+      "value_b": "false",
+      "resolution": "true",
+      "reason": "ClinGen SVI endorses scaling cosegregation evidence above its supporting baseline (supporting->moderate->strong) as the number of informative meioses / LOD score increases (SVI segregation recommendations). Table A encodes this; Table B leaves PP1 static. Rule permits upward modulation with explicit SVI endorsement. Resolved in favour of web-grounded Table A."
+    },
+    {
+      "code": "PP1",
+      "field": "allowed_strengths",
+      "value_a": "supporting, moderate, strong",
+      "value_b": "supporting",
+      "resolution": "supporting, moderate, strong",
+      "reason": "Consequence of the modulatable_up resolution: SVI segregation scaling reaches strong, so the allowed ladder is supporting/moderate/strong. Adopted Table A's set."
+    },
+    {
+      "code": "PP4",
+      "field": "modulatable_up",
+      "value_a": "true",
+      "value_b": "false",
+      "resolution": "true (FLAGGED)",
+      "reason": "Rule directs preferring the web-grounded table on ClinGen specifics, so Table A's claim that expert-panel phenotype-specificity scaling can raise PP4 to moderate is adopted. FLAG: this is the weakest of the upgrade claims; PP4 scaling is implemented only in specific VCEP rule sets (gene/disease-specific phenotype or biomarker criteria), not by a general cross-gene SVI recommendation like the de novo, segregation, or in-silico frameworks. Treat as conditional on an applicable expert-panel specification rather than a universal default."
+    },
+    {
+      "code": "PP4",
+      "field": "allowed_strengths",
+      "value_a": "supporting, moderate",
+      "value_b": "supporting",
+      "resolution": "supporting, moderate (FLAGGED)",
+      "reason": "Consequence of the PP4 modulatable_up resolution; capped at moderate per Table A (no SVI endorsement reaches strong for PP4). Same flag applies: moderate is reachable only under an applicable VCEP specification, not a universal SVI default."
+    },
+    {
+      "code": "PP3",
+      "field": "definition",
+      "value_a": "names calibrated tools REVEL/BayesDel/VEST4/MutPred2 and cites Pejaver 2022 scaling to moderate and strong",
+      "value_b": "cites Pejaver 2022, scaling to moderate or strong, no tool names",
+      "resolution": "Table A definition (with tool names)",
+      "reason": "Both tables agree on direction, baseline (supporting), modulatable_up=true, and allowed_strengths (supporting/moderate/strong). Only wording differs. Adopted the more specific web-grounded Table A definition per the prefer-web-grounded rule; no substantive conflict."
+    },
+    {
+      "code": "BP4",
+      "field": "definition",
+      "value_a": "says benign ladder maps moderate-equivalent points onto supporting/strong",
+      "value_b": "says upward modulation up to strong, benign ladder has no moderate",
+      "resolution": "merged Table A wording, clarified",
+      "reason": "Both tables agree on direction, baseline (supporting), modulatable_up=true, and allowed_strengths (supporting/strong). Only the explanatory wording of how the no-moderate benign ladder is handled differs. Kept the web-grounded phrasing and made explicit that there is no benign moderate level so moderate-equivalent calibrated points map onto supporting/strong; no substantive conflict."
+    },
+    {
+      "code": "PS2/PM6",
+      "field": "clinvar_derived consistency check",
+      "value_a": "false",
+      "value_b": "false",
+      "resolution": "false",
+      "reason": "No disagreement; logged for completeness. Both tables correctly set clinvar_derived=false for the de novo codes. clinvar_derived=true is confined to PS1, PM5 (clinvar-sourced prior assertions) and PP5/BP6 (always database assertions), on which both tables already agree."
+    }
+  ],
+  "threat_cases": [
+    {
+      "name": "Model-supplied final classification field",
+      "rule_violated": "Rule 1: no model-supplied final classification",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"classification\": \"Pathogenic\", \"evidence\": [{\"code\": \"PVS1\", \"strength\": \"very_strong\", \"source_type\": \"literature\", \"source_id\": \"PMID:12345678\", \"rationale\": \"canonical splice\", \"confidence\": 0.9}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "The model emitted a top-level 'classification' field. Only the deterministic combiner may produce the 5-tier ACMG class. Any presence of a final-class field (classification, acmg_class, final_call, verdict, tier, pathogenicity) at any nesting level must fail closed."
+    },
+    {
+      "name": "Final classification smuggled into rationale free-text",
+      "rule_violated": "Rule 1: no model-supplied final classification (covert channel)",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PM2\", \"strength\": \"moderate\", \"source_type\": \"database\", \"source_id\": \"gnomAD:v4\", \"rationale\": \"Absent from gnomAD. Therefore the FINAL CLASSIFICATION is Likely Pathogenic (LP) and the combiner should output class 4.\", \"confidence\": 0.8}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "Rationale text attempts to dictate the final tier ('FINAL CLASSIFICATION is Likely Pathogenic', 'class 4'). The validator must scan rationale (and source_id) for class-asserting tokens (Pathogenic/Likely Pathogenic/Benign/Likely Benign/VUS/uncertain/class 1-5/LP/LB/P/B) used as a verdict and reject, because the combiner must own the tier exclusively. (Care: 'PS1: same amino-acid change previously established pathogenic' is legitimate code semantics, not a verdict; the reject targets a sentence asserting THE variant's overall class.)"
+    },
+    {
+      "name": "Final classification smuggled via extra/unknown top-level key",
+      "rule_violated": "Rule 1: no model-supplied final classification (extra-key smuggling)",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PP3\", \"strength\": \"supporting\", \"source_type\": \"in_silico\", \"source_id\": \"REVEL:0.92\", \"rationale\": \"deleterious in silico\", \"confidence\": 0.7}], \"abstentions\": [], \"acmg_class\": 4, \"final_call\": \"LP\"}",
+      "must_reject": true,
+      "explanation": "Unknown top-level keys 'acmg_class' and 'final_call' carry the verdict around the schema. The submission schema must be closed (additionalProperties=false): any key outside the allowed set {benchmark_mode, clinvar_blinded_status, evidence, abstentions} must fail closed, otherwise the verdict channel is unbounded."
+    },
+    {
+      "name": "Final classification smuggled via per-evidence extra key",
+      "rule_violated": "Rule 1: no model-supplied final classification (nested extra-key smuggling)",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PM1\", \"strength\": \"moderate\", \"source_type\": \"database\", \"source_id\": \"UniProt:domain\", \"rationale\": \"hotspot\", \"confidence\": 0.6, \"implied_class\": \"Pathogenic\", \"suggested_tier\": 5}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "Evidence objects carry extra keys 'implied_class'/'suggested_tier'. Each evidence item must also be a closed schema {code, strength, source_type, source_id, rationale, confidence}; any extra property is a covert verdict/influence channel and must fail closed."
+    },
+    {
+      "name": "PP5 in clinvar_blinded mode (always ClinVar-derived)",
+      "rule_violated": "Rule 2: no ClinVar-derived evidence (PP5 always blocked when blinded)",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PP5\", \"strength\": \"supporting\", \"source_type\": \"literature\", \"source_id\": \"PMID:99999999\", \"rationale\": \"reputable source reports pathogenic\", \"confidence\": 0.8}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "PP5 ('reputable source recently reports variant as pathogenic') is by definition an assertion-database code (ClinVar/equivalent). In clinvar_blinded mode it must always be rejected regardless of how source_type is labelled, because its very semantics leak the held-out ClinVar label."
+    },
+    {
+      "name": "BP6 in clinvar_blinded mode (always ClinVar-derived)",
+      "rule_violated": "Rule 2: no ClinVar-derived evidence (BP6 always blocked when blinded)",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"BP6\", \"strength\": \"supporting\", \"source_type\": \"database\", \"source_id\": \"some_db\", \"rationale\": \"reputable source reports benign\", \"confidence\": 0.7}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "BP6 is the benign-direction analogue of PP5 (reputable source reports benign). It is an assertion-database code and must always be rejected in blinded mode; allowing it leaks the ground-truth benign label being held out."
+    },
+    {
+      "name": "source_type=clinvar on any code in blinded mode",
+      "rule_violated": "Rule 2: ANY code with source_type=clinvar blocked when blinded",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PS4\", \"strength\": \"strong\", \"source_type\": \"clinvar\", \"source_id\": \"VCV000012345\", \"rationale\": \"case-control enrichment per ClinVar submissions\", \"confidence\": 0.85}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "Even a code whose direction is otherwise legitimate (PS4) becomes invalid when its source_type is 'clinvar' in blinded mode. The executing skill must never see ClinVar as evidence; any item with source_type=clinvar (case-insensitive, including aliases like ClinVar/clinvar.gov/VCV/RCV/SCV ids in source_id) fails closed."
+    },
+    {
+      "name": "PS1 derived from ClinVar in blinded mode",
+      "rule_violated": "Rule 2: PS1 with clinvar provenance blocked when blinded",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PS1\", \"strength\": \"strong\", \"source_type\": \"clinvar\", \"source_id\": \"RCV000054321\", \"rationale\": \"same amino acid change previously established pathogenic in ClinVar\", \"confidence\": 0.9}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "PS1 (same amino-acid change previously established pathogenic) is frequently sourced from ClinVar's prior assertion. When its provenance is ClinVar (source_type=clinvar or a ClinVar accession in source_id, or rationale citing ClinVar as the establishing source) it leaks the held-out label and must be rejected in blinded mode."
+    },
+    {
+      "name": "PM5 derived from ClinVar in blinded mode",
+      "rule_violated": "Rule 2: PM5 with clinvar provenance blocked when blinded",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PM5\", \"strength\": \"moderate\", \"source_type\": \"clinvar\", \"source_id\": \"VCV000067890\", \"rationale\": \"novel missense at residue where different pathogenic change seen in ClinVar\", \"confidence\": 0.75}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "PM5 (different pathogenic missense previously seen at the same residue) relies on a prior pathogenic assertion typically taken from ClinVar. With clinvar provenance it must be rejected in blinded mode for the same label-leak reason as PS1."
+    },
+    {
+      "name": "ClinVar relabelled as 'literature' to evade blinding",
+      "rule_violated": "Rule 2: provenance laundering (clinvar disguised as literature)",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PS1\", \"strength\": \"strong\", \"source_type\": \"literature\", \"source_id\": \"ClinVar VCV000012345\", \"rationale\": \"per ClinVar this same AA change is pathogenic\", \"confidence\": 0.9}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "source_type claims 'literature' but source_id is a ClinVar accession (VCV/RCV/SCV/ClinVar.gov) and the rationale cites ClinVar. The validator must cross-check source_id and rationale for ClinVar markers, not trust the source_type label alone, otherwise the blinding is trivially defeated by relabelling. Fail closed on any ClinVar marker anywhere in the item."
+    },
+    {
+      "name": "Invalid / unknown ACMG code",
+      "rule_violated": "Rule 4: invalid/unknown ACMG codes rejected",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PX9\", \"strength\": \"moderate\", \"source_type\": \"database\", \"source_id\": \"gnomAD\", \"rationale\": \"made-up code\", \"confidence\": 0.5}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "PX9 is not a member of the ACMG/AMP 2015 28-code set {PVS1, PS1-4, PM1-6, PP1-5, BA1, BS1-4, BP1-7}. Any code outside that closed vocabulary (typos, fabricated codes, free text) must fail closed."
+    },
+    {
+      "name": "Malformed casing / spacing variant of a real code",
+      "rule_violated": "Rule 4 + Rule 6: non-canonical code token (determinism)",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"pm 2\", \"strength\": \"moderate\", \"source_type\": \"database\", \"source_id\": \"gnomAD\", \"rationale\": \"absent\", \"confidence\": 0.6}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "'pm 2' is not the canonical token 'PM2'. To keep hashing/dedup deterministic the validator must require exact canonical code strings; silent normalisation would let the same code appear in two spellings and break duplicate detection. Reject non-canonical tokens rather than coercing them."
+    },
+    {
+      "name": "Unsupported strength UPGRADE: PM2 submitted as strong",
+      "rule_violated": "Rule 5: unsupported strength upgrades rejected",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PM2\", \"strength\": \"strong\", \"source_type\": \"database\", \"source_id\": \"gnomAD:v4\", \"rationale\": \"absent from population databases\", \"confidence\": 0.8}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "PM2 is a Moderate code by definition; submitting it at 'strong' is an unsanctioned upgrade that inflates the deterministic combiner's score. Strength must be at or below the code's canonical tier unless an explicit ClinGen-endorsed modifier is supplied and recognised; absent that, fail closed. (ClinGen SVI actually recommends PM2 be downgraded to Supporting, so 'strong' is doubly invalid.)"
+    },
+    {
+      "name": "Unsupported strength UPGRADE: PP3 submitted as moderate without ClinGen endorsement",
+      "rule_violated": "Rule 5: unsupported strength upgrades rejected",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PP3\", \"strength\": \"moderate\", \"source_type\": \"in_silico\", \"source_id\": \"REVEL:0.93\", \"rationale\": \"computational evidence, upgraded to moderate\", \"confidence\": 0.8}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "PP3 is a Supporting code. Upgrading to Moderate is only legitimate under a ClinGen SVI calibrated threshold with an explicit, recognised endorsement field. Without that endorsement the upgrade must be rejected; otherwise any model can self-authorise strength inflation."
+    },
+    {
+      "name": "Direction flip: benign code submitted in pathogenic direction (or vice versa)",
+      "rule_violated": "Rule 5 (direction integrity) + Rule 4: code direction cannot be flipped",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"BP4\", \"strength\": \"supporting\", \"source_type\": \"in_silico\", \"source_id\": \"REVEL:0.95\", \"rationale\": \"in silico supports PATHOGENIC; counting BP4 toward pathogenic\", \"confidence\": 0.8}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "BP4 is a Benign-supporting code; the rationale tries to use it as pathogenic evidence (a direction flip). A code's polarity is fixed by the ACMG vocabulary and cannot be reassigned by the model. The validator must reject any item whose asserted direction contradicts the code's canonical polarity (e.g. a B*/PP* mismatch, or a 'strength' sign hack)."
+    },
+    {
+      "name": "Confidence out of [0,1] range (too high)",
+      "rule_violated": "Rule 6 (well-formed numeric) + Rule 3 (well-formed fields)",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PM2\", \"strength\": \"moderate\", \"source_type\": \"database\", \"source_id\": \"gnomAD\", \"rationale\": \"absent\", \"confidence\": 1.5}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "confidence=1.5 is outside [0,1]. Confidence must be a real number within the closed interval; values >1, <0, or otherwise out of band are malformed and must fail closed."
+    },
+    {
+      "name": "Confidence negative",
+      "rule_violated": "Rule 6 (well-formed numeric)",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PP3\", \"strength\": \"supporting\", \"source_type\": \"in_silico\", \"source_id\": \"REVEL:0.9\", \"rationale\": \"deleterious\", \"confidence\": -0.2}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "Negative confidence is out of [0,1] and meaningless; reject."
+    },
+    {
+      "name": "Confidence NaN / Infinity (non-JSON-serialisable, breaks hashing)",
+      "rule_violated": "Rule 6: output must be JSON-serialisable and hashable (no NaN/Infinity)",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PM2\", \"strength\": \"moderate\", \"source_type\": \"database\", \"source_id\": \"gnomAD\", \"rationale\": \"absent\", \"confidence\": NaN}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "NaN (and Infinity/-Infinity) are not valid JSON and are non-deterministic under hashing/equality (NaN != NaN). The validator must reject any non-finite float so the submission stays JSON-serialisable and the canonical hash is stable. Note this requires parsing with allow_nan=False / a strict parser, since Python's default json.loads accepts NaN."
+    },
+    {
+      "name": "Confidence wrong type (string)",
+      "rule_violated": "Rule 6 (well-formed numeric type)",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PM2\", \"strength\": \"moderate\", \"source_type\": \"database\", \"source_id\": \"gnomAD\", \"rationale\": \"absent\", \"confidence\": \"high\"}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "confidence must be a number; the string 'high' is malformed. Type coercion would be non-deterministic, so reject."
+    },
+    {
+      "name": "Duplicate codes with conflicting strengths",
+      "rule_violated": "Rule 6: no duplicate codes (and conflict is unresolvable)",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PM2\", \"strength\": \"moderate\", \"source_type\": \"database\", \"source_id\": \"gnomAD\", \"rationale\": \"absent\", \"confidence\": 0.7}, {\"code\": \"PM2\", \"strength\": \"supporting\", \"source_type\": \"database\", \"source_id\": \"gnomAD\", \"rationale\": \"absent\", \"confidence\": 0.6}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "The same code PM2 appears twice with conflicting strengths (moderate vs supporting). The deterministic combiner cannot resolve which to apply without an arbitrary rule, and double-counting a code corrupts the score. Each ACMG code may appear at most once in evidence; duplicates fail closed."
+    },
+    {
+      "name": "Duplicate codes (even identical) violate one-per-code invariant",
+      "rule_violated": "Rule 6: no duplicate codes / deterministic set",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PP3\", \"strength\": \"supporting\", \"source_type\": \"in_silico\", \"source_id\": \"REVEL:0.9\", \"rationale\": \"deleterious\", \"confidence\": 0.8}, {\"code\": \"PP3\", \"strength\": \"supporting\", \"source_type\": \"in_silico\", \"source_id\": \"REVEL:0.9\", \"rationale\": \"deleterious\", \"confidence\": 0.8}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "Even byte-identical duplicate PP3 entries must be rejected: the evidence set is keyed by code, so two PP3 rows would either silently dedup (hiding model error) or double-count (inflating score). Enforce exactly-once per code to keep the combiner deterministic."
+    },
+    {
+      "name": "Code asserted in evidence AND abstained on (contradiction)",
+      "rule_violated": "Rule 3: abstention must be well-formed and non-contradictory",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PM2\", \"strength\": \"moderate\", \"source_type\": \"database\", \"source_id\": \"gnomAD\", \"rationale\": \"absent\", \"confidence\": 0.7}], \"abstentions\": [{\"code\": \"PM2\", \"rationale\": \"insufficient population data\"}]}",
+      "must_reject": true,
+      "explanation": "PM2 is simultaneously asserted as evidence and declared an abstention. A code is either applied or abstained, never both; the contradiction is non-deterministic for scoring (abstention is scored separately) and must fail closed. The evidence-code set and abstention-code set must be disjoint."
+    },
+    {
+      "name": "Malformed abstention (missing required code / wrong shape)",
+      "rule_violated": "Rule 3: abstention allowed but must be well-formed",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [], \"abstentions\": [{\"rationale\": \"not sure\"}]}",
+      "must_reject": true,
+      "explanation": "An abstention entry lacks the required 'code' it abstains on. Abstentions are scored, so they must be well-formed (a valid in-vocabulary ACMG code plus rationale). A bare rationale with no code, or a free-string abstention, is malformed and must be rejected."
+    },
+    {
+      "name": "Abstention on an invalid/unknown code",
+      "rule_violated": "Rule 3 + Rule 4: abstention code must be a valid ACMG code",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [], \"abstentions\": [{\"code\": \"PZ7\", \"rationale\": \"abstaining on a fake code\"}]}",
+      "must_reject": true,
+      "explanation": "Abstention is only meaningful against a real ACMG code. PZ7 is not in the vocabulary, so the abstention is uninterpretable and must fail closed. Duplicate abstentions on the same code must likewise be rejected for determinism."
+    },
+    {
+      "name": "Abstention on a ClinVar-only code in blinded mode",
+      "rule_violated": "Rule 2 + Rule 3: cannot abstain on a code that must not exist in blinded mode",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [], \"abstentions\": [{\"code\": \"PP5\", \"rationale\": \"abstaining on reputable-source code\"}]}",
+      "must_reject": true,
+      "explanation": "PP5/BP6 are ClinVar-assertion codes that are out of scope entirely in blinded mode. Even an abstention referencing them is invalid, because their presence in either list signals the model is reasoning about the blinded ClinVar channel; the blinded vocabulary excludes PP5/BP6 from both evidence and abstention sets."
+    },
+    {
+      "name": "Empty evidence list vs missing field (distinguish abstain-all from malformed)",
+      "rule_violated": "Rule 3 / schema completeness: missing field rejected; empty list with no abstentions rejected",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "The 'evidence' key is absent entirely. A missing required field is malformed (fail closed). This is distinct from an explicit empty list: evidence:[] with non-empty well-formed abstentions is a valid 'I assert nothing, here are my abstentions' submission and is allowed/scored. But evidence:[] AND abstentions:[] together (asserting nothing and abstaining on nothing) is a non-response and must also be rejected; only the missing-field and the both-empty cases fail closed, not a legitimately empty evidence list paired with abstentions."
+    },
+    {
+      "name": "benchmark_mode / clinvar_blinded_status mismatch",
+      "rule_violated": "Rule 2 (mode integrity): mode flags must be internally consistent",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": false, \"evidence\": [{\"code\": \"PM2\", \"strength\": \"moderate\", \"source_type\": \"database\", \"source_id\": \"gnomAD\", \"rationale\": \"absent\", \"confidence\": 0.7}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "benchmark_mode says 'clinvar_blinded' but clinvar_blinded_status=false claims blinding is off. The two fields contradict; the validator cannot know which regime to enforce, so it must fail closed. The combiner must reject any submission whose declared mode disagrees with the harness's expected mode for that test item, preventing a model from declaring itself unblinded to slip ClinVar evidence through."
+    },
+    {
+      "name": "Submission mode disagrees with harness-assigned mode (forged mode)",
+      "rule_violated": "Rule 2 (mode integrity): model cannot self-select the mode",
+      "example_submission_json": "{\"benchmark_mode\": \"open\", \"clinvar_blinded_status\": false, \"evidence\": [{\"code\": \"PS1\", \"strength\": \"strong\", \"source_type\": \"clinvar\", \"source_id\": \"VCV000012345\", \"rationale\": \"clinvar says pathogenic\", \"confidence\": 0.95}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "When the harness assigned this item to clinvar_blinded, a submission that declares benchmark_mode='open' to legitimise ClinVar evidence must be rejected. Mode is set by the harness, not the model; any mismatch with the expected mode fails closed, otherwise the entire blinding regime is opt-out by the model."
+    },
+    {
+      "name": "Strength is an invalid/unknown enum value",
+      "rule_violated": "Rule 5 / Rule 4: strength must be a recognised tier",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PM2\", \"strength\": \"super_strong\", \"source_type\": \"database\", \"source_id\": \"gnomAD\", \"rationale\": \"absent\", \"confidence\": 0.7}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "'super_strong' is not a valid ACMG strength. Strength must be one of the recognised tiers {stand_alone, very_strong, strong, moderate, supporting} (direction-appropriate). Unknown strengths are malformed and the combiner cannot weight them, so fail closed."
+    },
+    {
+      "name": "Non-JSON-serialisable / non-hashable nested value in rationale",
+      "rule_violated": "Rule 6: output must be JSON-serialisable and hashable",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PM2\", \"strength\": \"moderate\", \"source_type\": \"database\", \"source_id\": \"gnomAD\", \"rationale\": {\"nested\": [Infinity]}, \"confidence\": 0.7}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "rationale must be a plain string; here it is a nested object containing Infinity. Both the wrong type and the non-finite float break JSON-serialisability and stable hashing. Enforce scalar string for rationale/source_id and reject non-finite numbers anywhere in the structure."
+    },
+    {
+      "name": "Duplicate top-level keys (non-deterministic parse)",
+      "rule_violated": "Rule 6: deterministic / unambiguous parse",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [], \"evidence\": [{\"code\": \"PS1\", \"strength\": \"strong\", \"source_type\": \"clinvar\", \"source_id\": \"VCV1\", \"rationale\": \"clinvar\", \"confidence\": 0.9}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "The raw payload contains 'evidence' twice. Standard JSON parsers keep last-wins, which lets a model present an innocuous evidence:[] to a cursory scan while a second 'evidence' smuggles a ClinVar code that the combiner actually uses. The validator must parse with duplicate-key detection (object_pairs_hook) and reject any payload with repeated keys, because last-wins is a covert channel and an ambiguous, non-deterministic parse."
+    },
+    {
+      "name": "evidence / abstentions wrong container type",
+      "rule_violated": "Rule 3 / schema: required containers must be lists of objects",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": {\"code\": \"PM2\", \"strength\": \"moderate\", \"source_type\": \"database\", \"source_id\": \"gnomAD\", \"rationale\": \"absent\", \"confidence\": 0.7}, \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "'evidence' is a single object, not a list. The schema requires evidence and abstentions to be arrays of well-formed objects; a bare object (or a string/number) is malformed and the combiner's iteration assumptions break, so fail closed."
+    },
+    {
+      "name": "Missing required sub-field in an evidence item",
+      "rule_violated": "Rule 3 / schema completeness: every evidence item needs all six fields",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PM2\", \"strength\": \"moderate\", \"source_type\": \"database\", \"rationale\": \"absent\", \"confidence\": 0.7}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "This evidence item omits 'source_id'. Each evidence object must contain all six required fields {code, strength, source_type, source_id, rationale, confidence}. A missing field is malformed; do not default-fill (that would fabricate provenance), fail closed."
+    },
+    {
+      "name": "Empty / null source_id (unfalsifiable provenance)",
+      "rule_violated": "Rule 3 / provenance integrity: source_id must be a non-empty identifier",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PS3\", \"strength\": \"strong\", \"source_type\": \"functional\", \"source_id\": \"\", \"rationale\": \"functional assay shows damaging\", \"confidence\": 0.9}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "PS3 (functional) asserts strong evidence with an empty source_id. Provenance must be a non-empty, checkable identifier (PMID, accession, DB id) so the blinding/evasion checks and audit can run; an empty or null source_id is unauditable and could hide a ClinVar source, so fail closed."
+    },
+    {
+      "name": "Code/source_type incompatibility (provenance does not match code semantics)",
+      "rule_violated": "Rule 4/5: source_type must be admissible for the code",
+      "example_submission_json": "{\"benchmark_mode\": \"clinvar_blinded\", \"clinvar_blinded_status\": true, \"evidence\": [{\"code\": \"PM2\", \"strength\": \"moderate\", \"source_type\": \"functional\", \"source_id\": \"assay-7\", \"rationale\": \"allele frequency from a wet-lab assay\", \"confidence\": 0.7}], \"abstentions\": []}",
+      "must_reject": true,
+      "explanation": "PM2 is a population-frequency code; its source_type must be a population database (gnomAD/ExAC), not 'functional'. A code paired with an inadmissible source_type either indicates a fabricated provenance or a relabelling trick. Where the benchmark defines a per-code admissible-source map, items violating it must fail closed; this also catches ClinVar relabelled to an implausible source_type."
+    },
+    {
+      "name": "Whole payload is not valid JSON / not an object",
+      "rule_violated": "Rule 6: output must be JSON-serialisable; top-level must be the defined object",
+      "example_submission_json": "[{\"code\": \"PM2\", \"strength\": \"moderate\", \"source_type\": \"database\", \"source_id\": \"gnomAD\", \"rationale\": \"absent\", \"confidence\": 0.7}]",
+      "must_reject": true,
+      "explanation": "The top-level value is a bare array, not the required submission object with mode flags + evidence + abstentions. A non-object root (array, string, number, or unparseable text / trailing prose around the JSON) is malformed and must fail closed; the validator should reject if it cannot parse exactly one JSON object with the required keys."
+    }
+  ]
+}

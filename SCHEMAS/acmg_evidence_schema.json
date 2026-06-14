@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ClawBio/ClawBench/SCHEMAS/acmg_evidence_schema.json",
+  "title": "ClawBench ACMG evidence submission",
+  "description": "Contract for the model-supplies-evidence arm of ClawBench Exp 1. A model proposes structured ACMG/AMP evidence codes plus explicit abstentions; a deterministic combiner (acmg_engine.classify) turns them into the 5-tier class. The model may PROPOSE evidence but may never supply the final classification, circular truth-derived assertions, unsupported strength changes, or malformed ACMG logic. Structural rules live here; cross-field fail-closed rules are enforced by HARNESS/validate_evidence.py and reported with machine-readable error codes.",
+  "x-provenance": {
+    "principle": "Truth labels are scoring artefacts, not interpretive evidence.",
+    "vocabulary_source": "ACMG/AMP 2015 (Richards et al., Genet Med 2015, PMID 25741868); strength-modulation per ClinGen SVI (PVS1 Abou Tayoun 2018; de novo points 2021; PP3/BP4 Pejaver 2022). Reconciled from two independent agent builds; full table in SKILLS/.acmg_contract_workflow_output.json.",
+    "modulatable_up_codes": ["PS2", "PM6", "PP1", "PP3", "PP4", "BP4"],
+    "clinvar_derived_codes": ["PS1", "PM5", "PP5", "BP6"]
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "variant_id",
+    "genomic_context",
+    "submitted_evidence_codes",
+    "abstentions",
+    "benchmark_mode",
+    "clinvar_blinded_status"
+  ],
+  "properties": {
+    "variant_id": { "type": "string", "minLength": 1 },
+    "genomic_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chrom", "pos", "ref", "alt", "build"],
+      "properties": {
+        "chrom": { "type": "string", "minLength": 1 },
+        "pos": { "type": "integer", "minimum": 1 },
+        "ref": { "type": "string", "pattern": "^[ACGTNacgtn]+$" },
+        "alt": { "type": "string", "pattern": "^[ACGTNacgtn*]+$" },
+        "build": { "enum": ["GRCh37", "GRCh38"] },
+        "gene": { "type": "string" },
+        "consequence": { "type": "string" },
+        "transcript": { "type": "string" },
+        "hgvsc": { "type": "string" },
+        "hgvsp": { "type": "string" }
+      }
+    },
+    "submitted_evidence_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "strength", "source_type", "source_id", "rationale", "confidence"],
+        "properties": {
+          "code": { "type": "string", "pattern": "^[A-Z]{2,3}[0-9]$" },
+          "strength": { "enum": ["stand_alone", "very_strong", "strong", "moderate", "supporting"] },
+          "source_type": {
+            "enum": [
+              "population_frequency", "computational", "in_silico", "functional",
+              "segregation", "de_novo", "allelic", "case_control", "phenotype",
+              "literature", "clinvar", "clingen_vcep", "lovd", "hgmd", "database", "other"
+            ]
+          },
+          "source_id": { "type": "string" },
+          "rationale": { "type": "string" },
+          "confidence": { "type": "number" },
+          "strength_basis": { "type": "string" }
+        }
+      }
+    },
+    "abstentions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "rationale"],
+        "properties": {
+          "code": { "type": "string", "pattern": "^[A-Z]{2,3}[0-9]$" },
+          "rationale": { "type": "string" }
+        }
+      }
+    },
+    "benchmark_mode": {
+      "anyOf": [
+        { "enum": ["clinvar_blinded", "clinvar_unblinded_sensitivity", "dev", "test"] },
+        { "type": "string", "pattern": "^primary_[a-z0-9_]+$" }
+      ]
+    },
+    "clinvar_blinded_status": { "type": "boolean" },
+    "benchmark_truth_source": { "enum": ["clinvar", "clingen_vcep", "lovd", "hgmd"] }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": ["benchmark_mode"],
+        "properties": { "benchmark_mode": { "pattern": "^(clinvar_blinded|primary_.+)$" } }
+      },
+      "then": { "required": ["benchmark_truth_source"] }
+    }
+  ]
+}
