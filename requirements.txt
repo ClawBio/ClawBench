@@ -3,4 +3,5 @@ pyyaml>=6.0
 pysam>=0.22          # VCF parsing for scorers (Exp 1/2)
 pandas>=2.0
 pytest>=8.0
+jsonschema>=4.18     # Draft202012Validator required by validate_evidence
 # external (not pip): hap.py or vcfeval (RTG Tools) for calling concordance; nextflow + java for sarek
