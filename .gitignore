@@ -7,12 +7,16 @@ TRUTH/fastq/*
 # keep the authoritative manifest and the computed lock
 !TRUTH/MANIFEST.yaml
 !TRUTH/MANIFEST.lock.yaml
-# keep the held-out slice config + immutable manifest (small, reviewer-critical)
+# keep the held-out slice config + immutable manifest + checksum (reviewer-critical)
 !TRUTH/clinvar/model_cutoffs.yaml
 !TRUTH/clinvar/heldout_manifest.json
+!TRUTH/clinvar/heldout_manifest.sha256
 
 RESULTS/*
 !RESULTS/.gitkeep
+# keep the held-out slice summary reports (small, reviewer-facing)
+!RESULTS/exp1_heldout_slice_summary.json
+!RESULTS/exp1_heldout_slice_summary.md
 
 __pycache__/
 *.pyc

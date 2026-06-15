@@ -126,21 +126,27 @@ def _open(path: Path):
     return gzip.open(path, "rt") if str(path).endswith(".gz") else open(path)
 
 
-def read_tsv(path: Path, key_column: str):
-    """Yield dict rows. Skips '##' comment lines; the header line may start with a single '#'."""
+def iter_tsv(path: Path, key_column: str):
+    """Stream dict rows (constant memory). The header is the first non-'##' line that, after
+    stripping a leading '#', contains key_column as an exact tab field; earlier '#'-comment
+    description lines are skipped."""
     with _open(path) as fh:
         header = None
-        rows = []
         for line in fh:
             if header is None:
                 if line.startswith("##"):
                     continue
-                header = line.lstrip("#").rstrip("\n").split("\t")
-                if key_column not in header:
-                    header = None  # not the header yet; keep scanning
+                cand = line.lstrip("#").rstrip("\n").split("\t")
+                if key_column not in cand:
+                    continue  # a '#'-comment description line, not the header
+                header = cand
                 continue
-            rows.append(dict(zip(header, line.rstrip("\n").split("\t"))))
-    return rows
+            yield dict(zip(header, line.rstrip("\n").split("\t")))
+
+
+def read_tsv(path: Path, key_column: str):
+    """Eager wrapper around iter_tsv (small files / tests)."""
+    return list(iter_tsv(path, key_column))
 
 
 def main() -> None:
