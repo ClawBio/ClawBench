@@ -1,24 +1,25 @@
-# Per-model training cutoffs for the held-out ClinVar slice (temporal memorisation control).
+# Per-model training/knowledge cutoffs for the held-out ClinVar slice (temporal blinding).
 #
-# The held-out slice admits a variant only if its CURRENT classification first became available
-# AFTER effective_cutoff = max(model cutoffs) + safety_margin_days. So the slice is blinded to
-# EVERY benchmarked model. ALL dates below are ESTIMATES and MUST be confirmed against each
-# model's published model card before any headline run; the validity of Exp 1 depends on them.
-# Strict ISO YYYY-MM-DD only (the builder fails closed on any non-strict date).
+# CONFIRMED 2026-06-15 from primary sources (research workflow; full evidence table +
+# source URLs + confidence in RESULTS/exp1_model_cutoffs_evidence.md). For blinding we use the
+# LATEST documented cutoff (training-data cutoff where a provider publishes both a training and an
+# earlier "reliable knowledge" cutoff), converted to the conservative end-of-period ISO date.
+# Strict ISO YYYY-MM-DD only (the builder fails closed on non-strict dates).
 #
-# The safety margin absorbs cutoff uncertainty and the lag between a model's stated cutoff and
-# the freshest data it may have seen. Increase it if cutoffs are poorly documented.
+# Boundary-setting model: GPT-5.2 @ 2025-08-31 (HIGH confidence, verbatim OpenAI API model page).
+# The two lower-confidence cutoffs (DeepSeek-V3 self-reported; Mistral Large 2 undocumented->release
+# date) are 2024-07, far BELOW the boundary, so their uncertainty does not affect the blinding bound.
 
-min_review_stars: 2          # 2-star+ / expert-panel labels only (reviewer-grade truth)
-safety_margin_days: 180
+min_review_stars: 2
+safety_margin_days: 90   # see RESULTS/exp1_cutoff_sensitivity.md; gives >=90d headroom past every confirmed cutoff
 
 models:
-  claude-opus-4:      {cutoff: "2025-03-01", source: "model card (CONFIRM)", confidence: estimated}
-  claude-sonnet-4:    {cutoff: "2025-03-01", source: "model card (CONFIRM)", confidence: estimated}
-  gpt-5.2:            {cutoff: "2025-06-01", source: "model card (CONFIRM)", confidence: estimated}
-  gpt-4.1:            {cutoff: "2024-06-01", source: "model card (CONFIRM)", confidence: estimated}
-  o3:                 {cutoff: "2024-12-01", source: "model card (CONFIRM)", confidence: estimated}
-  o4-mini:            {cutoff: "2024-12-01", source: "model card (CONFIRM)", confidence: estimated}
-  gemini-2.5-flash:   {cutoff: "2025-01-01", source: "model card (CONFIRM)", confidence: estimated}
-  deepseek-v3:        {cutoff: "2024-07-01", source: "model card (CONFIRM)", confidence: estimated}
-  mistral-large-2:    {cutoff: "2024-07-01", source: "model card (CONFIRM)", confidence: estimated}
+  gpt-5.2:          {cutoff: "2025-08-31", cutoff_raw: "Aug 31, 2025 knowledge cutoff", confidence: high,   source_url: "https://developers.openai.com/api/docs/models/gpt-5.2",  retrieval_date: "2026-06-15"}
+  claude-opus-4:    {cutoff: "2025-03-31", cutoff_raw: "trained on data as of March 2025 (System Card 1.1.1)", confidence: high, source_url: "https://www-cdn.anthropic.com/6d8a8055020700718b0c49369f60816ba2a7c285/Claude%204%20System%20Card.pdf", retrieval_date: "2026-06-15"}
+  claude-sonnet-4:  {cutoff: "2025-03-31", cutoff_raw: "trained on data as of March 2025 (System Card 1.1.1)", confidence: high, source_url: "https://www-cdn.anthropic.com/6d8a8055020700718b0c49369f60816ba2a7c285/Claude%204%20System%20Card.pdf", retrieval_date: "2026-06-15"}
+  gemini-2.5-flash: {cutoff: "2025-01-31", cutoff_raw: "knowledge cutoff January 2025", confidence: high, source_url: "https://storage.googleapis.com/deepmind-media/Model-Cards/Gemini-2-5-Flash-Model-Card.pdf", retrieval_date: "2026-06-15"}
+  deepseek-v3:      {cutoff: "2024-07-31", cutoff_raw: "knowledge cutoff July 2024 (deployed system-prompt self-report; no official doc)", confidence: medium, source_url: "https://arxiv.org/abs/2412.19437", retrieval_date: "2026-06-15"}
+  mistral-large-2:  {cutoff: "2024-07-24", cutoff_raw: "no documented cutoff; release date 2024-07-24 used as latest-plausible upper bound", confidence: low, source_url: "https://huggingface.co/mistralai/Mistral-Large-Instruct-2407", retrieval_date: "2026-06-15"}
+  gpt-4.1:          {cutoff: "2024-06-01", cutoff_raw: "Jun 01, 2024 knowledge cutoff", confidence: high, source_url: "https://developers.openai.com/api/docs/models/gpt-4.1", retrieval_date: "2026-06-15"}
+  o3:               {cutoff: "2024-06-01", cutoff_raw: "Jun 01, 2024 knowledge cutoff", confidence: high, source_url: "https://developers.openai.com/api/docs/models/o3", retrieval_date: "2026-06-15"}
+  o4-mini:          {cutoff: "2024-06-01", cutoff_raw: "Jun 01, 2024 knowledge cutoff", confidence: high, source_url: "https://developers.openai.com/api/docs/models/o4-mini", retrieval_date: "2026-06-15"}

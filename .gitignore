@@ -17,6 +17,10 @@ RESULTS/*
 # keep the held-out slice summary reports (small, reviewer-facing)
 !RESULTS/exp1_heldout_slice_summary.json
 !RESULTS/exp1_heldout_slice_summary.md
+!RESULTS/exp1_cutoff_sensitivity.json
+!RESULTS/exp1_cutoff_sensitivity.md
+!RESULTS/exp1_model_cutoffs_evidence.md
+!RESULTS/.model_cutoffs_research.json
 
 __pycache__/
 *.pyc

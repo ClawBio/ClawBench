@@ -45,6 +45,33 @@ def _passes_prefilter(vs, cutoff_date, min_stars, assembly, genes):
     return True
 
 
+def gather_records(variant_summary_path, submission_summary_path, prefilter_cutoff_date,
+                   min_stars, assembly="GRCh38", genes=None, progress=False) -> list[dict]:
+    """Two-pass memory-safe streaming: candidate variant_summary rows whose LastEvaluated is after
+    prefilter_cutoff_date (a NECESSARY condition for admission; never drops an admissible variant),
+    then only their submissions, normalised into records via clinvar_extract.build_record."""
+    cands: dict[str, dict] = {}
+    seen = 0
+    for vs in X.iter_tsv(variant_summary_path, "ClinicalSignificance"):
+        seen += 1
+        if progress and seen % 1_000_000 == 0:
+            print(f"  ...scanned {seen:,} variant_summary rows, {len(cands):,} candidates")
+        if _passes_prefilter(vs, prefilter_cutoff_date, min_stars, assembly, genes):
+            cands[str(X._g(vs, "VariationID"))] = vs
+    if progress:
+        print(f"pass 1: {len(cands):,} candidates from {seen:,} variant_summary rows")
+
+    subs: dict[str, list] = defaultdict(list)
+    cand_ids = set(cands)
+    for s in X.iter_tsv(submission_summary_path, "ClinicalSignificance"):
+        vid = str(X._g(s, "VariationID", "#VariationID"))
+        if vid in cand_ids:
+            subs[vid].append(s)
+    if progress:
+        print(f"pass 2: collected submissions for {len(subs):,} candidates")
+    return [X.build_record(vs, subs.get(vid, [])) for vid, vs in cands.items()]
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Build the real held-out ClinVar slice")
     ap.add_argument("--variant-summary", type=Path, default=_ROOT / "TRUTH/clinvar/variant_summary.txt.gz")
@@ -65,29 +92,8 @@ def main() -> None:
     genes = {g.strip() for g in args.genes.split(",")} if args.genes else None
     print(f"effective cutoff {cutoff_date.isoformat()} (+{margin}d), min {min_stars} stars, assembly {args.assembly}")
 
-    # pass 1: candidate variant_summary rows
-    cands: dict[str, dict] = {}
-    seen = 0
-    for vs in X.iter_tsv(args.variant_summary, "ClinicalSignificance"):
-        seen += 1
-        if seen % 1_000_000 == 0:
-            print(f"  ...scanned {seen:,} variant_summary rows, {len(cands):,} candidates")
-        if _passes_prefilter(vs, cutoff_date, min_stars, args.assembly, genes):
-            cands[str(X._g(vs, "VariationID"))] = vs
-    print(f"pass 1: {len(cands):,} candidates from {seen:,} variant_summary rows")
-
-    # pass 2: submissions for candidates only
-    subs: dict[str, list] = defaultdict(list)
-    cand_ids = set(cands)
-    seen = 0
-    for s in X.iter_tsv(args.submission_summary, "ClinicalSignificance"):
-        seen += 1
-        vid = str(X._g(s, "VariationID", "#VariationID"))
-        if vid in cand_ids:
-            subs[vid].append(s)
-    print(f"pass 2: collected submissions for {len(subs):,} candidates from {seen:,} submission rows")
-
-    records = [X.build_record(vs, subs.get(vid, [])) for vid, vs in cands.items()]
+    records = gather_records(args.variant_summary, args.submission_summary, cutoff_date,
+                             min_stars, args.assembly, genes, progress=True)
     manifest = B.build_slice(records, cutoffs, min_stars=min_stars, safety_margin_days=margin,
                              build_date=args.build_date)
     B.write_manifest(manifest, args.out_manifest)

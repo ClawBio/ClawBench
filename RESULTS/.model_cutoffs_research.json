@@ -1,0 +1,134 @@
+{
+  "summary": "Research documented training/knowledge cutoffs for the 9 ClawBench models from primary sources",
+  "agentCount": 6,
+  "logs": [],
+  "result": {
+    "models": [
+      {
+        "model": "GPT-5.2",
+        "provider": "OpenAI",
+        "release_date": "2025-12-11",
+        "knowledge_cutoff_raw": "Aug 31, 2025 knowledge cutoff",
+        "knowledge_cutoff_iso_conservative": "2025-08-31",
+        "source_url": "https://developers.openai.com/api/docs/models/gpt-5.2",
+        "source_name": "OpenAI Platform API docs — GPT-5.2 model page (developers.openai.com)",
+        "retrieval_date": "2026-06-15",
+        "confidence": "high",
+        "blinding_note": "*** LATEST CONSERVATIVE CUTOFF ACROSS THE BENCHMARK (2025-08-31) — THIS SETS THE EFFECTIVE TEMPORAL-BLINDING BOUNDARY. *** Verified verbatim on the OpenAI API model page ('Aug 31, 2025 knowledge cutoff'; 400,000 context window; snapshot id gpt-5.2-2025-12-11 which matches the release date). Independently corroborated by Wikipedia (GPT-5.2) and multiple secondaries all stating an August 31, 2025 cutoff. Release 2025-12-11 confirmed by OpenAI's announcement (openai.com/index/introducing-gpt-5-2/) and Wikipedia. OpenAI publishes a SINGLE cutoff per model (no separate 'reliable' vs 'training' split), so 2025-08-31 is the blinding-relevant latest-plausible training date; the verbatim 'Aug 31, 2025' (end of August) is already the conservative end-of-period date. REVIEWER-ATTACK SURFACE (scrutinise hardest because it is the boundary): any benchmark item whose answer depends on events between Sep 2025 and the 2026 evaluation window is fair game ONLY for GPT-5.2 and could give it an unfair information advantage over the eight earlier-cutoff models; if blinding is enforced at the strictest single boundary it must be GPT-5.2's 2025-08-31, but note the other eight models are blind from as early as 2024-06-01, so a uniform-blinding benchmark should cut at the EARLIEST cutoff (GPT-4.1/o3/o4-mini, 2024-06-01), not the latest. The latest-cutoff model is the temporal-leakage RISK; the earliest-cutoff models bound a uniform fair-comparison window."
+      },
+      {
+        "model": "GPT-4.1",
+        "provider": "OpenAI",
+        "release_date": "2025-04-14",
+        "knowledge_cutoff_raw": "Jun 01, 2024 knowledge cutoff",
+        "knowledge_cutoff_iso_conservative": "2024-06-01",
+        "source_url": "https://developers.openai.com/api/docs/models/gpt-4.1",
+        "source_name": "OpenAI Platform API docs — GPT-4.1 model page (developers.openai.com, redirected from platform.openai.com/docs/models/gpt-4.1)",
+        "retrieval_date": "2026-06-15",
+        "confidence": "high",
+        "blinding_note": "Primary source, re-verified verbatim this run ('Jun 01, 2024 knowledge cutoff'). Corroborated by OpenAI's GPT-4.1 announcement ('June 2024' cutoff). Single OpenAI cutoff (no reliable-vs-training split), so 2024-06-01 is the blinding-relevant date. Release 2025-04-14 is ~10 months after the cutoff, which is internally consistent, not a contradiction. This 2024-06-01 value (shared with o3 and o4-mini) is the EARLIEST cutoff in the set and therefore bounds the uniform fair-comparison window if the benchmark blinds all models to a common date. Low reviewer risk; an automated fetch can mis-label the cutoff line as a release date, but the verbatim cutoff string is reliable."
+      },
+      {
+        "model": "o3",
+        "provider": "OpenAI",
+        "release_date": "2025-04-16",
+        "knowledge_cutoff_raw": "Jun 01, 2024 knowledge cutoff",
+        "knowledge_cutoff_iso_conservative": "2024-06-01",
+        "source_url": "https://developers.openai.com/api/docs/models/o3",
+        "source_name": "OpenAI Platform API docs — o3 model page (developers.openai.com, redirected from platform.openai.com/docs/models/o3)",
+        "retrieval_date": "2026-06-15",
+        "confidence": "high",
+        "blinding_note": "Primary source, re-verified verbatim this run ('Jun 01, 2024 knowledge cutoff'). Release 2025-04-16 per OpenAI's 'o3 and o4-mini System Card' (April 16, 2025) and the introducing-o3-and-o4-mini announcement. Single OpenAI cutoff (no reliable-vs-training split), so 2024-06-01 is blinding-relevant. Tied with GPT-4.1 and o4-mini for the EARLIEST cutoff in the set. Internally consistent (release ~10 months after cutoff). Low reviewer risk."
+      },
+      {
+        "model": "o4-mini",
+        "provider": "OpenAI",
+        "release_date": "2025-04-16",
+        "knowledge_cutoff_raw": "Jun 01, 2024 knowledge cutoff",
+        "knowledge_cutoff_iso_conservative": "2024-06-01",
+        "source_url": "https://developers.openai.com/api/docs/models/o4-mini",
+        "source_name": "OpenAI Platform API docs — o4-mini model page (developers.openai.com, redirected from platform.openai.com/docs/models/o4-mini)",
+        "retrieval_date": "2026-06-15",
+        "confidence": "high",
+        "blinding_note": "Primary source, re-verified verbatim this run ('Jun 01, 2024 knowledge cutoff'). Release 2025-04-16 per OpenAI's 'o3 and o4-mini System Card'; broad ChatGPT rollout 2025-04-24. Single OpenAI cutoff (no reliable-vs-training split), so 2024-06-01 is blinding-relevant. Tied with GPT-4.1 and o3 for the EARLIEST cutoff in the set. Internally consistent. Low reviewer risk."
+      },
+      {
+        "model": "Claude Opus 4 (claude-opus-4-20250514)",
+        "provider": "Anthropic",
+        "release_date": "2025-05-22",
+        "knowledge_cutoff_raw": "Training data cut-off (System Card v1.1.1, Section 1.1.1, verbatim): 'Claude Opus 4 and Claude Sonnet 4 were trained on a proprietary mix of publicly available information on the Internet as of March 2025...'. Reliable knowledge cutoff (Claude 4 system prompt + Anthropic support article, verbatim): 'Claude's reliable knowledge cutoff date - the date past which it cannot answer questions reliably - is the end of January 2025.'",
+        "knowledge_cutoff_iso_conservative": "2025-03-31",
+        "source_url": "https://www-cdn.anthropic.com/6d8a8055020700718b0c49369f60816ba2a7c285/Claude%204%20System%20Card.pdf",
+        "source_name": "Anthropic, Claude Opus 4 & Claude Sonnet 4 System Card (May 2025), Section 1.1.1 Training data and process",
+        "retrieval_date": "2026-06-15",
+        "confidence": "high",
+        "blinding_note": "Anthropic publishes TWO cutoffs: (1) reliable knowledge cutoff = end of January 2025; (2) training data cutoff = March 2025. For temporal blinding we correctly report the LATER (training) date: 'as of March 2025' -> conservative end-of-month 2025-03-31 (System Card gives only a month, no day). This is the SECOND-LATEST cutoff in the set after GPT-5.2, so scrutinise it: the March 2025 training date — not the January 2025 reliable date — is the blinding-relevant figure, and a reviewer who only saw the more conservative-sounding January date in some docs could allege the boundary was set too early. VERIFICATION CAVEAT a reviewer could attack: the 'as of March 2025' training statement was corroborated this run via web search ('trained on data up until March 2025') and via Anthropic's documented two-cutoff convention, but the System Card PDF could not be text-extracted in-session (compressed streams), so the verbatim quote rests on the prior fetch plus secondary corroboration rather than a fresh in-session quote of that exact line. SECOND CAVEAT: the live Anthropic support/models page has rolled forward (now lists Opus 4.6/4.7/4.8, Sonnet 4.6, Fable 5) and NO LONGER lists the original Opus 4 / Sonnet 4 entries, so the System Card PDF is the only remaining live primary for this specific model — cite the PDF, not the live docs table. Model API ID from Anthropic API docs."
+      },
+      {
+        "model": "Claude Sonnet 4 (claude-sonnet-4-20250514)",
+        "provider": "Anthropic",
+        "release_date": "2025-05-22",
+        "knowledge_cutoff_raw": "Training data cut-off (System Card v1.1.1, Section 1.1.1, verbatim): 'Claude Opus 4 and Claude Sonnet 4 were trained on a proprietary mix of publicly available information on the Internet as of March 2025...'. Reliable knowledge cutoff (Claude 4 system prompt + Anthropic support article, verbatim): 'Claude's reliable knowledge cutoff date - the date past which it cannot answer questions reliably - is the end of January 2025.'",
+        "knowledge_cutoff_iso_conservative": "2025-03-31",
+        "source_url": "https://www-cdn.anthropic.com/6d8a8055020700718b0c49369f60816ba2a7c285/Claude%204%20System%20Card.pdf",
+        "source_name": "Anthropic, Claude Opus 4 & Claude Sonnet 4 System Card (May 2025), Section 1.1.1 Training data and process",
+        "retrieval_date": "2026-06-15",
+        "confidence": "high",
+        "blinding_note": "Identical cutoff to Claude Opus 4: the System Card states both Opus 4 and Sonnet 4 were trained on data 'as of March 2025' and were released together (2025-05-22). Two cutoffs published: reliable = end of January 2025; training = March 2025. For blinding we report the LATER training date, conservative 2025-03-31. Tied for SECOND-LATEST cutoff in the set (with Opus 4), behind GPT-5.2 — scrutinise accordingly. Same reviewer-attackable caveats as Opus 4: (a) in-session PDF text extraction failed, so the verbatim 'as of March 2025' line rests on prior fetch + web-search corroboration, not a fresh in-session quote; (b) the live Anthropic docs/support page no longer lists the original Sonnet 4 entry (rolled forward to 4.6+), so the System Card PDF is the authoritative primary. Model API ID from Anthropic API docs."
+      },
+      {
+        "model": "Gemini 2.5 Flash",
+        "provider": "Google (Google DeepMind)",
+        "release_date": "2025-04-17",
+        "knowledge_cutoff_raw": "The knowledge cutoff date for Gemini 2.5 Flash and its native capabilities was January 2025.",
+        "knowledge_cutoff_iso_conservative": "2025-01-31",
+        "source_url": "https://storage.googleapis.com/deepmind-media/Model-Cards/Gemini-2-5-Flash-Model-Card.pdf",
+        "source_name": "Google DeepMind — Gemini 2.5 Flash Model Card (PDF, December 2025 revision)",
+        "retrieval_date": "2026-06-15",
+        "confidence": "high",
+        "blinding_note": "PRIMARY: official DeepMind model card states a single cutoff verbatim ('...was January 2025'). Re-confirmed this run across the DeepMind card, Oracle OCI Generative AI docs, and PromptHub, all stating January 2025. The card does NOT split reliable vs training cutoffs, so January 2025 is the blinding-relevant date; conservative end-of-month 2025-01-31. Minor reviewer note: PromptHub phrases it as 'January 1, 2025' (start of month); the conservative end-of-month choice (2025-01-31) is the safer blinding bound and is internally consistent with a preview launch 2025-04-17 (~3 months after cutoff). The retrieved PDF is the Dec 2025 revision (adds native audio/image updates) but the January 2025 knowledge-cutoff statement is unchanged from the original June 2025 card. Low-to-moderate reviewer risk."
+      },
+      {
+        "model": "DeepSeek-V3",
+        "provider": "DeepSeek (DeepSeek-AI / Hangzhou DeepSeek Artificial Intelligence Co.)",
+        "release_date": "2024-12-26",
+        "knowledge_cutoff_raw": "\"Your knowledge cutoff is July 2024, and you have access to a wide range of information up to that point.\" (verbatim from DeepSeek-V3's deployed system prompt, self-identifying as \"You are DeepSeek-V3\"). The official DeepSeek-V3 Technical Report (arXiv:2412.19437) and the Hugging Face model card do NOT state any explicit knowledge or training-data cutoff date; they document only 14.8T pretraining tokens.",
+        "knowledge_cutoff_iso_conservative": "2024-07-31",
+        "source_url": "https://arxiv.org/abs/2412.19437",
+        "source_name": "DeepSeek-V3 Technical Report (arXiv:2412.19437) for release/architecture; July 2024 cutoff is from DeepSeek's deployed system prompt (self-attestation), extracted/reported by Knostic and corroborated by aggregators",
+        "retrieval_date": "2026-06-15",
+        "confidence": "medium",
+        "blinding_note": "SECONDARY-STRENGTH SOURCE — flag for reviewers. No formal documented cutoff exists in the Technical Report or HF model card (both give only 14.8T tokens + Dec 2024 release, NO cutoff date). The July 2024 figure is a model self-report from the deployed system prompt ('Your knowledge cutoff is July 2024'), re-confirmed this run via Knostic's system-prompt extraction (the originating source) and aggregators (PromptHub, HaoooWang llm-knowledge-cutoff-dates). Conservative ISO 2024-07-31 = end of stated month. CONFIDENCE IS MEDIUM, not high, because the cutoff is a self-report rather than an official model-card/paper line; a system-prompt self-report can UNDERSTATE the true training cutoff, and a December-2024 release could plausibly have ingested data slightly past July 2024. For maximally safe blinding, exclude items whose answer depends on events after 2024-07-31 and ideally apply a small margin. Reviewer-attack surface: 'self-reported, no primary documentation' is the obvious critique; mitigate by noting it is provider-origin (the model's own deployed prompt) and consistently reported across independent aggregators."
+      },
+      {
+        "model": "Mistral Large 2 (mistral-large-2407 / 24.07)",
+        "provider": "Mistral AI",
+        "release_date": "2024-07-24",
+        "knowledge_cutoff_raw": "No knowledge/training cutoff is stated in any Mistral primary source for the 2407 release. The release blog ('Large Enough'), the Mistral docs model card, the Mistral governance model card, and the HuggingFace Mistral-Large-Instruct-2407 README all give the release date (July 24, 2024) but contain NO knowledge/training-data cutoff. The sibling 2411 release's official SYSTEM_PROMPT.txt states 'Your knowledge base was last updated on 2023-10-01', the only documented cutoff in this model family.",
+        "knowledge_cutoff_iso_conservative": "2024-07-24",
+        "source_url": "https://huggingface.co/mistralai/Mistral-Large-Instruct-2407",
+        "source_name": "Mistral AI official HuggingFace model card (Mistral-Large-Instruct-2407); release date cross-confirmed by Mistral governance card (legal.mistral.ai/ai-governance/models/mistral-large-2) and release blog (mistral.ai/news/mistral-large-2407)",
+        "retrieval_date": "2026-06-15",
+        "confidence": "low",
+        "blinding_note": "UNDOCUMENTED CUTOFF — strongest reviewer-attack surface in the set, flagged. Mistral publishes NO knowledge/training cutoff for the 2407 release in any primary source (re-confirmed this run: no explicit cutoff surfaced for 2407 anywhere). The version label '2407' denotes RELEASE month (July 2024), NOT a training cutoff — do not let a reviewer conflate them. The only documented family figure is the sibling 2411 system prompt's 'knowledge base last updated 2023-10-01' (an earlier self-reported reliable-knowledge date, not a training cutoff). Because the true latest-trained date is unknown and could extend up to release, the conservative ISO is set to the RELEASE date (2024-07-24) as the latest-plausible upper bound — the correct hard-blinding choice. If instead using Mistral's own stated number, that is 2023-10-01 (documented for 2411, plausibly the same base). Source is primary (Mistral's own card) but the cutoff value itself is undocumented, hence LOW confidence. Reviewer critique to expect: 'release date is not a knowledge cutoff' — counter by stating it is an explicit upper bound for blinding, not a claimed training cutoff."
+      },
+      {
+        "model": "Mistral Large 2.1 (mistral-large-2411 / 24.11)",
+        "provider": "Mistral AI",
+        "release_date": "2024-11-18",
+        "knowledge_cutoff_raw": "Your knowledge base was last updated on 2023-10-01.",
+        "knowledge_cutoff_iso_conservative": "2024-11-18",
+        "source_url": "https://huggingface.co/mistralai/Mistral-Large-Instruct-2411/raw/main/SYSTEM_PROMPT.txt",
+        "source_name": "Mistral AI official recommended system prompt (SYSTEM_PROMPT.txt) in the Mistral-Large-Instruct-2411 HuggingFace repo; release date cross-confirmed by Mistral governance card (legal.mistral.ai/ai-governance/models/mistral-large-2)",
+        "retrieval_date": "2026-06-15",
+        "confidence": "medium",
+        "blinding_note": "The ONLY documented cutoff in Mistral's primary sources is the verbatim 2411 system-prompt line 'Your knowledge base was last updated on 2023-10-01' (re-confirmed this run; the HF 2411 repo is the canonical source). This is a self-reported 'reliable knowledge'/knowledge-base date, NOT an explicit training-data cutoff, and Mistral publishes no separate later training date. Per the blinding rule of preferring the LATER training date when both exist: no later figure is published, but a self-reported knowledge-base date typically LAGS the true training cutoff, and the model released 2024-11-18. Because the true latest-trained date is undocumented and 2023-10-01 likely understates it, the conservative ISO is set to the RELEASE date (2024-11-18) as the latest-plausible upper bound — correct for hard blinding. Reviewer-attack surface (flag): there is a >13-month gap between the self-reported knowledge base (2023-10-01) and the release (2024-11-18), so the chosen blinding bound is conservative but loosely grounded; a reviewer could argue 2023-10-01 (Mistral's stated number) over-blinds, or that release-date over-bounds. Document both and the rationale. MEDIUM confidence: primary-source self-report, but a knowledge-base self-report rather than an explicit training-data-cutoff disclosure."
+      }
+    ],
+    "latest_cutoff_model": "GPT-5.2",
+    "latest_cutoff_iso": "2025-08-31",
+    "low_confidence": [
+      "Mistral Large 2 (mistral-large-2407 / 24.07)"
+    ]
+  }
+}

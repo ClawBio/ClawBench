@@ -1,0 +1,40 @@
+{
+  "latest_confirmed_cutoff": "2025-08-31",
+  "candidate_superset_size": 166437,
+  "margins": [
+    {
+      "margin_days": 0,
+      "effective_cutoff": "2025-08-31",
+      "held_out": 12464,
+      "reclassified": 342,
+      "earliest_label": "2025-09-01",
+      "min_headroom_days_past_latest_cutoff": 1
+    },
+    {
+      "margin_days": 30,
+      "effective_cutoff": "2025-09-30",
+      "held_out": 10435,
+      "reclassified": 294,
+      "earliest_label": "2025-10-01",
+      "min_headroom_days_past_latest_cutoff": 31
+    },
+    {
+      "margin_days": 90,
+      "effective_cutoff": "2025-11-29",
+      "held_out": 6929,
+      "reclassified": 206,
+      "earliest_label": "2025-11-30",
+      "min_headroom_days_past_latest_cutoff": 91
+    },
+    {
+      "margin_days": 180,
+      "effective_cutoff": "2026-02-27",
+      "held_out": 175,
+      "reclassified": 49,
+      "earliest_label": "2026-03-01",
+      "min_headroom_days_past_latest_cutoff": 182
+    }
+  ],
+  "frozen_margin_days": 90,
+  "frozen_manifest_sha256": "eca96b8ea6f25dc391abb9429b93275c76b224c4d105d511c4734c3da587ed25"
+}
