@@ -11,6 +11,9 @@ TRUTH/fastq/*
 !TRUTH/clinvar/model_cutoffs.yaml
 !TRUTH/clinvar/heldout_manifest.json
 !TRUTH/clinvar/heldout_manifest.sha256
+# keep the qualification panel + Tier-A pilot selection
+!TRUTH/clinvar/qualification_panel_v1.json
+!TRUTH/clinvar/pilot_tier_a_v1.json
 
 RESULTS/*
 !RESULTS/.gitkeep
@@ -21,6 +24,7 @@ RESULTS/*
 !RESULTS/exp1_cutoff_sensitivity.md
 !RESULTS/exp1_model_cutoffs_evidence.md
 !RESULTS/.model_cutoffs_research.json
+!RESULTS/exp1_qualification_panel_summary.md
 
 __pycache__/
 *.pyc
