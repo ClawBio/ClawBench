@@ -14,6 +14,7 @@ import argparse
 import json
 import sys
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -27,13 +28,46 @@ import pilot_endpoints as PE  # noqa: E402
 # Each pilot model's cutoff is <= the slice boundary 2025-11-29 (so the slice is blinded to it).
 # claude-sonnet-4-5-20250929: the original claude-sonnet-4 is retired from the API; Sonnet 4.5 was
 # RELEASED 2025-09-29 (< boundary), and release date is a hard upper bound on training cutoff.
+# Google arm uses gemini-2.5-flash: gemini-2.5-pro has a hard 1,000 requests/model/day cap on this
+# project (too low for the ~3,465-call arm), while Flash has quota AND is the cohort model in
+# model_cutoffs.yaml (cutoff 2025-01-31, < slice boundary 2025-11-29, so blinded).
 PILOT_MODELS = {
     "gpt-5.2": ("openai", "gpt-5.2"),
     "claude-sonnet-4-5": ("anthropic", "claude-sonnet-4-5-20250929"),
-    "gemini-2.5-pro": ("google", "gemini-2.5-pro"),
+    "gemini-2.5-flash": ("google", "gemini-2.5-flash"),
 }
 PILOT_CONDITIONS = ["free_prompted", "skill_reasoning", "skill_execution"]
 ENV_PATH = Path.home() / "dev" / "AGENTIC-AI" / ".env"
+
+# Per-model throttle: Gemini Tier-1 has tight RPM/TPM limits, so cap its concurrency and space its
+# call-starts; the others run wide open. Spacing is enforced across all workers for a model.
+MODEL_THROTTLE = {
+    "gemini-2.5-flash": {"concurrency": 4, "min_interval": 0.3},
+    "_default": {"concurrency": 6, "min_interval": 0.0},
+}
+
+
+class _Gate:
+    def __init__(self, concurrency, min_interval):
+        self.sem = threading.Semaphore(concurrency)
+        self.min_interval = min_interval
+        self._lock = threading.Lock()
+        self._next = 0.0
+
+    def __enter__(self):
+        self.sem.acquire()
+        if self.min_interval:
+            with self._lock:
+                now = time.monotonic()
+                slot = max(now, self._next)
+                self._next = slot + self.min_interval
+            wait = slot - time.monotonic()
+            if wait > 0:
+                time.sleep(wait)
+        return self
+
+    def __exit__(self, *a):
+        self.sem.release()
 
 
 def load_pilot_variants(pilot_file: Path, manifest_file: Path):
@@ -62,6 +96,8 @@ def _slim(rec: dict) -> dict:
     keep["criteria"] = rec.get("criteria", {})
     if "clinvar_codes_stripped" in rec:
         keep["clinvar_codes_stripped"] = rec["clinvar_codes_stripped"]
+    if "proposed_codes" in rec:
+        keep["proposed_codes"] = rec["proposed_codes"]
     if rec.get("validity_errors"):
         keep["validity_error_codes"] = [e.get("error_code") for e in rec["validity_errors"]]
     if not rec.get("format_ok"):
@@ -79,6 +115,7 @@ def run(pilot_variants, models, conditions, reps, checkpoint: Path, skill_md, wo
                 except ValueError:
                     pass
     adapters = MA.make_adapters(ENV_PATH, models)
+    gates = {label: _Gate(**MODEL_THROTTLE.get(label, MODEL_THROTTLE["_default"])) for label in models}
 
     tasks = []
     for label in models:
@@ -98,8 +135,9 @@ def run(pilot_variants, models, conditions, reps, checkpoint: Path, skill_md, wo
         label, v, cond, rep = task
         adapter = adapters[label]
         try:
-            rec = G.run_one(cond, v, adapter, model=label, mode="clinvar_blinded",
-                            truth_source="clinvar", skill_md=skill_md)
+            with gates[label]:
+                rec = G.run_one(cond, v, adapter, model=label, mode="clinvar_blinded",
+                                truth_source="clinvar", skill_md=skill_md)
         except MA.RateLimitExhausted as e:
             rec = {"variant_id": v["variant_id"], "model": label, "condition": cond,
                    "scoreable": False, "format_ok": False, "predicted_class": None,
@@ -139,7 +177,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--pilot", type=Path, default=_ROOT / "TRUTH/clinvar/pilot_tier_a_v1.json")
     ap.add_argument("--manifest", type=Path, default=_ROOT / "TRUTH/clinvar/heldout_manifest.json")
-    ap.add_argument("--checkpoint", type=Path, default=_ROOT / "RESULTS/pilot_runs.jsonl")
+    ap.add_argument("--checkpoint", type=Path, default=_ROOT / "RESULTS/pilot_v2_runs.jsonl")
     ap.add_argument("--results-dir", type=Path, default=_ROOT / "RESULTS")
     ap.add_argument("--skill-md", type=Path, default=_ROOT / "SKILLS/clinical-variant-reporter/SKILL.md")
     ap.add_argument("--reps", type=int, default=5)

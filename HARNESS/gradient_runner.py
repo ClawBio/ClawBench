@@ -182,10 +182,11 @@ def run_one(condition, variant, adapter, *, model="model", reference_codes=None,
         label = SC.label_scores(cls, truth)
         criteria = (SC.criteria_scores(codes, reference_codes)
                     if (codes is not None and reference_codes is not None) else {})
+        proposed = [{"code": c} for c in (codes or []) if isinstance(c, str)]
         return {"variant_id": variant["variant_id"], "model": model, "condition": condition,
                 "format_ok": True, "scoreable": True, "predicted_class": cls, "truth_class": truth,
                 "category": label["category"], "label": label, "criteria": criteria, "abstention": {},
-                "raw": (raw or "")[:500]}
+                "proposed_codes": proposed, "raw": (raw or "")[:500]}
 
     if condition == "skill_execution":
         try:
@@ -197,7 +198,10 @@ def run_one(condition, variant, adapter, *, model="model", reference_codes=None,
         # In blinded mode, STRIP ClinVar-derived (fabricated) codes rather than rejecting the whole
         # submission: the model loses that evidence and falls back to its legit codes (usually VUS),
         # which is the trust architecture's predicted outcome. The strip count is itself a finding.
-        kept, stripped = _strip_clinvar_codes(partial.get("submitted_evidence_codes", []) or [], mode)
+        raw_codes = partial.get("submitted_evidence_codes", []) or []
+        proposed = [{"code": c.get("code"), "strength": c.get("strength")}
+                    for c in raw_codes if isinstance(c, dict)]
+        kept, stripped = _strip_clinvar_codes(raw_codes, mode)
         kept_abst, stripped_abst = _strip_clinvar_abstentions(partial.get("abstentions", []) or [], mode)
         submission = {
             "variant_id": variant["variant_id"],
@@ -212,7 +216,7 @@ def run_one(condition, variant, adapter, *, model="model", reference_codes=None,
                                   reference_codes=reference_codes, expected_mode=mode)
         scored.update({"variant_id": variant["variant_id"], "model": model, "condition": condition,
                        "format_ok": True, "clinvar_codes_stripped": len(stripped) + len(stripped_abst),
-                       "raw": (raw or "")[:500]})
+                       "proposed_codes": proposed, "raw": (raw or "")[:500]})
         return scored
 
     raise ValueError(f"unknown condition {condition!r}")

@@ -1,4 +1,4 @@
-# ClawBench Exp 1 — pilot endpoints
+# ClawBench Exp 1 — pilot-smoke endpoints
 
 **Primary claim (validity/safety, NOT raw accuracy):** skill execution improves validity, auditability and safety by preventing unsupported or circular evidence from entering the classification path, even when this increases abstention to VUS. In clinical genomics, safe uncertainty beats confident hallucination.
 
@@ -15,22 +15,22 @@ _Caveat: 'label concordance' is agreement with the ClinVar truth class, NOT vali
 
 | condition | label conc | criteria F1 | DANGEROUS | abstention | fabricated ClinVar | replicate agree | acc std | fmt-fail | infra-fail | n |
 |---|---|---|---|---|---|---|---|---|---|---|
-| free_prompted | 50.6% | -- | 0.9% | 8.2% | -- | 93.9% | 0.003 | 0.0% | 0.0% | 1155 |
-| skill_reasoning | 50.3% | -- | 2.1% | 1.2% | -- | 98.3% | 0.002 | 0.0% | 0.0% | 1155 |
-| skill_execution | 49.5% | -- | 1.0% | 5.2% | 0.1% | 85.3% | 0.004 | 0.0% | 0.0% | 1155 |
+| free_prompted | 100.0% | -- | 0.0% | 0.0% | -- | -- | 0.000 | 0.0% | 0.0% | 5 |
+| skill_reasoning | 100.0% | -- | 0.0% | 0.0% | -- | -- | 0.000 | 0.0% | 0.0% | 5 |
+| skill_execution | 100.0% | -- | 0.0% | 0.0% | 0.0% | -- | 0.000 | 0.0% | 0.0% | 5 |
 
 ## gemini-2.5-pro
 
 | condition | label conc | criteria F1 | DANGEROUS | abstention | fabricated ClinVar | replicate agree | acc std | fmt-fail | infra-fail | n |
 |---|---|---|---|---|---|---|---|---|---|---|
-| free_prompted | 61.6% | -- | 1.1% | 3.6% | -- | 59.5% | 0.033 | 0.0% | 47.3% | 1155 |
-| skill_reasoning | 90.5% | -- | 1.0% | 3.1% | -- | 99.2% | 0.009 | 0.0% | 47.4% | 1155 |
-| skill_execution | 85.4% | -- | 0.6% | 7.9% | 6.6% | 85.0% | 0.037 | 0.0% | 47.4% | 1155 |
+| free_prompted | 100.0% | -- | 0.0% | 0.0% | -- | -- | 0.000 | 0.0% | 80.0% | 5 |
+| skill_reasoning | 100.0% | -- | 0.0% | 0.0% | -- | -- | 0.000 | 0.0% | 80.0% | 5 |
+| skill_execution | -- | -- | -- | -- | -- | -- | 0.000 | 0.0% | 100.0% | 5 |
 
 ## gpt-5.2
 
 | condition | label conc | criteria F1 | DANGEROUS | abstention | fabricated ClinVar | replicate agree | acc std | fmt-fail | infra-fail | n |
 |---|---|---|---|---|---|---|---|---|---|---|
-| free_prompted | 53.5% | -- | 0.9% | 18.1% | -- | 75.8% | 0.012 | 0.0% | 0.0% | 1155 |
-| skill_reasoning | 50.9% | -- | 0.9% | 13.4% | -- | 69.7% | 0.012 | 0.0% | 0.0% | 1155 |
-| skill_execution | 54.1% | -- | 0.9% | 18.3% | 17.1% | 64.5% | 0.009 | 0.0% | 0.0% | 1155 |
+| free_prompted | 100.0% | -- | 0.0% | 0.0% | -- | -- | 0.000 | 0.0% | 0.0% | 5 |
+| skill_reasoning | 100.0% | -- | 0.0% | 0.0% | -- | -- | 0.000 | 0.0% | 0.0% | 5 |
+| skill_execution | 100.0% | -- | 0.0% | 0.0% | 20.0% | -- | 0.000 | 0.0% | 0.0% | 5 |
