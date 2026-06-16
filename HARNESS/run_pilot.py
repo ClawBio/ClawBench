@@ -43,6 +43,7 @@ ENV_PATH = Path.home() / "dev" / "AGENTIC-AI" / ".env"
 # call-starts; the others run wide open. Spacing is enforced across all workers for a model.
 MODEL_THROTTLE = {
     "gemini-2.5-flash": {"concurrency": 4, "min_interval": 0.3},
+    "gpt-5.2": {"concurrency": 4, "min_interval": 0.2},
     "_default": {"concurrency": 6, "min_interval": 0.0},
 }
 
