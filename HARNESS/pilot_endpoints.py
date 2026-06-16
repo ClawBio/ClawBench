@@ -97,19 +97,33 @@ def render_markdown(cells: dict, title: str = "pilot") -> str:
     models = sorted({m for m, _ in cells})
     conds = [c for c in _COND_ORDER if any(cd == c for _, cd in cells)]
     L = [f"# ClawBench Exp 1 — {title} endpoints", "",
-         "Trust hypothesis: label concordance up and between-run variance down across "
-         "free -> skill-reasoning -> skill-execution.", ""]
+         "**Primary claim (validity/safety, NOT raw accuracy):** skill execution improves validity, "
+         "auditability and safety by preventing unsupported or circular evidence from entering the "
+         "classification path, even when this increases abstention to VUS. In clinical genomics, safe "
+         "uncertainty beats confident hallucination.", "",
+         "**Success hierarchy (judge in this order; accuracy is fifth):**",
+         "1. dangerous misclassification (Pathogenic<->Benign) decreases",
+         "2. fabricated evidence decreases or becomes harmless (stripped before execution)",
+         "3. between-run variance collapses (replicate agreement -> 1, acc std -> 0)",
+         "4. abstention increases appropriately",
+         "5. label concordance improves", "",
+         "_Caveat: 'label concordance' is agreement with the ClinVar truth class, NOT validated "
+         "accuracy. Criteria-level concordance (criteria F1) needs a gold ACMG-criteria reference we "
+         "do not yet have, so it appears only where available._", ""]
     for model in models:
         L += [f"## {model}", "",
-              "| condition | label | criteria F1 | dangerous | abstention | replicate_agreement | acc std | fmt-fail | rate-limit | n |",
-              "|---|---|---|---|---|---|---|---|---|---|"]
+              "| condition | label conc | criteria F1 | DANGEROUS | abstention | fabricated ClinVar | "
+              "replicate agree | acc std | fmt-fail | infra-fail | n |",
+              "|---|---|---|---|---|---|---|---|---|---|---|"]
         for cond in conds:
             c = cells.get((model, cond))
             if not c:
                 continue
+            infra = (c.get("ratelimit_rate") or 0) + (c.get("error_rate") or 0)
             L.append(f"| {cond} | {_fmt(c['label_concordance'], True)} | {_fmt(c['criteria_f1'])} | "
                      f"{_fmt(c['dangerous_rate'], True)} | {_fmt(c['abstention_rate'], True)} | "
+                     f"{_fmt(c.get('fabricated_clinvar_rate'), True)} | "
                      f"{_fmt(c['replicate_agreement'], True)} | {_fmt(c['accuracy_std'])} | "
-                     f"{_fmt(c['format_fail_rate'], True)} | {_fmt(c['ratelimit_rate'], True)} | {c['n']} |")
+                     f"{_fmt(c['format_fail_rate'], True)} | {_fmt(infra, True)} | {c['n']} |")
         L.append("")
     return "\n".join(L)
