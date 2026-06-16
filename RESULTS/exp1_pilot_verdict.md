@@ -1,3 +1,9 @@
+> **SUPERSEDED (2026-06-16).** This is pilot v1, a CONTAMINATED run (Gemini lost to Google quota;
+> gpt-5.2 later lost to OpenAI quota) and it contains the since-corrected claim that the
+> Pathogenic->Likely-Pathogenic shift is the evidence-acquisition gap. The points-combiner
+> decomposition showed that shift is combiner-threshold dependent. Use exp1_pilot_v2_verdict.md
+> and exp1_points_decomposition.md instead. Kept for the record only.
+
 # ClawBench Exp 1 pilot — verdict (2026-06-16)
 
 231 Tier-A held-out variants x 3 conditions (free_prompted, skill_reasoning, skill_execution) x

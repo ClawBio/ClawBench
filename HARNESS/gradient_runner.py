@@ -199,7 +199,10 @@ def run_one(condition, variant, adapter, *, model="model", reference_codes=None,
         # submission: the model loses that evidence and falls back to its legit codes (usually VUS),
         # which is the trust architecture's predicted outcome. The strip count is itself a finding.
         raw_codes = partial.get("submitted_evidence_codes", []) or []
-        proposed = [{"code": c.get("code"), "strength": c.get("strength")}
+        # full per-code provenance (audit-complete): code + strength + source + rationale
+        proposed = [{"code": c.get("code"), "strength": c.get("strength"),
+                     "source_type": c.get("source_type"), "source_id": c.get("source_id"),
+                     "rationale": (c.get("rationale") or "")[:160]}
                     for c in raw_codes if isinstance(c, dict)]
         kept, stripped = _strip_clinvar_codes(raw_codes, mode)
         kept_abst, stripped_abst = _strip_clinvar_abstentions(partial.get("abstentions", []) or [], mode)
