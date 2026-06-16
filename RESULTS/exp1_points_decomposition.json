@@ -1,0 +1,82 @@
+{
+  "n_skill_execution": 2928,
+  "by_model": {
+    "claude-sonnet-4-5": {
+      "n": 1150,
+      "rule_5tier_exact": 0.4930434782608696,
+      "points_5tier_exact": 0.5165217391304348,
+      "lp_gap_n": 281,
+      "lp_gap_recovered_to_P": 281,
+      "lp_gap_recovery_rate": 1.0,
+      "truth_pathogenic_rule_mix": {
+        "Likely Pathogenic": 281,
+        "Benign": 3,
+        "Uncertain Significance": 14
+      },
+      "truth_pathogenic_points_mix": {
+        "Pathogenic": 281,
+        "Benign": 3,
+        "Likely Benign": 1,
+        "Likely Pathogenic": 13
+      }
+    },
+    "gemini-2.5-flash": {
+      "n": 637,
+      "rule_5tier_exact": 0.48194662480376765,
+      "points_5tier_exact": 0.47566718995290425,
+      "lp_gap_n": 53,
+      "lp_gap_recovered_to_P": 53,
+      "lp_gap_recovery_rate": 1.0,
+      "truth_pathogenic_rule_mix": {
+        "Likely Pathogenic": 53,
+        "Uncertain Significance": 105
+      },
+      "truth_pathogenic_points_mix": {
+        "Pathogenic": 53,
+        "Uncertain Significance": 93,
+        "Likely Benign": 1,
+        "Likely Pathogenic": 11
+      }
+    },
+    "gpt-5.2": {
+      "n": 1141,
+      "rule_5tier_exact": 0.5267309377738826,
+      "points_5tier_exact": 0.5056967572304996,
+      "lp_gap_n": 222,
+      "lp_gap_recovered_to_P": 222,
+      "lp_gap_recovery_rate": 1.0,
+      "truth_pathogenic_rule_mix": {
+        "Likely Pathogenic": 222,
+        "Uncertain Significance": 75,
+        "Benign": 2
+      },
+      "truth_pathogenic_points_mix": {
+        "Pathogenic": 222,
+        "Likely Pathogenic": 25,
+        "Likely Benign": 3,
+        "Benign": 2,
+        "Uncertain Significance": 47
+      }
+    },
+    "ALL": {
+      "n": 2928,
+      "rule_5tier_exact": 0.5037568306010929,
+      "points_5tier_exact": 0.5034153005464481,
+      "lp_gap_n": 556,
+      "lp_gap_recovered_to_P": 556,
+      "lp_gap_recovery_rate": 1.0,
+      "truth_pathogenic_rule_mix": {
+        "Likely Pathogenic": 556,
+        "Uncertain Significance": 194,
+        "Benign": 5
+      },
+      "truth_pathogenic_points_mix": {
+        "Pathogenic": 556,
+        "Likely Pathogenic": 49,
+        "Uncertain Significance": 140,
+        "Likely Benign": 5,
+        "Benign": 5
+      }
+    }
+  }
+}

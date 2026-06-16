@@ -37,3 +37,5 @@ __pycache__/
 !RESULTS/pilot_runs.jsonl
 !RESULTS/exp1_pilot_v2_verdict.md
 !RESULTS/pilot_v2_runs.jsonl
+!RESULTS/exp1_points_decomposition.md
+!RESULTS/exp1_points_decomposition.json
