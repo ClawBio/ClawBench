@@ -17,7 +17,9 @@ No side effects at import time.
 from __future__ import annotations
 
 import json
+import re
 
+import acmg_vocabulary as voc
 import score_acmg as SC
 from validate_evidence import to_criteria, validate_evidence  # noqa: F401 (to_criteria via score)
 
@@ -39,35 +41,65 @@ def _context_block(variant: dict) -> str:
     return json.dumps(gc, sort_keys=True)
 
 
+def _evidence_block(variant: dict) -> str:
+    ev = variant.get("evidence_context", {}) or {}
+    cons = ev.get("molecular_consequence") or "unknown"
+    af = ev.get("population_max_af")
+    af_str = "not observed in population databases" if af in (None, "") else str(af)
+    return f"  molecular_consequence: {cons}\n  population_max_allele_frequency: {af_str}"
+
+
+_CLASS_VOCAB = "Pathogenic | Likely Pathogenic | Uncertain Significance | Likely Benign | Benign"
+
+
 def build_prompt(condition: str, variant: dict, *, skill_md: str = "", retrieved_context: str = "") -> str:
-    ctx = _context_block(variant)
+    head = (f"{_BASE_INSTRUCTION}\nVariant (GRCh38): {_context_block(variant)}\n"
+            f"Structured evidence available (non-ClinVar):\n{_evidence_block(variant)}\n")
     if condition == "free_prompted":
-        return (f"{_BASE_INSTRUCTION}\nVariant: {ctx}\n"
-                'Return JSON {"classification": <Pathogenic|Likely Pathogenic|Uncertain Significance|'
-                'Likely Benign|Benign>, "evidence_codes": [ACMG codes you would apply]}.')
+        return head + (f'Classify under ACMG/AMP. Return JSON {{"classification": <{_CLASS_VOCAB}>, '
+                       '"evidence_codes": [ACMG codes you would apply]}.')
     if condition == "retrieval_augmented":
-        return (f"{_BASE_INSTRUCTION}\nRetrieved reference material:\n{retrieved_context}\n"
-                f"Variant: {ctx}\n"
-                'Return JSON {"classification": <5-tier>, "evidence_codes": [...]}.')
+        return (head + f"Retrieved reference material:\n{retrieved_context}\n"
+                f'Return JSON {{"classification": <{_CLASS_VOCAB}>, "evidence_codes": [...]}}.')
     if condition == "skill_reasoning":
-        return (f"{_BASE_INSTRUCTION}\nApply the rules in this skill specification:\n{skill_md}\n"
-                f"Variant: {ctx}\n"
-                'Return JSON {"classification": <5-tier>, "evidence_codes": [...]}.')
+        return (head + f"Apply the rules in this skill specification:\n{skill_md}\n"
+                f'Return JSON {{"classification": <{_CLASS_VOCAB}>, "evidence_codes": [...]}}.')
     if condition == "skill_execution":
-        return (f"{_BASE_INSTRUCTION}\nDo NOT output a classification. Output ONLY the structured ACMG "
-                "evidence you can justify; a validated skill will combine it deterministically. "
-                "ClinVar assertion evidence is not permitted.\n"
-                f"Variant: {ctx}\n"
-                "Return the evidence-submission JSON per the ClawBench ACMG evidence schema "
-                "(submitted_evidence_codes[], abstentions[], benchmark_mode, clinvar_blinded_status, "
-                "benchmark_truth_source, variant_id, genomic_context).")
+        return (head + "Do NOT output a classification; a validated skill will combine your evidence "
+                "deterministically. Assign ONLY ACMG/AMP evidence codes you can justify FROM THE "
+                "STRUCTURED EVIDENCE ABOVE. ClinVar / prior-classification evidence is forbidden "
+                "(PP5, BP6, and PS1/PM5 sourced from ClinVar must not be used).\n"
+                "strength is one of: very_strong, strong, moderate, supporting (benign codes: "
+                "stand_alone, strong, supporting).\n"
+                "source_type is one of: population_frequency, computational, in_silico, functional, "
+                "segregation, de_novo, case_control, phenotype, literature, other.\n"
+                'Return JSON ONLY: {"submitted_evidence_codes": [{"code": "PVS1", "strength": "very_strong", '
+                '"source_type": "computational", "source_id": "...", "rationale": "...", "confidence": 0.9}], '
+                '"abstentions": [{"code": "PS3", "rationale": "no functional data"}]}.')
     raise ValueError(f"unknown condition {condition!r}")
+
+
+def loads_lenient(raw):
+    """Parse JSON that a real model may wrap in markdown fences or surround with prose."""
+    if not isinstance(raw, str):
+        raise ValueError("not a string")
+    s = raw.strip()
+    m = re.search(r"```(?:json)?\s*(.*?)```", s, re.DOTALL)
+    if m:
+        s = m.group(1).strip()
+    try:
+        return json.loads(s)
+    except ValueError:
+        i, j = s.find("{"), s.rfind("}")
+        if i != -1 and j > i:
+            return json.loads(s[i:j + 1])
+        raise
 
 
 def parse_class_output(raw: str):
     """Parse a class-emitting condition's output. Returns (class|None, codes|None, format_ok)."""
     try:
-        obj = json.loads(raw)
+        obj = loads_lenient(raw)
     except (ValueError, TypeError):
         return (None, None, False)
     if not isinstance(obj, dict):
@@ -123,11 +155,21 @@ def run_one(condition, variant, adapter, *, model="model", reference_codes=None,
 
     if condition == "skill_execution":
         try:
-            submission = json.loads(raw)
+            partial = loads_lenient(raw)
         except (ValueError, TypeError):
             return _format_fail(variant, condition, model, truth, raw)
-        if not isinstance(submission, dict):
+        if not isinstance(partial, dict):
             return _format_fail(variant, condition, model, truth, raw)
+        # the model supplies only the science; the harness owns the mode/context boilerplate
+        submission = {
+            "variant_id": variant["variant_id"],
+            "genomic_context": variant["genomic_context"],
+            "submitted_evidence_codes": partial.get("submitted_evidence_codes", []),
+            "abstentions": partial.get("abstentions", []),
+            "benchmark_mode": mode,
+            "clinvar_blinded_status": voc.expected_blinded_status(mode),
+            "benchmark_truth_source": truth_source,
+        }
         scored = SC.score_variant(submission, variant["truth"]["clnsig"],
                                   reference_codes=reference_codes, expected_mode=mode)
         scored.update({"variant_id": variant["variant_id"], "model": model, "condition": condition,

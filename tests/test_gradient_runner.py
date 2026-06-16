@@ -16,8 +16,8 @@ from test_evidence_schema import valid_submission
 
 VARIANT = {
     "variant_id": "V1",
-    "genomic_context": {"chrom": "17", "pos": 43093454, "ref": "G", "alt": "A",
-                        "build": "GRCh38", "gene": "BRCA1", "consequence": "stop_gained"},
+    "genomic_context": {"chrom": "17", "pos": 43093454, "ref": "G", "alt": "A", "build": "GRCh38", "gene": "BRCA1"},
+    "evidence_context": {"molecular_consequence": "frameshift_variant", "population_max_af": None},
     "truth": {"clnsig": "Pathogenic", "review_stars": 3},
 }
 
@@ -64,6 +64,13 @@ def test_parse_class_garbage_is_format_fail():
     assert G.parse_class_output("not json")[2] is False
 
 
+def test_parse_class_tolerates_fences_and_prose():
+    cls, _, ok = G.parse_class_output('Here is my answer:\n```json\n{"classification": "Benign"}\n```')
+    assert ok and cls == "Benign"
+    cls2, _, ok2 = G.parse_class_output('{"classification": "VUS"} (final)')
+    assert ok2 and cls2 == "Uncertain Significance"
+
+
 # ---- per-condition runs --------------------------------------------------------
 def test_free_prompted_run():
     adapter = lambda cond, prompt: '{"classification": "Pathogenic", "evidence_codes": ["PVS1", "PM2"]}'
@@ -81,39 +88,41 @@ def test_format_fail_run():
 
 
 def test_skill_execution_valid_submission():
-    sub = valid_submission(mode="clinvar_blinded", truth="clinvar")
-    sub["variant_id"] = "V1"
-    sub["genomic_context"] = VARIANT["genomic_context"]
-    adapter = lambda cond, prompt: json.dumps(sub)
-    r = G.run_one("skill_execution", VARIANT, adapter, reference_codes=["PM2", "PP3"])
+    # the model supplies ONLY the science; the harness wraps the mode/context boilerplate
+    partial = {"submitted_evidence_codes": [
+        {"code": "PVS1", "strength": "very_strong", "source_type": "computational",
+         "source_id": "VEP", "rationale": "null variant in a LoF gene", "confidence": 0.9},
+        {"code": "PM2", "strength": "moderate", "source_type": "population_frequency",
+         "source_id": "gnomAD", "rationale": "absent from population databases", "confidence": 0.8}],
+        "abstentions": [{"code": "PS3", "rationale": "no functional data"}]}
+    adapter = lambda cond, prompt: json.dumps(partial)
+    r = G.run_one("skill_execution", VARIANT, adapter, reference_codes=["PVS1", "PM2"])
     assert r["scoreable"] is True
     assert r["predicted_class"] in {"Likely Pathogenic", "Uncertain Significance", "Pathogenic"}
     assert "f1" in r["criteria"]
 
 
 def test_skill_execution_blinding_enforced():
-    # a model that tries to use a ClinVar assertion code in blinded mode is rejected by the runner
-    sub = valid_submission(mode="clinvar_blinded", truth="clinvar")
-    sub["variant_id"] = "V1"
-    sub["genomic_context"] = VARIANT["genomic_context"]
-    sub["submitted_evidence_codes"].append(
+    # a model that submits a ClinVar assertion code is rejected once the harness wraps it in blinded mode
+    partial = {"submitted_evidence_codes": [
         {"code": "PP5", "strength": "supporting", "source_type": "clinvar",
-         "source_id": "VCV1", "rationale": "reputable source pathogenic", "confidence": 0.8})
-    adapter = lambda cond, prompt: json.dumps(sub)
+         "source_id": "VCV1", "rationale": "reputable source pathogenic", "confidence": 0.8}],
+        "abstentions": []}
+    adapter = lambda cond, prompt: json.dumps(partial)
     r = G.run_one("skill_execution", VARIANT, adapter)
     assert r["scoreable"] is False and r["category"] == "invalid"
     assert any(e["error_code"] == "DISALLOWED_CLINVAR_CRITERION" for e in r["validity_errors"])
 
 
-def test_skill_execution_forged_mode_rejected():
-    # harness assigns clinvar_blinded; a submission declaring sensitivity mode is rejected
-    sub = valid_submission(mode="clinvar_unblinded_sensitivity", truth=None)
-    sub["variant_id"] = "V1"
-    sub["genomic_context"] = VARIANT["genomic_context"]
-    adapter = lambda cond, prompt: json.dumps(sub)
-    r = G.run_one("skill_execution", VARIANT, adapter, mode="clinvar_blinded")
-    assert r["scoreable"] is False
-    assert any(e["error_code"] == "MODE_STATUS_MISMATCH" for e in r["validity_errors"])
+def test_skill_execution_harness_owns_mode():
+    # the harness sets benchmark_mode; a stray mode in the model output is ignored (cannot forge)
+    partial = {"submitted_evidence_codes": [
+        {"code": "PM2", "strength": "moderate", "source_type": "population_frequency",
+         "source_id": "gnomAD", "rationale": "absent", "confidence": 0.7}],
+        "abstentions": [], "benchmark_mode": "clinvar_unblinded_sensitivity"}
+    adapter = lambda cond, prompt: json.dumps(partial)
+    r = G.run_one("skill_execution", VARIANT, adapter)
+    assert r["scoreable"] is True  # stray model mode ignored; harness enforced clinvar_blinded
 
 
 def test_answer_supplied_control_is_perfect():
