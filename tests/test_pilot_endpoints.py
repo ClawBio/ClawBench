@@ -74,6 +74,26 @@ def test_ratelimit_and_format_fail_excluded_from_scoreable():
     assert c["format_fail_rate"] == 1 / 3
 
 
+def test_directional_safety_and_assignment_stability():
+    def r(vid, rep, pred, truth, codes, tcm):
+        dang = (pred in PE.ACTIONABLE and truth in PE.BENIGN) or (pred in PE.BENIGN and truth in PE.ACTIONABLE)
+        return {"model": "m", "condition": "skill_execution", "variant_id": vid, "rep": rep,
+                "scoreable": True, "format_ok": True, "predicted_class": pred, "truth_class": truth,
+                "label": {"exact": pred == truth, "dangerous_miscall": dang, "three_class_match": tcm},
+                "criteria": {}, "category": "x", "proposed_codes": [{"code": c} for c in codes]}
+    recs = [r("VB", rep, "Benign", "Benign", ["BA1"], True) for rep in range(3)]      # stable, benign
+    recs += [r("VP", 0, "Likely Pathogenic", "Pathogenic", ["PVS1", "PM2"], True),    # actionable, UNSTABLE codes
+             r("VP", 1, "Likely Pathogenic", "Pathogenic", ["PVS1"], True),
+             r("VP", 2, "Likely Pathogenic", "Pathogenic", ["PVS1", "PM2"], True)]
+    c = PE.endpoints_by_cell(recs)[("m", "skill_execution")]
+    assert c["benign_concordance"] == 1.0
+    assert c["actionable_binary"] == 1.0          # truth-actionable variant placed in actionable (LP)
+    assert c["overcall_rate"] == 0.0              # benign variant not over-called
+    assert c["three_class_concordance"] == 1.0
+    assert c["assignment_set_agreement"] == 0.5   # VB stable, VP not -> 1 of 2
+    assert 0 < c["assignment_jaccard"] < 1
+
+
 def test_render_markdown_has_gradient_table():
     cells = PE.endpoints_by_cell(_exec_records() + _free_records())
     md = PE.render_markdown(cells, title="pilot")

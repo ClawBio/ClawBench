@@ -117,11 +117,13 @@ def run(pilot_variants, models, conditions, reps, checkpoint: Path, skill_md, wo
     adapters = MA.make_adapters(ENV_PATH, models)
     gates = {label: _Gate(**MODEL_THROTTLE.get(label, MODEL_THROTTLE["_default"])) for label in models}
 
+    # interleave models (variant-major) so all providers progress together and any per-model quota
+    # issue surfaces early rather than 2/3 of the way through.
     tasks = []
-    for label in models:
-        for v in pilot_variants:
-            for cond in conditions:
-                for rep in range(reps):
+    for v in pilot_variants:
+        for cond in conditions:
+            for rep in range(reps):
+                for label in models:
                     k = f'{label}|{v["variant_id"]}|{cond}|{rep}'
                     if k not in done:
                         tasks.append((label, v, cond, rep))

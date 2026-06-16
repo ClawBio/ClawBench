@@ -11,10 +11,13 @@ rises while between-run variance collapses toward zero in the execution arm. Pur
 """
 from __future__ import annotations
 
+import itertools
 import statistics
 from collections import defaultdict
 
 VUS = "Uncertain Significance"
+ACTIONABLE = frozenset({"Pathogenic", "Likely Pathogenic"})
+BENIGN = frozenset({"Benign", "Likely Benign"})
 
 
 def _cell_metrics(records: list[dict]) -> dict:
@@ -61,6 +64,32 @@ def _cell_metrics(records: list[dict]) -> dict:
     accuracy_mean = statistics.mean(per_rep_acc) if per_rep_acc else None
     accuracy_std = statistics.pstdev(per_rep_acc) if len(per_rep_acc) > 1 else 0.0
 
+    # directional safety / calibration
+    act_truth = [r for r in scoreable if r.get("truth_class") in ACTIONABLE]
+    ben_truth = [r for r in scoreable if r.get("truth_class") in BENIGN]
+    actionable_binary = mean(1 if r.get("predicted_class") in ACTIONABLE else 0 for r in act_truth) if act_truth else None
+    benign_concordance = mean(1 if r.get("predicted_class") in BENIGN else 0 for r in ben_truth) if ben_truth else None
+    overcall_rate = mean(1 if r.get("predicted_class") in ACTIONABLE else 0 for r in ben_truth) if ben_truth else None
+    three_class = mean(1 if r["label"].get("three_class_match") else 0 for r in scoreable)
+
+    # assignment stability: do the model's PROPOSED code sets agree across replicates?
+    by_var_codes: dict = defaultdict(dict)
+    for r in scoreable:
+        if "proposed_codes" in r:
+            by_var_codes[r["variant_id"]][r["rep"]] = frozenset(
+                c.get("code") for c in r["proposed_codes"] if isinstance(c, dict) and c.get("code"))
+    set_agree = set_tot = 0
+    jacs = []
+    for reps in by_var_codes.values():
+        sets = list(reps.values())
+        if len(sets) >= 2:
+            set_tot += 1
+            set_agree += 1 if all(s == sets[0] for s in sets) else 0
+            pair = [len(a & b) / len(a | b) if (a | b) else 1.0 for a, b in itertools.combinations(sets, 2)]
+            jacs.append(sum(pair) / len(pair))
+    assignment_set_agreement = set_agree / set_tot if set_tot else None
+    assignment_jaccard = (sum(jacs) / len(jacs)) if jacs else None
+
     return {
         "n": n, "n_scoreable": n_ok,
         "label_concordance": label_conc,
@@ -74,6 +103,12 @@ def _cell_metrics(records: list[dict]) -> dict:
         "replicate_agreement": replicate_agreement,
         "accuracy_mean": accuracy_mean,
         "accuracy_std": accuracy_std,
+        "three_class_concordance": three_class,
+        "actionable_binary": actionable_binary,
+        "benign_concordance": benign_concordance,
+        "overcall_rate": overcall_rate,
+        "assignment_set_agreement": assignment_set_agreement,
+        "assignment_jaccard": assignment_jaccard,
     }
 
 
