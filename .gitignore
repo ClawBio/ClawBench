@@ -31,3 +31,7 @@ __pycache__/
 .pytest_cache/
 .venv/
 .DS_Store
+!RESULTS/exp1_pilot_endpoints.json
+!RESULTS/exp1_pilot_endpoints.md
+!RESULTS/exp1_pilot_verdict.md
+!RESULTS/pilot_runs.jsonl
