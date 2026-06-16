@@ -60,6 +60,10 @@ def _slim(rec: dict) -> dict:
                                     "format_ok", "predicted_class", "truth_class", "category")}
     keep["label"] = rec.get("label", {})
     keep["criteria"] = rec.get("criteria", {})
+    if "clinvar_codes_stripped" in rec:
+        keep["clinvar_codes_stripped"] = rec["clinvar_codes_stripped"]
+    if rec.get("validity_errors"):
+        keep["validity_error_codes"] = [e.get("error_code") for e in rec["validity_errors"]]
     if not rec.get("format_ok"):
         keep["raw"] = (rec.get("raw") or "")[:200]
     return keep

@@ -102,16 +102,21 @@ def test_skill_execution_valid_submission():
     assert "f1" in r["criteria"]
 
 
-def test_skill_execution_blinding_enforced():
-    # a model that submits a ClinVar assertion code is rejected once the harness wraps it in blinded mode
+def test_skill_execution_strips_fabricated_clinvar():
+    # a fabricated ClinVar code is stripped (not rejected); the model is scored on its legit codes
     partial = {"submitted_evidence_codes": [
         {"code": "PP5", "strength": "supporting", "source_type": "clinvar",
-         "source_id": "VCV1", "rationale": "reputable source pathogenic", "confidence": 0.8}],
+         "source_id": "VCV1", "rationale": "reputable source pathogenic", "confidence": 0.8},
+        {"code": "PVS1", "strength": "very_strong", "source_type": "computational",
+         "source_id": "VEP", "rationale": "nonsense", "confidence": 0.9},
+        {"code": "PM2", "strength": "moderate", "source_type": "population_frequency",
+         "source_id": "gnomAD", "rationale": "absent", "confidence": 0.8}],
         "abstentions": []}
     adapter = lambda cond, prompt: json.dumps(partial)
     r = G.run_one("skill_execution", VARIANT, adapter)
-    assert r["scoreable"] is False and r["category"] == "invalid"
-    assert any(e["error_code"] == "DISALLOWED_CLINVAR_CRITERION" for e in r["validity_errors"])
+    assert r["scoreable"] is True                 # not rejected; scored on PVS1+PM2
+    assert r["clinvar_codes_stripped"] == 1       # PP5 stripped
+    assert r["predicted_class"] in {"Likely Pathogenic", "Pathogenic"}
 
 
 def test_skill_execution_harness_owns_mode():

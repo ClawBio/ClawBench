@@ -36,6 +36,9 @@ def _cell_metrics(records: list[dict]) -> dict:
     abstention = mean(1 if r.get("predicted_class") == VUS else 0 for r in scoreable)
     crit = [r["criteria"]["f1"] for r in scoreable if isinstance(r.get("criteria"), dict) and "f1" in r["criteria"]]
     criteria_f1 = mean(crit) if crit else None
+    # fabricated-ClinVar rate: fraction of skill-execution attempts where >=1 ClinVar code was stripped
+    se = [r for r in records if r.get("clinvar_codes_stripped") is not None]
+    fabricated_clinvar = (sum(1 for r in se if r.get("clinvar_codes_stripped", 0) > 0) / len(se)) if se else None
 
     # between-run variance
     by_var: dict = defaultdict(dict)
@@ -67,6 +70,7 @@ def _cell_metrics(records: list[dict]) -> dict:
         "format_fail_rate": fmt_fail / n if n else 0.0,
         "ratelimit_rate": ratelimit / n if n else 0.0,
         "error_rate": errors / n if n else 0.0,
+        "fabricated_clinvar_rate": fabricated_clinvar,
         "replicate_agreement": replicate_agreement,
         "accuracy_mean": accuracy_mean,
         "accuracy_std": accuracy_std,

@@ -121,6 +121,40 @@ def parse_class_output(raw: str):
     return (cls, codes, True)
 
 
+def _strip_clinvar_codes(codes: list, mode: str):
+    """In a blinded mode, remove ClinVar-derived codes the model fabricated (it was not given
+    ClinVar). Returns (kept, stripped_codes). Mirrors the validator's leakage rule so the kept set
+    passes validation and the model is scored on its legitimate, non-ClinVar evidence only."""
+    if not voc.clinvar_checks_enabled(mode):
+        return list(codes), []
+    kept, stripped = [], []
+    for c in codes:
+        if not isinstance(c, dict):
+            kept.append(c)
+            continue
+        code = c.get("code")
+        clinvar = voc.is_clinvar_sourced(c.get("source_type", ""), c.get("source_id", ""), c.get("rationale", ""))
+        if code in voc.ASSERTION_CODES or clinvar:
+            stripped.append(code)
+        else:
+            kept.append(c)
+    return kept, stripped
+
+
+def _strip_clinvar_abstentions(abstentions: list, mode: str):
+    """In blinded mode, drop abstentions on ClinVar-assertion codes (PP5/BP6), which the validator
+    rejects. Returns (kept, stripped_codes)."""
+    if not voc.clinvar_checks_enabled(mode):
+        return list(abstentions), []
+    kept, stripped = [], []
+    for a in abstentions:
+        if isinstance(a, dict) and a.get("code") in voc.ASSERTION_CODES:
+            stripped.append(a.get("code"))
+        else:
+            kept.append(a)
+    return kept, stripped
+
+
 def _format_fail(variant, condition, model, truth, raw):
     return {"variant_id": variant["variant_id"], "model": model, "condition": condition,
             "format_ok": False, "scoreable": False, "predicted_class": None, "truth_class": truth,
@@ -160,12 +194,16 @@ def run_one(condition, variant, adapter, *, model="model", reference_codes=None,
             return _format_fail(variant, condition, model, truth, raw)
         if not isinstance(partial, dict):
             return _format_fail(variant, condition, model, truth, raw)
-        # the model supplies only the science; the harness owns the mode/context boilerplate
+        # In blinded mode, STRIP ClinVar-derived (fabricated) codes rather than rejecting the whole
+        # submission: the model loses that evidence and falls back to its legit codes (usually VUS),
+        # which is the trust architecture's predicted outcome. The strip count is itself a finding.
+        kept, stripped = _strip_clinvar_codes(partial.get("submitted_evidence_codes", []) or [], mode)
+        kept_abst, stripped_abst = _strip_clinvar_abstentions(partial.get("abstentions", []) or [], mode)
         submission = {
             "variant_id": variant["variant_id"],
             "genomic_context": variant["genomic_context"],
-            "submitted_evidence_codes": partial.get("submitted_evidence_codes", []),
-            "abstentions": partial.get("abstentions", []),
+            "submitted_evidence_codes": kept,
+            "abstentions": kept_abst,
             "benchmark_mode": mode,
             "clinvar_blinded_status": voc.expected_blinded_status(mode),
             "benchmark_truth_source": truth_source,
@@ -173,7 +211,8 @@ def run_one(condition, variant, adapter, *, model="model", reference_codes=None,
         scored = SC.score_variant(submission, variant["truth"]["clnsig"],
                                   reference_codes=reference_codes, expected_mode=mode)
         scored.update({"variant_id": variant["variant_id"], "model": model, "condition": condition,
-                       "format_ok": True, "raw": (raw or "")[:500]})
+                       "format_ok": True, "clinvar_codes_stripped": len(stripped) + len(stripped_abst),
+                       "raw": (raw or "")[:500]})
         return scored
 
     raise ValueError(f"unknown condition {condition!r}")
