@@ -184,6 +184,7 @@ def main() -> None:
     ap.add_argument("--results-dir", type=Path, default=_ROOT / "RESULTS")
     ap.add_argument("--skill-md", type=Path, default=_ROOT / "SKILLS/clinical-variant-reporter/SKILL.md")
     ap.add_argument("--reps", type=int, default=5)
+    ap.add_argument("--conditions", default=None, help="comma-separated subset of conditions (default: all 3)")
     ap.add_argument("--workers", type=int, default=9)
     ap.add_argument("--smoke", type=int, default=0, help="run only the first N variants at reps=1")
     ap.add_argument("--finalize", action="store_true", help="only recompute endpoints from checkpoint")
@@ -196,6 +197,7 @@ def main() -> None:
     variants = load_pilot_variants(args.pilot, args.manifest)
     skill_md = args.skill_md.read_text()
     reps = args.reps
+    conditions = args.conditions.split(",") if args.conditions else PILOT_CONDITIONS
     title = "pilot"
     if args.smoke:
         variants = variants[:args.smoke]
@@ -204,7 +206,7 @@ def main() -> None:
         title = "pilot-smoke"
         print(f"SMOKE: {len(variants)} variants x {len(PILOT_CONDITIONS)} conditions x 1 rep x {len(PILOT_MODELS)} models")
 
-    run(variants, PILOT_MODELS, PILOT_CONDITIONS, reps, args.checkpoint, skill_md, workers=args.workers)
+    run(variants, PILOT_MODELS, conditions, reps, args.checkpoint, skill_md, workers=args.workers)
     finalize(args.checkpoint, args.results_dir,
              title="pilot-smoke" if args.smoke else "pilot")
 

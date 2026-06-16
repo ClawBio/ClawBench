@@ -15,22 +15,16 @@ _Caveat: 'label concordance' is agreement with the ClinVar truth class, NOT vali
 
 | condition | label conc | criteria F1 | DANGEROUS | abstention | fabricated ClinVar | replicate agree | acc std | fmt-fail | infra-fail | n |
 |---|---|---|---|---|---|---|---|---|---|---|
-| free_prompted | 50.6% | -- | 0.9% | 8.1% | -- | 96.1% | 0.006 | 0.0% | 0.0% | 1155 |
-| skill_reasoning | 50.1% | -- | 2.2% | 1.4% | -- | 97.0% | 0.002 | 0.0% | 0.0% | 1155 |
-| skill_execution | 49.3% | -- | 1.0% | 5.7% | 0.0% | 80.5% | 0.005 | 0.0% | 0.0% | 1155 |
+| skill_execution | 20.0% | -- | 0.0% | 100.0% | 0.0% | 100.0% | 0.000 | 0.0% | 0.0% | 150 |
 
 ## gemini-2.5-flash
 
 | condition | label conc | criteria F1 | DANGEROUS | abstention | fabricated ClinVar | replicate agree | acc std | fmt-fail | infra-fail | n |
 |---|---|---|---|---|---|---|---|---|---|---|
-| free_prompted | 47.9% | -- | 1.0% | 40.3% | -- | 36.8% | 0.008 | 0.0% | 0.0% | 1155 |
-| skill_reasoning | 51.3% | -- | 0.5% | 2.4% | -- | 91.3% | 0.005 | 0.0% | 0.0% | 1155 |
-| skill_execution | 48.2% | -- | 0.5% | 46.6% | 12.6% | 65.0% | 0.027 | 0.0% | 0.0% | 1155 |
+| skill_execution | 18.5% | -- | 0.0% | 100.0% | 34.7% | 100.0% | 0.043 | 0.0% | 0.0% | 150 |
 
 ## gpt-5.2
 
 | condition | label conc | criteria F1 | DANGEROUS | abstention | fabricated ClinVar | replicate agree | acc std | fmt-fail | infra-fail | n |
 |---|---|---|---|---|---|---|---|---|---|---|
-| free_prompted | 54.5% | -- | 0.9% | 17.7% | -- | 76.2% | 0.007 | 0.0% | 0.0% | 1155 |
-| skill_reasoning | 49.4% | -- | 0.9% | 14.2% | -- | 77.1% | 0.011 | 0.0% | 0.0% | 1155 |
-| skill_execution | 52.7% | -- | 0.5% | 19.3% | 17.2% | 64.9% | 0.008 | 0.0% | 0.0% | 1155 |
+| skill_execution | 20.8% | -- | 0.0% | 98.7% | 13.3% | 96.0% | 0.009 | 0.0% | 0.0% | 150 |

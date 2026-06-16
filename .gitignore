@@ -39,3 +39,7 @@ __pycache__/
 !RESULTS/pilot_v2_runs.jsonl
 !RESULTS/exp1_points_decomposition.md
 !RESULTS/exp1_points_decomposition.json
+!RESULTS/exp1_combiner_breadth.md
+!RESULTS/exp1_attribution.json
+!RESULTS/tier_b_probe_runs.jsonl
+!TRUTH/clinvar/tier_b_probe_v1.json
