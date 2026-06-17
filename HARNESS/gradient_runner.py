@@ -46,7 +46,50 @@ def _evidence_block(variant: dict) -> str:
     cons = ev.get("molecular_consequence") or "unknown"
     af = ev.get("population_max_af")
     af_str = "not observed in population databases" if af in (None, "") else str(af)
-    return f"  molecular_consequence: {cons}\n  population_max_allele_frequency: {af_str}"
+    block = f"  molecular_consequence: {cons}\n  population_max_allele_frequency: {af_str}"
+    # Acquisition arm (Condition B): when the oracle has enriched the evidence_context with real
+    # non-ClinVar annotations, render them here. Thin variants (Condition A) have none of these keys
+    # and so render byte-identically to the pre-acquisition pilot. The acquisition difference lives
+    # ENTIRELY in the evidence payload, never in the prompt template.
+    enriched = _enriched_evidence_lines(ev)
+    return block + ("\n" + "\n".join(enriched) if enriched else "")
+
+
+def _enriched_evidence_lines(ev: dict) -> list[str]:
+    lines: list[str] = []
+    if ev.get("protein_change"):
+        lines.append(f"  protein_change: {ev['protein_change']}")
+    if ev.get("transcript_id"):
+        mane = f" (MANE {ev['mane_select']})" if ev.get("mane_select") else ""
+        lines.append(f"  transcript: {ev['transcript_id']}{mane}")
+    ins = ev.get("in_silico")
+    if isinstance(ins, dict):
+        lines.append("  in_silico_predictors (non-ClinVar):")
+        rec = ins.get("revel_acmg")
+        if rec:
+            # supporting is the PP3/BP4 baseline; moderate/strong are upgrades that the fail-closed
+            # contract rejects unless the code carries a strength_basis. Make copying it mechanical
+            # (contract mechanics) without dictating the model's other strength choices (science).
+            if rec["strength"] == "supporting":
+                lines.append(f"    REVEL: {ins.get('revel')} -> calibrated {rec['code']} supporting "
+                             f"(baseline; no strength_basis needed) [{rec['basis']}]")
+            else:
+                lines.append(f"    REVEL: {ins.get('revel')} -> calibrated {rec['code']} {rec['strength']}; "
+                             f"to apply this you MUST add \"strength_basis\": \"{rec['basis']}\" to the "
+                             f"{rec['code']} code, else it is rejected")
+        elif ins.get("revel") is not None:
+            lines.append(f"    REVEL: {ins.get('revel')} -> no calibrated PP3/BP4 (indeterminate zone)")
+        if ins.get("alphamissense_class") is not None:
+            lines.append(f"    AlphaMissense: {ins['alphamissense_class']} ({ins.get('alphamissense_score')})")
+        if ins.get("cadd_phred") is not None:
+            lines.append(f"    CADD_phred: {ins['cadd_phred']}")
+        if ins.get("sift_prediction") is not None:
+            lines.append(f"    SIFT: {ins['sift_prediction']} ({ins.get('sift_score')})")
+        if ins.get("polyphen_prediction") is not None:
+            lines.append(f"    PolyPhen: {ins['polyphen_prediction']} ({ins.get('polyphen_score')})")
+    if ev.get("in_silico_note"):
+        lines.append(f"  note: {ev['in_silico_note']}")
+    return lines
 
 
 _CLASS_VOCAB = "Pathogenic | Likely Pathogenic | Uncertain Significance | Likely Benign | Benign"
@@ -202,6 +245,7 @@ def run_one(condition, variant, adapter, *, model="model", reference_codes=None,
         # full per-code provenance (audit-complete): code + strength + source + rationale
         proposed = [{"code": c.get("code"), "strength": c.get("strength"),
                      "source_type": c.get("source_type"), "source_id": c.get("source_id"),
+                     "strength_basis": c.get("strength_basis"),
                      "rationale": (c.get("rationale") or "")[:160]}
                     for c in raw_codes if isinstance(c, dict)]
         kept, stripped = _strip_clinvar_codes(raw_codes, mode)

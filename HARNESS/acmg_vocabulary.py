@@ -90,8 +90,12 @@ _HAS_CONTENT = re.compile(r"[^\W_]", re.UNICODE)
 def has_content(s) -> bool:
     return isinstance(s, str) and bool(_HAS_CONTENT.search(s))
 # Markers for other curated assertion DBs, used for general truth-leakage detection.
+# NB: match VCEP (an expert panel that *classifies* variants), NOT bare "clingen". ClinGen SVI
+# publishes interpretation METHODS (PVS1, Pejaver PP3/BP4, Tavtigian points) that rigorous ACMG
+# submissions legitimately cite; matching "clingen" there is a false positive that would reject
+# correct in-silico evidence. Real VCEP provenance still trips via source_type or VCEP/expert-panel.
 _SOURCE_MARKERS = {
-    "clingen_vcep": re.compile(r"(?i)(clingen|vcep|variant curation expert panel)"),
+    "clingen_vcep": re.compile(r"(?i)(vcep|variant curation expert panel)"),
     "lovd": re.compile(r"(?i)\blovd\b"),
     "hgmd": re.compile(r"(?i)\bhgmd\b"),
 }

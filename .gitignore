@@ -43,3 +43,9 @@ __pycache__/
 !RESULTS/exp1_attribution.json
 !RESULTS/tier_b_probe_runs.jsonl
 !TRUTH/clinvar/tier_b_probe_v1.json
+# acquisition arm (Exp 1): frozen probe + oracle cache, runs, and analysis (reviewer-critical)
+!TRUTH/clinvar/acquisition_probe_v1.json
+!TRUTH/clinvar/acquisition_cache_v1.json
+!RESULTS/acquisition_probe_runs.jsonl
+!RESULTS/exp1_acquisition.md
+!RESULTS/exp1_acquisition_analysis.json

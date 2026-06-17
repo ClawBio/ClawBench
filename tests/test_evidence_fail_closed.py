@@ -409,6 +409,21 @@ def test_lovd_leakage_when_truth_is_clinvar():
     reject(sub, "TRUTH_LABEL_LEAKAGE")
 
 
+def test_clingen_svi_methods_citation_is_not_leakage():
+    """ClinGen SVI publishes interpretation METHODS (PVS1/Pejaver/Tavtigian calibrations); it is NOT
+    a ClinGen VCEP that classifies variants. A rigorous in-silico PP3 that cites the ClinGen SVI
+    calibration must validate; flagging it as truth-circular is a false positive that would penalise
+    correct ACMG practice. (Real VCEP leakage is still caught via source_type / VCEP markers.)"""
+    sub = valid_submission(truth="clinvar")
+    pp3 = next(c for c in sub["submitted_evidence_codes"] if c["code"] == "PP3")
+    pp3["strength"] = "strong"
+    pp3["source_id"] = "REVEL=0.95 (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+    pp3["rationale"] = "REVEL meets calibrated PP3 strong threshold per ClinGen SVI recommendations"
+    pp3["strength_basis"] = "REVEL=0.95, Pejaver 2022, ClinGen SVI, PMID 36413997"
+    r = validate_evidence(sub)
+    assert r["valid"], r.get("errors")
+
+
 # -- crashes converted to structured rejections ----------------------------------
 def test_non_string_source_type_no_crash():
     sub = valid_submission()

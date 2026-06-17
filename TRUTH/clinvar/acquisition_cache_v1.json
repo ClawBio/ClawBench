@@ -1,0 +1,1290 @@
+{
+  "schema_version": 1,
+  "name": "acquisition_cache_v1",
+  "source": "ensembl_vep_rest (REVEL, AlphaMissense, CADD; canonical/MANE)",
+  "calibration": "Pejaver 2022, ClinGen SVI, PMID 36413997",
+  "probe_content_hash": "b9c700b70320a5af0205aa96d647f1a4db5e1f14949ddf7eb3f9271413808069",
+  "content_hash": "a5a4fc5049b16ac2110ccdf1efa5fd1c594e237f8ae5ccc99639dafdbca4f087",
+  "variants": [
+    {
+      "variant_id": "VCV000000304",
+      "genomic_context": {
+        "chrom": "12",
+        "pos": 6018877,
+        "ref": "A",
+        "alt": "C",
+        "build": "GRCh38",
+        "gene": "VWF"
+      },
+      "truth": {
+        "clnsig": "Likely Pathogenic",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": null,
+        "in_silico": {
+          "revel": 0.925,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "moderate",
+            "basis": "REVEL=0.925 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.9695,
+          "cadd_phred": 28.5,
+          "sift_prediction": "deleterious",
+          "sift_score": 0,
+          "polyphen_prediction": "probably_damaging",
+          "polyphen_score": 1
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.F1514C",
+        "transcript_id": "ENST00000261405",
+        "mane_select": "NM_000552.5"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000261405",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "moderate",
+          "basis": "REVEL=0.925 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000003427",
+      "genomic_context": {
+        "chrom": "3",
+        "pos": 9943452,
+        "ref": "C",
+        "alt": "T",
+        "build": "GRCh38",
+        "gene": "CRELD1"
+      },
+      "truth": {
+        "clnsig": "Likely Benign",
+        "review_stars": 2
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 0.0008,
+        "in_silico": {
+          "revel": null,
+          "revel_acmg": null,
+          "alphamissense_class": null,
+          "alphamissense_score": null,
+          "cadd_phred": 24.8,
+          "sift_prediction": null,
+          "sift_score": null,
+          "polyphen_prediction": null,
+          "polyphen_score": null
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "transcript_id": "ENST00000412055",
+        "mane_select": "NM_207351.5"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000412055",
+        "revel_acmg": null
+      }
+    },
+    {
+      "variant_id": "VCV000007950",
+      "genomic_context": {
+        "chrom": "1",
+        "pos": 171636010,
+        "ref": "A",
+        "alt": "C",
+        "build": "GRCh38",
+        "gene": "MYOC"
+      },
+      "truth": {
+        "clnsig": "Likely Pathogenic",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": null,
+        "in_silico": {
+          "revel": 0.646,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "supporting",
+            "basis": "REVEL=0.646 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.6041,
+          "cadd_phred": 25.9,
+          "sift_prediction": "deleterious",
+          "sift_score": 0,
+          "polyphen_prediction": "possibly_damaging",
+          "polyphen_score": 0.866
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.I477S",
+        "transcript_id": "ENST00000037502",
+        "mane_select": "NM_000261.2"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000037502",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "supporting",
+          "basis": "REVEL=0.646 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000007953",
+      "genomic_context": {
+        "chrom": "1",
+        "pos": 171636430,
+        "ref": "T",
+        "alt": "C",
+        "build": "GRCh38",
+        "gene": "MYOC"
+      },
+      "truth": {
+        "clnsig": "Uncertain Significance",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": null,
+        "in_silico": {
+          "revel": 0.743,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "supporting",
+            "basis": "REVEL=0.743 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.6122,
+          "cadd_phred": 22.5,
+          "sift_prediction": "deleterious",
+          "sift_score": 0,
+          "polyphen_prediction": null,
+          "polyphen_score": 0.295
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.Q337R",
+        "transcript_id": "ENST00000037502",
+        "mane_select": "NM_000261.2"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000037502",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "supporting",
+          "basis": "REVEL=0.743 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000007957",
+      "genomic_context": {
+        "chrom": "1",
+        "pos": 171636244,
+        "ref": "C",
+        "alt": "A",
+        "build": "GRCh38",
+        "gene": "MYOC"
+      },
+      "truth": {
+        "clnsig": "Likely Pathogenic",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 3e-05,
+        "in_silico": {
+          "revel": 0.968,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "strong",
+            "basis": "REVEL=0.968 -> PP3 strong (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.8292,
+          "cadd_phred": 25.3,
+          "sift_prediction": "deleterious",
+          "sift_score": 0,
+          "polyphen_prediction": "probably_damaging",
+          "polyphen_score": 1
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.G399V",
+        "transcript_id": "ENST00000037502",
+        "mane_select": "NM_000261.2"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000037502",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "strong",
+          "basis": "REVEL=0.968 -> PP3 strong (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000007959",
+      "genomic_context": {
+        "chrom": "1",
+        "pos": 171636706,
+        "ref": "C",
+        "alt": "T",
+        "build": "GRCh38",
+        "gene": "MYOC"
+      },
+      "truth": {
+        "clnsig": "Uncertain Significance",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": null,
+        "in_silico": {
+          "revel": 0.913,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "moderate",
+            "basis": "REVEL=0.913 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.745,
+          "cadd_phred": 25.9,
+          "sift_prediction": "deleterious",
+          "sift_score": 0,
+          "polyphen_prediction": "probably_damaging",
+          "polyphen_score": 0.999
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.C245Y",
+        "transcript_id": "ENST00000037502",
+        "mane_select": "NM_000261.2"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000037502",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "moderate",
+          "basis": "REVEL=0.913 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000007961",
+      "genomic_context": {
+        "chrom": "1",
+        "pos": 171636302,
+        "ref": "C",
+        "alt": "G",
+        "build": "GRCh38",
+        "gene": "MYOC"
+      },
+      "truth": {
+        "clnsig": "Likely Pathogenic",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": null,
+        "in_silico": {
+          "revel": 0.965,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "strong",
+            "basis": "REVEL=0.965 -> PP3 strong (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.9064,
+          "cadd_phred": 28.6,
+          "sift_prediction": "deleterious",
+          "sift_score": 0,
+          "polyphen_prediction": "probably_damaging",
+          "polyphen_score": 1
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.D380H",
+        "transcript_id": "ENST00000037502",
+        "mane_select": "NM_000261.2"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000037502",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "strong",
+          "basis": "REVEL=0.965 -> PP3 strong (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000010167",
+      "genomic_context": {
+        "chrom": "X",
+        "pos": 154997038,
+        "ref": "T",
+        "alt": "G",
+        "build": "GRCh38",
+        "gene": "F8"
+      },
+      "truth": {
+        "clnsig": "Likely Pathogenic",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 9e-05,
+        "in_silico": {
+          "revel": 0.873,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "moderate",
+            "basis": "REVEL=0.873 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.6637,
+          "cadd_phred": 24.3,
+          "sift_prediction": "deleterious",
+          "sift_score": 0,
+          "polyphen_prediction": "probably_damaging",
+          "polyphen_score": 0.998
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.K108T",
+        "transcript_id": "ENST00000360256",
+        "mane_select": "NM_000132.4"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000360256",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "moderate",
+          "basis": "REVEL=0.873 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000013532",
+      "genomic_context": {
+        "chrom": "3",
+        "pos": 129061906,
+        "ref": "T",
+        "alt": "C",
+        "build": "GRCh38",
+        "gene": "GP9"
+      },
+      "truth": {
+        "clnsig": "Likely Pathogenic",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 7e-05,
+        "in_silico": {
+          "revel": 0.849,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "moderate",
+            "basis": "REVEL=0.849 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.9519,
+          "cadd_phred": 27.2,
+          "sift_prediction": "deleterious",
+          "sift_score": 0,
+          "polyphen_prediction": "probably_damaging",
+          "polyphen_score": 1
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.L56P",
+        "transcript_id": "ENST00000307395",
+        "mane_select": "NM_000174.5"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000307395",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "moderate",
+          "basis": "REVEL=0.849 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000015483",
+      "genomic_context": {
+        "chrom": "11",
+        "pos": 5225662,
+        "ref": "A",
+        "alt": "C",
+        "build": "GRCh38",
+        "gene": "HBB"
+      },
+      "truth": {
+        "clnsig": "Uncertain Significance",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": null,
+        "in_silico": {
+          "revel": 0.67,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "supporting",
+            "basis": "REVEL=0.67 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.2818,
+          "cadd_phred": 13.84,
+          "sift_prediction": "deleterious_low_confidence",
+          "sift_score": 0,
+          "polyphen_prediction": null,
+          "polyphen_score": null
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.V127G",
+        "transcript_id": "ENST00000335295",
+        "mane_select": "NM_000518.5"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000335295",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "supporting",
+          "basis": "REVEL=0.67 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000038202",
+      "genomic_context": {
+        "chrom": "13",
+        "pos": 32379812,
+        "ref": "T",
+        "alt": "G",
+        "build": "GRCh38",
+        "gene": "BRCA2"
+      },
+      "truth": {
+        "clnsig": "Pathogenic",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": null,
+        "in_silico": {
+          "revel": 0.765,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "supporting",
+            "basis": "REVEL=0.765 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.9626,
+          "cadd_phred": 26.6,
+          "sift_prediction": "deleterious",
+          "sift_score": 0,
+          "polyphen_prediction": "probably_damaging",
+          "polyphen_score": 0.999
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.Y3006D",
+        "transcript_id": "ENST00000380152",
+        "mane_select": "NM_000059.4"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000380152",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "supporting",
+          "basis": "REVEL=0.765 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000038885",
+      "genomic_context": {
+        "chrom": "3",
+        "pos": 136298050,
+        "ref": "G",
+        "alt": "A",
+        "build": "GRCh38",
+        "gene": "PCCB"
+      },
+      "truth": {
+        "clnsig": "Likely Benign",
+        "review_stars": 2
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 0.00015,
+        "in_silico": {
+          "revel": 0.186,
+          "revel_acmg": {
+            "code": "BP4",
+            "strength": "supporting",
+            "basis": "REVEL=0.186 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.0702,
+          "cadd_phred": 0.425,
+          "sift_prediction": "tolerated_low_confidence",
+          "sift_score": 0.63,
+          "polyphen_prediction": null,
+          "polyphen_score": 0
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.V288I",
+        "transcript_id": "ENST00000251654",
+        "mane_select": "NM_000532.5"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000251654",
+        "revel_acmg": {
+          "code": "BP4",
+          "strength": "supporting",
+          "basis": "REVEL=0.186 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000051085",
+      "genomic_context": {
+        "chrom": "13",
+        "pos": 32319130,
+        "ref": "C",
+        "alt": "T",
+        "build": "GRCh38",
+        "gene": "BRCA2"
+      },
+      "truth": {
+        "clnsig": "Benign",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": null,
+        "in_silico": {
+          "revel": 0.185,
+          "revel_acmg": {
+            "code": "BP4",
+            "strength": "supporting",
+            "basis": "REVEL=0.185 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.1012,
+          "cadd_phred": 8.264,
+          "sift_prediction": "tolerated",
+          "sift_score": 0.07,
+          "polyphen_prediction": null,
+          "polyphen_score": 0.236
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.P41S",
+        "transcript_id": "ENST00000380152",
+        "mane_select": "NM_000059.4"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000380152",
+        "revel_acmg": {
+          "code": "BP4",
+          "strength": "supporting",
+          "basis": "REVEL=0.185 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000055505",
+      "genomic_context": {
+        "chrom": "17",
+        "pos": 43051113,
+        "ref": "A",
+        "alt": "G",
+        "build": "GRCh38",
+        "gene": "BRCA1"
+      },
+      "truth": {
+        "clnsig": "Pathogenic",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": null,
+        "in_silico": {
+          "revel": 0.872,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "moderate",
+            "basis": "REVEL=0.872 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.9848,
+          "cadd_phred": 25.2,
+          "sift_prediction": "deleterious",
+          "sift_score": 0,
+          "polyphen_prediction": null,
+          "polyphen_score": 0.306
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.F1761S",
+        "transcript_id": "ENST00000357654",
+        "mane_select": "NM_007294.4"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000357654",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "moderate",
+          "basis": "REVEL=0.872 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000091649",
+      "genomic_context": {
+        "chrom": "17",
+        "pos": 43049170,
+        "ref": "A",
+        "alt": "G",
+        "build": "GRCh38",
+        "gene": "BRCA1"
+      },
+      "truth": {
+        "clnsig": "Pathogenic",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 1e-05,
+        "in_silico": {
+          "revel": 0.731,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "supporting",
+            "basis": "REVEL=0.731 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.9609,
+          "cadd_phred": 24.5,
+          "sift_prediction": "deleterious",
+          "sift_score": 0,
+          "polyphen_prediction": null,
+          "polyphen_score": 0.197
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.L1786P",
+        "transcript_id": "ENST00000357654",
+        "mane_select": "NM_007294.4"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000357654",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "supporting",
+          "basis": "REVEL=0.731 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000100598",
+      "genomic_context": {
+        "chrom": "1",
+        "pos": 186019552,
+        "ref": "A",
+        "alt": "G",
+        "build": "GRCh38",
+        "gene": "HMCN1"
+      },
+      "truth": {
+        "clnsig": "Likely Benign",
+        "review_stars": 2
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 0.00031,
+        "in_silico": {
+          "revel": 0.305,
+          "revel_acmg": null,
+          "alphamissense_class": null,
+          "alphamissense_score": 0.0963,
+          "cadd_phred": 23.4,
+          "sift_prediction": "deleterious_low_confidence",
+          "sift_score": 0.05,
+          "polyphen_prediction": "possibly_damaging",
+          "polyphen_score": 0.808
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.I1828V",
+        "transcript_id": "ENST00000271588",
+        "mane_select": "NM_031935.3"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000271588",
+        "revel_acmg": null
+      }
+    },
+    {
+      "variant_id": "VCV000133793",
+      "genomic_context": {
+        "chrom": "7",
+        "pos": 2923299,
+        "ref": "C",
+        "alt": "T",
+        "build": "GRCh38",
+        "gene": "CARD11"
+      },
+      "truth": {
+        "clnsig": "Likely Benign",
+        "review_stars": 2
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 0.00077,
+        "in_silico": {
+          "revel": 0.057,
+          "revel_acmg": {
+            "code": "BP4",
+            "strength": "supporting",
+            "basis": "REVEL=0.057 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.09,
+          "cadd_phred": 11.7,
+          "sift_prediction": "tolerated",
+          "sift_score": 0.16,
+          "polyphen_prediction": null,
+          "polyphen_score": 0.045
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.V659M",
+        "transcript_id": "ENST00000396946",
+        "mane_select": "NM_032415.7"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000396946",
+        "revel_acmg": {
+          "code": "BP4",
+          "strength": "supporting",
+          "basis": "REVEL=0.057 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000133973",
+      "genomic_context": {
+        "chrom": "14",
+        "pos": 95095997,
+        "ref": "A",
+        "alt": "C",
+        "build": "GRCh38",
+        "gene": "DICER1"
+      },
+      "truth": {
+        "clnsig": "Benign",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 5e-05,
+        "in_silico": {
+          "revel": 0.217,
+          "revel_acmg": {
+            "code": "BP4",
+            "strength": "supporting",
+            "basis": "REVEL=0.217 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.1287,
+          "cadd_phred": 5.632,
+          "sift_prediction": "tolerated_low_confidence",
+          "sift_score": 1,
+          "polyphen_prediction": null,
+          "polyphen_score": 0
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.C1641W",
+        "transcript_id": "ENST00000343455",
+        "mane_select": "NM_177438.3"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000343455",
+        "revel_acmg": {
+          "code": "BP4",
+          "strength": "supporting",
+          "basis": "REVEL=0.217 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000156630",
+      "genomic_context": {
+        "chrom": "X",
+        "pos": 154030696,
+        "ref": "C",
+        "alt": "A",
+        "build": "GRCh38",
+        "gene": "MECP2"
+      },
+      "truth": {
+        "clnsig": "Benign",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 1e-05,
+        "in_silico": {
+          "revel": 0.555,
+          "revel_acmg": null,
+          "alphamissense_class": null,
+          "alphamissense_score": 0.0748,
+          "cadd_phred": 15.62,
+          "sift_prediction": "tolerated",
+          "sift_score": 0.9,
+          "polyphen_prediction": null,
+          "polyphen_score": null
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.A390S",
+        "transcript_id": "ENST00000453960",
+        "mane_select": "NM_001110792.2"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000453960",
+        "revel_acmg": null
+      }
+    },
+    {
+      "variant_id": "VCV000197093",
+      "genomic_context": {
+        "chrom": "12",
+        "pos": 51913729,
+        "ref": "C",
+        "alt": "T",
+        "build": "GRCh38",
+        "gene": "ACVRL1"
+      },
+      "truth": {
+        "clnsig": "Likely Benign",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 0.00092,
+        "in_silico": {
+          "revel": 0.151,
+          "revel_acmg": {
+            "code": "BP4",
+            "strength": "supporting",
+            "basis": "REVEL=0.151 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.0841,
+          "cadd_phred": 15.7,
+          "sift_prediction": "tolerated_low_confidence",
+          "sift_score": 0.72,
+          "polyphen_prediction": null,
+          "polyphen_score": 0.001
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.L162F",
+        "transcript_id": "ENST00000388922",
+        "mane_select": "NM_000020.3"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000388922",
+        "revel_acmg": {
+          "code": "BP4",
+          "strength": "supporting",
+          "basis": "REVEL=0.151 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000216472",
+      "genomic_context": {
+        "chrom": "17",
+        "pos": 7673752,
+        "ref": "G",
+        "alt": "A",
+        "build": "GRCh38",
+        "gene": "TP53"
+      },
+      "truth": {
+        "clnsig": "Benign",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 2e-05,
+        "in_silico": {
+          "revel": 0.709,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "supporting",
+            "basis": "REVEL=0.709 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.0791,
+          "cadd_phred": 23.9,
+          "sift_prediction": "tolerated",
+          "sift_score": 0.09,
+          "polyphen_prediction": null,
+          "polyphen_score": null
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.R290C",
+        "transcript_id": "ENST00000269305",
+        "mane_select": "NM_000546.6"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000269305",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "supporting",
+          "basis": "REVEL=0.709 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000225921",
+      "genomic_context": {
+        "chrom": "15",
+        "pos": 45362137,
+        "ref": "C",
+        "alt": "T",
+        "build": "GRCh38",
+        "gene": "GATM"
+      },
+      "truth": {
+        "clnsig": "Benign",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 0.00018,
+        "in_silico": {
+          "revel": 0.201,
+          "revel_acmg": {
+            "code": "BP4",
+            "strength": "supporting",
+            "basis": "REVEL=0.201 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.0985,
+          "cadd_phred": 24.5,
+          "sift_prediction": "tolerated",
+          "sift_score": 0.07,
+          "polyphen_prediction": null,
+          "polyphen_score": 0.412
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.R415Q",
+        "transcript_id": "ENST00000396659",
+        "mane_select": "NM_001482.3"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000396659",
+        "revel_acmg": {
+          "code": "BP4",
+          "strength": "supporting",
+          "basis": "REVEL=0.201 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000239929",
+      "genomic_context": {
+        "chrom": "5",
+        "pos": 173234786,
+        "ref": "G",
+        "alt": "C",
+        "build": "GRCh38",
+        "gene": "NKX2-5"
+      },
+      "truth": {
+        "clnsig": "Likely Benign",
+        "review_stars": 2
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 0.00016,
+        "in_silico": {
+          "revel": 0.135,
+          "revel_acmg": {
+            "code": "BP4",
+            "strength": "supporting",
+            "basis": "REVEL=0.135 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.0542,
+          "cadd_phred": 16.08,
+          "sift_prediction": "tolerated",
+          "sift_score": 0.71,
+          "polyphen_prediction": null,
+          "polyphen_score": 0.015
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.P100A",
+        "transcript_id": "ENST00000329198",
+        "mane_select": "NM_004387.4"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000329198",
+        "revel_acmg": {
+          "code": "BP4",
+          "strength": "supporting",
+          "basis": "REVEL=0.135 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000284471",
+      "genomic_context": {
+        "chrom": "2",
+        "pos": 71669200,
+        "ref": "G",
+        "alt": "A",
+        "build": "GRCh38",
+        "gene": "DYSF"
+      },
+      "truth": {
+        "clnsig": "Pathogenic",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": null,
+        "in_silico": {
+          "revel": 0.818,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "moderate",
+            "basis": "REVEL=0.818 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.7414,
+          "cadd_phred": 27.1,
+          "sift_prediction": "deleterious_low_confidence",
+          "sift_score": 0,
+          "polyphen_prediction": null,
+          "polyphen_score": null
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.V1879M",
+        "transcript_id": "ENST00000410020",
+        "mane_select": "NM_001130987.2"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000410020",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "moderate",
+          "basis": "REVEL=0.818 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000284685",
+      "genomic_context": {
+        "chrom": "17",
+        "pos": 50167731,
+        "ref": "A",
+        "alt": "G",
+        "build": "GRCh38",
+        "gene": "SGCA"
+      },
+      "truth": {
+        "clnsig": "Pathogenic",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 8e-05,
+        "in_silico": {
+          "revel": 0.826,
+          "revel_acmg": {
+            "code": "PP3",
+            "strength": "moderate",
+            "basis": "REVEL=0.826 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+          },
+          "alphamissense_class": null,
+          "alphamissense_score": 0.2347,
+          "cadd_phred": 25.3,
+          "sift_prediction": "deleterious",
+          "sift_score": 0.02,
+          "polyphen_prediction": "probably_damaging",
+          "polyphen_score": 0.995
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.I103V",
+        "transcript_id": "ENST00000262018",
+        "mane_select": "NM_000023.4"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000262018",
+        "revel_acmg": {
+          "code": "PP3",
+          "strength": "moderate",
+          "basis": "REVEL=0.826 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
+        }
+      }
+    },
+    {
+      "variant_id": "VCV000376022",
+      "genomic_context": {
+        "chrom": "21",
+        "pos": 34880581,
+        "ref": "T",
+        "alt": "C",
+        "build": "GRCh38",
+        "gene": "RUNX1"
+      },
+      "truth": {
+        "clnsig": "Pathogenic",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": null,
+        "in_silico": {
+          "revel": null,
+          "revel_acmg": null,
+          "alphamissense_class": null,
+          "alphamissense_score": null,
+          "cadd_phred": 24.8,
+          "sift_prediction": null,
+          "sift_score": null,
+          "polyphen_prediction": null,
+          "polyphen_score": null
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "transcript_id": "ENST00000651798"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000651798",
+        "revel_acmg": null
+      }
+    },
+    {
+      "variant_id": "VCV000425999",
+      "genomic_context": {
+        "chrom": "2",
+        "pos": 202556283,
+        "ref": "G",
+        "alt": "A",
+        "build": "GRCh38",
+        "gene": "BMPR2"
+      },
+      "truth": {
+        "clnsig": "Benign",
+        "review_stars": 3
+      },
+      "tier": "B",
+      "evidence_context": {
+        "molecular_consequence": "missense_variant",
+        "population_max_af": 0.00012,
+        "in_silico": {
+          "revel": 0.551,
+          "revel_acmg": null,
+          "alphamissense_class": null,
+          "alphamissense_score": 0.2661,
+          "cadd_phred": 26,
+          "sift_prediction": "deleterious",
+          "sift_score": 0.02,
+          "polyphen_prediction": null,
+          "polyphen_score": 0.202
+        },
+        "in_silico_note": "ClinGen SVI: apply PP3/BP4 from a SINGLE calibrated predictor (REVEL, see revel_acmg). The other predictors are corroborating context, not independent PP3/BP4 lines. To apply PP3/BP4 above its supporting baseline you MUST add a \"strength_basis\" field on that evidence code citing the calibration, e.g. \"strength_basis\": \"REVEL=0.95, Pejaver 2022 PMID 36413997\"; without it the upgrade is rejected fail-closed.",
+        "protein_change": "p.R873Q",
+        "transcript_id": "ENST00000374580",
+        "mane_select": "NM_001204.7"
+      },
+      "acquisition": {
+        "fetched": true,
+        "source": "ensembl_vep_rest",
+        "transcript_id": "ENST00000374580",
+        "revel_acmg": null
+      }
+    }
+  ]
+}
