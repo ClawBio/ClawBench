@@ -49,3 +49,7 @@ __pycache__/
 !RESULTS/acquisition_probe_runs.jsonl
 !RESULTS/exp1_acquisition.md
 !RESULTS/exp1_acquisition_analysis.json
+# acquisition arm, gpt-5.2 confirmatory model
+!RESULTS/acquisition_probe_runs_gpt-5.2.jsonl
+!RESULTS/exp1_acquisition_gpt-5.2.md
+!RESULTS/exp1_acquisition_analysis_gpt-5.2.json

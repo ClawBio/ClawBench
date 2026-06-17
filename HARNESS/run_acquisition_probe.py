@@ -26,8 +26,11 @@ sys.path[:0] = [str(_ROOT / "HARNESS"), str(_ROOT / "SKILLS" / "clinical-variant
 import gradient_runner as G  # noqa: E402
 import model_adapters as MA  # noqa: E402
 
-MODEL = "claude-sonnet-4-5"
-MODEL_SPEC = {"claude-sonnet-4-5": ("anthropic", "claude-sonnet-4-5-20250929")}
+DEFAULT_MODEL = "claude-sonnet-4-5"
+MODEL_SPECS = {
+    "claude-sonnet-4-5": ("anthropic", "claude-sonnet-4-5-20250929"),
+    "gpt-5.2": ("openai", "gpt-5.2"),
+}
 ENV_PATH = Path.home() / "dev" / "AGENTIC-AI" / ".env"
 
 
@@ -93,7 +96,7 @@ def _slim(rec: dict, arm: str) -> dict:
     return keep
 
 
-def run(thin_variants, enriched_variants, *, reps, checkpoint: Path, skill_md, workers=6,
+def run(thin_variants, enriched_variants, *, model, reps, checkpoint: Path, skill_md, workers=6,
         calibrated_variants=None):
     done = set()
     if checkpoint.exists():
@@ -105,9 +108,9 @@ def run(thin_variants, enriched_variants, *, reps, checkpoint: Path, skill_md, w
                 except (ValueError, KeyError):
                     pass
     tasks = build_tasks(thin_variants, enriched_variants, calibrated_variants,
-                        reps=reps, done=done, model=MODEL)
+                        reps=reps, done=done, model=model)
     print(f"{len(tasks)} calls to make ({len(done)} already done)")
-    adapter = MA.make_adapters(ENV_PATH, MODEL_SPEC)[MODEL]
+    adapter = MA.make_adapters(ENV_PATH, {model: MODEL_SPECS[model]})[model]
 
     lock = threading.Lock()
     counter = {"n": 0}
@@ -116,14 +119,14 @@ def run(thin_variants, enriched_variants, *, reps, checkpoint: Path, skill_md, w
     def work(task):
         arm, v, rep = task
         try:
-            rec = G.run_one("skill_execution", v, adapter, model=MODEL, mode="clinvar_blinded",
+            rec = G.run_one("skill_execution", v, adapter, model=model, mode="clinvar_blinded",
                             truth_source="clinvar", skill_md=skill_md)
         except MA.RateLimitExhausted as e:
-            rec = {"variant_id": v["variant_id"], "model": MODEL, "condition": "skill_execution",
+            rec = {"variant_id": v["variant_id"], "model": model, "condition": "skill_execution",
                    "scoreable": False, "format_ok": False, "predicted_class": None,
                    "truth_class": v["truth"]["clnsig"], "category": "ratelimit", "raw": str(e)[:200]}
         except Exception as e:  # noqa: BLE001 -- record, never crash the run
-            rec = {"variant_id": v["variant_id"], "model": MODEL, "condition": "skill_execution",
+            rec = {"variant_id": v["variant_id"], "model": model, "condition": "skill_execution",
                    "scoreable": False, "format_ok": False, "predicted_class": None,
                    "truth_class": v["truth"]["clnsig"], "category": "error",
                    "raw": f"{type(e).__name__}: {e}"[:200]}
@@ -143,9 +146,12 @@ def run(thin_variants, enriched_variants, *, reps, checkpoint: Path, skill_md, w
 
 def main() -> None:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--model", default=DEFAULT_MODEL, choices=sorted(MODEL_SPECS),
+                    help="model under test (single-model arm)")
     ap.add_argument("--probe", type=Path, default=_ROOT / "TRUTH/clinvar/acquisition_probe_v1.json")
     ap.add_argument("--cache", type=Path, default=_ROOT / "TRUTH/clinvar/acquisition_cache_v1.json")
-    ap.add_argument("--checkpoint", type=Path, default=_ROOT / "RESULTS/acquisition_probe_runs.jsonl")
+    ap.add_argument("--checkpoint", type=Path, default=None,
+                    help="default: RESULTS/acquisition_probe_runs.jsonl (sonnet) or *_<model>.jsonl")
     ap.add_argument("--skill-md", type=Path, default=_ROOT / "SKILLS/clinical-variant-reporter/SKILL.md")
     ap.add_argument("--reps", type=int, default=5)
     ap.add_argument("--workers", type=int, default=6)
@@ -153,6 +159,11 @@ def main() -> None:
     ap.add_argument("--calibrate", action="store_true",
                     help="also run the PM2-moderate strength-calibration arm")
     args = ap.parse_args()
+
+    # sonnet keeps the original checkpoint filename (existing data); other models get a suffix
+    if args.checkpoint is None:
+        args.checkpoint = (_ROOT / "RESULTS/acquisition_probe_runs.jsonl" if args.model == DEFAULT_MODEL
+                           else _ROOT / f"RESULTS/acquisition_probe_runs_{args.model}.jsonl")
 
     probe = json.loads(args.probe.read_text())
     cache = json.loads(args.cache.read_text())
@@ -175,8 +186,8 @@ def main() -> None:
         checkpoint = _ROOT / "RESULTS/acquisition_smoke.jsonl"
         print(f"SMOKE: {len(thin)} variants x {'3' if calibrated else '2'} arms x 1 rep")
 
-    run(thin, enriched, reps=reps, checkpoint=checkpoint, skill_md=skill_md, workers=args.workers,
-        calibrated_variants=calibrated)
+    run(thin, enriched, model=args.model, reps=reps, checkpoint=checkpoint, skill_md=skill_md,
+        workers=args.workers, calibrated_variants=calibrated)
 
 
 if __name__ == "__main__":

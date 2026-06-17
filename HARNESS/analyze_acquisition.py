@@ -98,7 +98,16 @@ def _attribute_arm(records_by_variant_arm, arm, meta):
 
 
 def main() -> None:
-    rows = [json.loads(l) for l in (_ROOT / "RESULTS/acquisition_probe_runs.jsonl").read_text().splitlines() if l.strip()]
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--checkpoint", type=Path, default=_ROOT / "RESULTS/acquisition_probe_runs.jsonl")
+    ap.add_argument("--model", default=None, help="filter rows to this model (default: all rows)")
+    ap.add_argument("--suffix", default="", help="output filename suffix, e.g. _gpt-5.2")
+    args = ap.parse_args()
+
+    rows = [json.loads(l) for l in args.checkpoint.read_text().splitlines() if l.strip()]
+    if args.model:
+        rows = [r for r in rows if r.get("model") == args.model]
     probe = json.loads((_ROOT / "TRUTH/clinvar/acquisition_probe_v1.json").read_text())
     cache = {v["variant_id"]: v for v in json.loads((_ROOT / "TRUTH/clinvar/acquisition_cache_v1.json").read_text())["variants"]}
     meta = {v["variant_id"]: {"truth": v["truth"]["clnsig"], "tier": v.get("tier")} for v in probe["variants"]}
@@ -178,7 +187,7 @@ def main() -> None:
         }
 
     summary = {
-        "model": probe["selection_model"],
+        "model": args.model or probe["selection_model"],
         "n_variants": len(rows_out),
         "n_definitive": n_def,
         "primary_endpoint": {
@@ -201,14 +210,15 @@ def main() -> None:
     if cal_block is not None:
         cal_block["pm2_strength_calibrated"] = strength_dist("calibrated", "PM2")
         summary["calibration_arm"] = cal_block
-    out_json = _ROOT / "RESULTS/exp1_acquisition_analysis.json"
+    out_json = _ROOT / f"RESULTS/exp1_acquisition_analysis{args.suffix}.json"
     out_json.write_text(json.dumps(summary, indent=2))
 
     summary["_n_definitive_total"] = n_def
     md = _render_markdown(summary, tm, by_truth=_resolution_by_truth(rows_out))
-    (_ROOT / "RESULTS/exp1_acquisition.md").write_text(md)
+    out_md = _ROOT / f"RESULTS/exp1_acquisition{args.suffix}.md"
+    out_md.write_text(md)
     print(md)
-    print(f"\nwrote {out_json.relative_to(_ROOT)} + RESULTS/exp1_acquisition.md")
+    print(f"\nwrote {out_json.relative_to(_ROOT)} + {out_md.relative_to(_ROOT)}")
 
 
 def _resolution_by_truth(rows_out):
