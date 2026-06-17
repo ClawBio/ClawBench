@@ -89,6 +89,10 @@ def _enriched_evidence_lines(ev: dict) -> list[str]:
             lines.append(f"    PolyPhen: {ins['polyphen_prediction']} ({ins.get('polyphen_score')})")
     if ev.get("in_silico_note"):
         lines.append(f"  note: {ev['in_silico_note']}")
+    # Strength-calibration arm only: tells the model which ACMG version the deterministic combiner
+    # scores by, so its PM2 strength matches the combiner's convention (see run_acquisition_probe).
+    if ev.get("pm2_strength_note"):
+        lines.append(f"  note: {ev['pm2_strength_note']}")
     return lines
 
 

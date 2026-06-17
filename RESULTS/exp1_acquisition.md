@@ -29,3 +29,17 @@ Model: **claude-sonnet-4-5**. 27 rare missense (Tier-B), 24 definitive + VUS con
 - PM2: {'supporting': 101}
 - PP3: {'moderate': 35, 'supporting': 33, 'strong': 10}
 - BP4: {'supporting': 35}
+
+## Strength-calibration arm (PM2 licensed at moderate per the 2015 combiner)
+- PM2 strength shifted: enriched {'supporting': 101} -> calibrated {'moderate': 134}
+- evidence_insufficient (definitive): enriched 17/24 -> calibrated 22/24
+- recovered vs enriched (2): ['VCV000007957', 'VCV000007961']
+- regressed vs enriched (7): ['VCV000038885', 'VCV000051085', 'VCV000133793', 'VCV000133973', 'VCV000197093', 'VCV000225921', 'VCV000239929']
+- VUS controls overcalled: none
+
+### enriched -> calibrated transitions (definitive)
+- evidence_insufficient -> evidence_insufficient: 15
+- resolved -> evidence_insufficient: 4
+- evidence_insufficient -> resolved: 2
+- combiner_sensitive -> evidence_insufficient: 2
+- assignment_unstable -> evidence_insufficient: 1

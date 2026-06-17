@@ -109,6 +109,8 @@ def main() -> None:
 
     thin_att = _attribute_arm(by_va, "thin", meta)
     enr_att = _attribute_arm(by_va, "enriched", meta)
+    cal_att = _attribute_arm(by_va, "calibrated", meta)
+    has_cal = bool(cal_att)
 
     # per-variant comparison
     variants = [v["variant_id"] for v in probe["variants"]]
@@ -121,10 +123,15 @@ def main() -> None:
             continue
         tc, ec = attribution_category(ta), attribution_category(ea)
         ceil = ceiling_points_class(cache[vid]["evidence_context"])
-        rows_out.append({"variant_id": vid, "truth": truth, "thin_cat": tc, "enr_cat": ec,
-                         "thin_points": ta.get("points_class"), "enr_points": ea.get("points_class"),
-                         "ceiling_points": ceil,
-                         "revel_acmg": (cache[vid]["evidence_context"].get("in_silico") or {}).get("revel_acmg")})
+        row = {"variant_id": vid, "truth": truth, "thin_cat": tc, "enr_cat": ec,
+               "thin_points": ta.get("points_class"), "enr_points": ea.get("points_class"),
+               "ceiling_points": ceil,
+               "revel_acmg": (cache[vid]["evidence_context"].get("in_silico") or {}).get("revel_acmg")}
+        ca = cal_att.get(vid)
+        if ca:
+            row["cal_cat"] = attribution_category(ca)
+            row["cal_points"] = ca.get("points_class")
+        rows_out.append(row)
         if truth in _DEFINITIVE:
             pairs_def.append((tc, ec))
 
@@ -148,6 +155,28 @@ def main() -> None:
     enr_resolved = sum(1 for v in rows_out if v["truth"] in _DEFINITIVE and v["enr_cat"] != "evidence_insufficient")
     thin_resolved = sum(1 for v in rows_out if v["truth"] in _DEFINITIVE and v["thin_cat"] != "evidence_insufficient")
 
+    cal_block = None
+    if has_cal:
+        cal_rows = [v for v in rows_out if v["truth"] in _DEFINITIVE and "cal_cat" in v]
+        cal_ei = sum(1 for v in cal_rows if v["cal_cat"] == "evidence_insufficient")
+        recovered = [v["variant_id"] for v in cal_rows
+                     if v["enr_cat"] == "evidence_insufficient" and v["cal_cat"] != "evidence_insufficient"]
+        regressed = [v["variant_id"] for v in cal_rows
+                     if v["enr_cat"] != "evidence_insufficient" and v["cal_cat"] == "evidence_insufficient"]
+        enr_to_cal = transition_matrix([(v["enr_cat"], v["cal_cat"]) for v in cal_rows])
+        # VUS-control overcalling under calibration (should stay vus_correct)
+        vus_overcall = [v["variant_id"] for v in rows_out
+                        if v["truth"] == VUS and v.get("cal_cat") == "vus_overcall"]
+        cal_block = {
+            "calibrated_evidence_insufficient": cal_ei,
+            "n_definitive": len(cal_rows),
+            "recovered_vs_enriched": recovered,
+            "regressed_vs_enriched": regressed,
+            "vus_controls_overcalled": vus_overcall,
+            "pm2_strength_calibrated": None,  # filled below
+            "enriched_to_calibrated": {f"{a} -> {b}": n for (a, b), n in sorted(enr_to_cal.items(), key=lambda x: -x[1])},
+        }
+
     summary = {
         "model": probe["selection_model"],
         "n_variants": len(rows_out),
@@ -169,9 +198,13 @@ def main() -> None:
         "bp4_strength_enriched": strength_dist("enriched", "BP4"),
         "per_variant": rows_out,
     }
+    if cal_block is not None:
+        cal_block["pm2_strength_calibrated"] = strength_dist("calibrated", "PM2")
+        summary["calibration_arm"] = cal_block
     out_json = _ROOT / "RESULTS/exp1_acquisition_analysis.json"
     out_json.write_text(json.dumps(summary, indent=2))
 
+    summary["_n_definitive_total"] = n_def
     md = _render_markdown(summary, tm, by_truth=_resolution_by_truth(rows_out))
     (_ROOT / "RESULTS/exp1_acquisition.md").write_text(md)
     print(md)
@@ -219,6 +252,19 @@ def _render_markdown(s, tm, by_truth):
           f"- PM2: {s['pm2_strength_enriched']}",
           f"- PP3: {s['pp3_strength_enriched']}",
           f"- BP4: {s['bp4_strength_enriched']}"]
+    cal = s.get("calibration_arm")
+    if cal:
+        nd = s.get("_n_definitive_total", cal["n_definitive"])
+        L += ["", "## Strength-calibration arm (PM2 licensed at moderate per the 2015 combiner)",
+              f"- PM2 strength shifted: enriched {s['pm2_strength_enriched']} -> calibrated {cal['pm2_strength_calibrated']}",
+              f"- evidence_insufficient (definitive): enriched {p['enriched_evidence_insufficient']}/{nd} "
+              f"-> calibrated {cal['calibrated_evidence_insufficient']}/{nd}",
+              f"- recovered vs enriched ({len(cal['recovered_vs_enriched'])}): {cal['recovered_vs_enriched']}",
+              f"- regressed vs enriched ({len(cal['regressed_vs_enriched'])}): {cal['regressed_vs_enriched']}",
+              f"- VUS controls overcalled: {cal['vus_controls_overcalled'] or 'none'}",
+              "", "### enriched -> calibrated transitions (definitive)"]
+        for k, v in cal["enriched_to_calibrated"].items():
+            L.append(f"- {k}: {v}")
     return "\n".join(L)
 
 

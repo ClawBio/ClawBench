@@ -64,6 +64,24 @@ def test_enriched_block_carries_calibrated_recommendation():
     assert "single" in block.lower() or "SINGLE" in block
 
 
+def test_pm2_strength_note_renders_when_present():
+    v = {"evidence_context": {"molecular_consequence": "missense_variant", "population_max_af": None,
+                              "in_silico": {"revel": 0.95, "revel_acmg": {"code": "PP3", "strength": "strong",
+                                                                          "basis": "REVEL=0.95"}},
+                              "pm2_strength_note": "PM2: absence supports the moderate 2015 baseline here."}}
+    block = G._evidence_block(v)
+    assert "moderate 2015 baseline" in block
+    assert "PM2" in block
+
+
+def test_pm2_strength_note_absent_for_plain_enriched():
+    v = {"evidence_context": {"molecular_consequence": "missense_variant", "population_max_af": None,
+                              "in_silico": {"revel": 0.95, "revel_acmg": {"code": "PP3", "strength": "strong",
+                                                                          "basis": "REVEL=0.95"}}}}
+    block = G._evidence_block(v)
+    assert "2015 baseline" not in block
+
+
 def test_enriched_indeterminate_revel_states_no_call():
     v = {"evidence_context": {"molecular_consequence": "missense_variant", "population_max_af": None,
                               "in_silico": {"revel": 0.5, "revel_acmg": None,

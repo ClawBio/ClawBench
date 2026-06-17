@@ -31,21 +31,44 @@ MODEL_SPEC = {"claude-sonnet-4-5": ("anthropic", "claude-sonnet-4-5-20250929")}
 ENV_PATH = Path.home() / "dev" / "AGENTIC-AI" / ".env"
 
 
+# Strength-calibration arm: the benchmark's deterministic combiner scores by ACMG 2015 strength
+# baselines (PM2 = moderate). Models often apply the ClinGen SVI 2020 downgrade (PM2 = supporting),
+# which is defensible but one point short of the combiner's convention. This note aligns the model's
+# PM2 strength with the combiner; it does NOT dictate direction or whether PM2 applies.
+PM2_NOTE = ("PM2 strength (this benchmark scores by ACMG 2015 baselines): absence from or rarity in "
+            "population databases applies PM2 at its MODERATE baseline (2 points). Do not apply the "
+            "ClinGen SVI 2020 downgrade to supporting in this benchmark; use moderate when PM2 applies "
+            "unless there is a specific reason to downgrade.")
+
+
 def task_key(model: str, variant_id: str, arm: str, rep: int) -> str:
     return f"{model}|{variant_id}|{arm}|{rep}"
 
 
-def build_tasks(thin_variants, enriched_variants, *, reps, done: set, model: str):
-    """Deterministic (arm, variant, rep) task list across both arms, skipping checkpointed keys.
-    Raises if the two arms do not cover the same variant set (a probe/cache integrity failure)."""
+def calibrated_evidence_context(enriched_variant: dict) -> dict:
+    """A copy of an enriched variant with the PM2 strength-calibration note added (the calibrated arm).
+    The enriched in-silico evidence is preserved; the input is not mutated."""
+    out = dict(enriched_variant)
+    ec = dict(enriched_variant.get("evidence_context", {}))
+    ec["pm2_strength_note"] = PM2_NOTE
+    out["evidence_context"] = ec
+    return out
+
+
+def build_tasks(thin_variants, enriched_variants, calibrated_variants=None, *, reps, done: set, model: str):
+    """Deterministic (arm, variant, rep) task list across arms, skipping checkpointed keys. Raises if
+    the enriched arm does not cover the thin variant set (a probe/cache integrity failure)."""
     thin_ids = [v["variant_id"] for v in thin_variants]
     enr_by_id = {v["variant_id"]: v for v in enriched_variants}
     missing = [vid for vid in thin_ids if vid not in enr_by_id]
     if missing:
         raise ValueError(f"enriched cache missing variants present in probe: {missing}")
+    arms = [("thin", thin_variants), ("enriched", [enr_by_id[vid] for vid in thin_ids])]
+    if calibrated_variants is not None:
+        cal_by_id = {v["variant_id"]: v for v in calibrated_variants}
+        arms.append(("calibrated", [cal_by_id[vid] for vid in thin_ids]))
     tasks = []
-    for arm, variants in (("thin", thin_variants),
-                          ("enriched", [enr_by_id[vid] for vid in thin_ids])):
+    for arm, variants in arms:
         for v in variants:
             for rep in range(reps):
                 if task_key(model, v["variant_id"], arm, rep) not in done:
@@ -70,7 +93,8 @@ def _slim(rec: dict, arm: str) -> dict:
     return keep
 
 
-def run(thin_variants, enriched_variants, *, reps, checkpoint: Path, skill_md, workers=6):
+def run(thin_variants, enriched_variants, *, reps, checkpoint: Path, skill_md, workers=6,
+        calibrated_variants=None):
     done = set()
     if checkpoint.exists():
         for line in checkpoint.read_text().splitlines():
@@ -80,7 +104,8 @@ def run(thin_variants, enriched_variants, *, reps, checkpoint: Path, skill_md, w
                     done.add(task_key(r["model"], r["variant_id"], r["arm"], r["rep"]))
                 except (ValueError, KeyError):
                     pass
-    tasks = build_tasks(thin_variants, enriched_variants, reps=reps, done=done, model=MODEL)
+    tasks = build_tasks(thin_variants, enriched_variants, calibrated_variants,
+                        reps=reps, done=done, model=MODEL)
     print(f"{len(tasks)} calls to make ({len(done)} already done)")
     adapter = MA.make_adapters(ENV_PATH, MODEL_SPEC)[MODEL]
 
@@ -125,6 +150,8 @@ def main() -> None:
     ap.add_argument("--reps", type=int, default=5)
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--smoke", type=int, default=0, help="run only the first N variants at reps=1")
+    ap.add_argument("--calibrate", action="store_true",
+                    help="also run the PM2-moderate strength-calibration arm")
     args = ap.parse_args()
 
     probe = json.loads(args.probe.read_text())
@@ -134,6 +161,7 @@ def main() -> None:
     thin = probe["variants"]
     # enriched cache entries already carry evidence_context/genomic_context/truth in runner shape
     enriched = cache["variants"]
+    calibrated = [calibrated_evidence_context(v) for v in enriched] if args.calibrate else None
     skill_md = args.skill_md.read_text()
     reps = args.reps
     checkpoint = args.checkpoint
@@ -141,11 +169,14 @@ def main() -> None:
         thin = thin[:args.smoke]
         ids = {v["variant_id"] for v in thin}
         enriched = [v for v in enriched if v["variant_id"] in ids]
+        if calibrated is not None:
+            calibrated = [v for v in calibrated if v["variant_id"] in ids]
         reps = 1
         checkpoint = _ROOT / "RESULTS/acquisition_smoke.jsonl"
-        print(f"SMOKE: {len(thin)} variants x 2 arms x 1 rep")
+        print(f"SMOKE: {len(thin)} variants x {'3' if calibrated else '2'} arms x 1 rep")
 
-    run(thin, enriched, reps=reps, checkpoint=checkpoint, skill_md=skill_md, workers=args.workers)
+    run(thin, enriched, reps=reps, checkpoint=checkpoint, skill_md=skill_md, workers=args.workers,
+        calibrated_variants=calibrated)
 
 
 if __name__ == "__main__":

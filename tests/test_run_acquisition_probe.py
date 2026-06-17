@@ -48,6 +48,28 @@ def test_build_tasks_skips_done():
 
 def test_task_key_distinguishes_arm():
     assert R.task_key("m", "V1", "thin", 0) != R.task_key("m", "V1", "enriched", 0)
+    assert R.task_key("m", "V1", "calibrated", 0) != R.task_key("m", "V1", "enriched", 0)
+
+
+def test_calibrated_arm_adds_pm2_note_without_mutating_input():
+    enr = _enriched()[0]
+    cal = R.calibrated_evidence_context(enr)
+    assert "pm2_strength_note" in cal["evidence_context"]
+    assert "moderate" in cal["evidence_context"]["pm2_strength_note"].lower()
+    # the enriched in-silico evidence is preserved
+    assert "in_silico" in cal["evidence_context"]
+    # input not mutated
+    assert "pm2_strength_note" not in enr["evidence_context"]
+
+
+def test_build_tasks_includes_calibrated_arm_when_provided():
+    tasks = R.build_tasks(_thin(), _enriched(), reps=2, done=set(), model="m",
+                          calibrated_variants=[R.calibrated_evidence_context(v) for v in _enriched()])
+    # 2 variants x 3 arms x 2 reps = 12
+    assert len(tasks) == 12
+    assert {t[0] for t in tasks} == {"thin", "enriched", "calibrated"}
+    cal = [t for t in tasks if t[0] == "calibrated"]
+    assert all("pm2_strength_note" in t[1]["evidence_context"] for t in cal)
 
 
 def test_build_tasks_raises_on_variant_set_mismatch():

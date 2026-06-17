@@ -46,7 +46,9 @@
         "code": "PP3",
         "strength": "moderate",
         "basis": "REVEL=0.925 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000003427",
@@ -56,7 +58,9 @@
       "thin_points": "Uncertain Significance",
       "enr_points": "Uncertain Significance",
       "ceiling_points": "Uncertain Significance",
-      "revel_acmg": null
+      "revel_acmg": null,
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000007950",
@@ -70,7 +74,9 @@
         "code": "PP3",
         "strength": "supporting",
         "basis": "REVEL=0.646 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000007953",
@@ -84,7 +90,9 @@
         "code": "PP3",
         "strength": "supporting",
         "basis": "REVEL=0.743 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "vus_correct",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000007957",
@@ -98,7 +106,9 @@
         "code": "PP3",
         "strength": "strong",
         "basis": "REVEL=0.968 -> PP3 strong (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "resolved",
+      "cal_points": "Likely Pathogenic"
     },
     {
       "variant_id": "VCV000007959",
@@ -112,7 +122,9 @@
         "code": "PP3",
         "strength": "moderate",
         "basis": "REVEL=0.913 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "vus_correct",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000007961",
@@ -126,7 +138,9 @@
         "code": "PP3",
         "strength": "strong",
         "basis": "REVEL=0.965 -> PP3 strong (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "resolved",
+      "cal_points": "Likely Pathogenic"
     },
     {
       "variant_id": "VCV000010167",
@@ -140,7 +154,9 @@
         "code": "PP3",
         "strength": "moderate",
         "basis": "REVEL=0.873 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000013532",
@@ -154,7 +170,9 @@
         "code": "PP3",
         "strength": "moderate",
         "basis": "REVEL=0.849 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000015483",
@@ -168,7 +186,9 @@
         "code": "PP3",
         "strength": "supporting",
         "basis": "REVEL=0.67 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "vus_correct",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000038202",
@@ -182,7 +202,9 @@
         "code": "PP3",
         "strength": "supporting",
         "basis": "REVEL=0.765 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000038885",
@@ -196,7 +218,9 @@
         "code": "BP4",
         "strength": "supporting",
         "basis": "REVEL=0.186 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000051085",
@@ -210,7 +234,9 @@
         "code": "BP4",
         "strength": "supporting",
         "basis": "REVEL=0.185 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000055505",
@@ -224,7 +250,9 @@
         "code": "PP3",
         "strength": "moderate",
         "basis": "REVEL=0.872 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000091649",
@@ -238,7 +266,9 @@
         "code": "PP3",
         "strength": "supporting",
         "basis": "REVEL=0.731 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000100598",
@@ -248,7 +278,9 @@
       "thin_points": "Uncertain Significance",
       "enr_points": "Uncertain Significance",
       "ceiling_points": "Uncertain Significance",
-      "revel_acmg": null
+      "revel_acmg": null,
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000133793",
@@ -262,7 +294,9 @@
         "code": "BP4",
         "strength": "supporting",
         "basis": "REVEL=0.057 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000133973",
@@ -276,7 +310,9 @@
         "code": "BP4",
         "strength": "supporting",
         "basis": "REVEL=0.217 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000156630",
@@ -286,7 +322,9 @@
       "thin_points": "Uncertain Significance",
       "enr_points": "Uncertain Significance",
       "ceiling_points": "Uncertain Significance",
-      "revel_acmg": null
+      "revel_acmg": null,
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000197093",
@@ -300,7 +338,9 @@
         "code": "BP4",
         "strength": "supporting",
         "basis": "REVEL=0.151 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000216472",
@@ -314,7 +354,9 @@
         "code": "PP3",
         "strength": "supporting",
         "basis": "REVEL=0.709 -> PP3 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000225921",
@@ -328,7 +370,9 @@
         "code": "BP4",
         "strength": "supporting",
         "basis": "REVEL=0.201 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000239929",
@@ -342,7 +386,9 @@
         "code": "BP4",
         "strength": "supporting",
         "basis": "REVEL=0.135 -> BP4 supporting (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000284471",
@@ -356,7 +402,9 @@
         "code": "PP3",
         "strength": "moderate",
         "basis": "REVEL=0.818 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000284685",
@@ -370,7 +418,9 @@
         "code": "PP3",
         "strength": "moderate",
         "basis": "REVEL=0.826 -> PP3 moderate (Pejaver 2022, ClinGen SVI, PMID 36413997)"
-      }
+      },
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000376022",
@@ -380,7 +430,9 @@
       "thin_points": "Uncertain Significance",
       "enr_points": "Uncertain Significance",
       "ceiling_points": "Uncertain Significance",
-      "revel_acmg": null
+      "revel_acmg": null,
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     },
     {
       "variant_id": "VCV000425999",
@@ -390,7 +442,37 @@
       "thin_points": "Uncertain Significance",
       "enr_points": "Uncertain Significance",
       "ceiling_points": "Uncertain Significance",
-      "revel_acmg": null
+      "revel_acmg": null,
+      "cal_cat": "evidence_insufficient",
+      "cal_points": "Uncertain Significance"
     }
-  ]
+  ],
+  "calibration_arm": {
+    "calibrated_evidence_insufficient": 22,
+    "n_definitive": 24,
+    "recovered_vs_enriched": [
+      "VCV000007957",
+      "VCV000007961"
+    ],
+    "regressed_vs_enriched": [
+      "VCV000038885",
+      "VCV000051085",
+      "VCV000133793",
+      "VCV000133973",
+      "VCV000197093",
+      "VCV000225921",
+      "VCV000239929"
+    ],
+    "vus_controls_overcalled": [],
+    "pm2_strength_calibrated": {
+      "moderate": 134
+    },
+    "enriched_to_calibrated": {
+      "evidence_insufficient -> evidence_insufficient": 15,
+      "resolved -> evidence_insufficient": 4,
+      "evidence_insufficient -> resolved": 2,
+      "combiner_sensitive -> evidence_insufficient": 2,
+      "assignment_unstable -> evidence_insufficient": 1
+    }
+  }
 }
