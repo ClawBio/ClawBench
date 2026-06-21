@@ -40,7 +40,7 @@ giab_samples:
   - id: HG005
     ancestry: EAS
     vcf: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/ChineseTrio/HG005_NA24631_son/NISTv4.2.1/GRCh38/HG005_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
-    bed: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/ChineseTrio/HG005_NA24631_son/NISTv4.2.1/GRCh38/HG005_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
+    bed: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/ChineseTrio/HG005_NA24631_son/NISTv4.2.1/GRCh38/HG005_GRCh38_1_22_v4.2.1_benchmark.bed
 
 # ClinVar for Exp 1 interpretation truth. The held-out slice (post-model-cutoff deposits) is derived
 # from these by HARNESS/build_clinvar_heldout.py using the per-model cutoff table below.
@@ -56,8 +56,28 @@ clinvar:
 # Fill with each benchmarked model's documented cutoff before deriving the slice.
 model_cutoffs: {}
 
-# FASTQ chr20 read subsets for Exp 2. PENDING: choose source (extract chr20 from GIAB 30x BAM, or use a
-# precomputed chr20 read set). Do not add a URL until HEAD-verified. Method recorded so it is reproducible.
+# chr20 FASTQ for Exp 2 calling. Extracted by remote range from the GIAB Illumina 300x novoalign
+# GRCh38 BAMs (NIST giab_data_indexes; URLs + chr20 naming HEAD-verified 2026-06-19), then downsampled
+# to ~30x. samtools reads ONLY chr20 via a locally-fetched .bai, so the full ~250GB BAM is never
+# downloaded. ftp-trace also serves https (used here for range access). Reads are converted to paired
+# FASTQ for nf-core/sarek input. Downsampling is reproducible (fixed seed); fraction = target/source.
 fastq:
-  pending: true
-  method: "Extract chr20 reads from the GIAB-published 30x Illumina BAM per sample, or use a precomputed chr20 subset; verify URL before adding."
+  source: giab_illumina_300x_novoalign_grch38
+  region: chr20
+  source_coverage_x: 300
+  target_coverage_x: 30
+  alignments:
+    - id: HG001
+      ancestry: EUR
+      bam: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/NA12878/NIST_NA12878_HG001_HiSeq_300x/NHGRI_Illumina300X_novoalign_bams/HG001.GRCh38_full_plus_hs38d1_analysis_set_minus_alts.300x.bam
+      bam_md5: f48bf321c34f32b7c08feb17b9e5b220
+    - id: HG002
+      ancestry: AJ
+      bam: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG002_NA24385_son/NIST_HiSeq_HG002_Homogeneity-10953946/NHGRI_Illumina300X_AJtrio_novoalign_bams/HG002.GRCh38.300x.bam
+    - id: HG003
+      ancestry: AJ
+      bam: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG003_NA24149_father/NIST_HiSeq_HG003_Homogeneity-12389378/NHGRI_Illumina300X_AJtrio_novoalign_bams/HG003.GRCh38.300x.bam
+    - id: HG005
+      ancestry: EAS
+      bam: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/ChineseTrio/HG005_NA24631_son/HG005_NA24631_son_HiSeq_300x/NHGRI_Illumina300X_Chinesetrio_novoalign_bams/HG005.GRCh38_full_plus_hs38d1_analysis_set_minus_alts.300x.bam
+      bam_md5: 50080d14ba49462cfc6348e1fb41b5b3

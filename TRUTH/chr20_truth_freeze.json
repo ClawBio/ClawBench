@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "name": "giab_chr20_truth_freeze",
+  "region": "chr20",
+  "artifacts": {
+    "truth/HG001.chr20.vcf.gz": {
+      "kind": "vcf",
+      "sha256": "593e41fa36aa0890cd07f8a88b57021dd4c232c2fdc6985217afcc3ce84e7cc8"
+    },
+    "truth/HG001.chr20.bed": {
+      "kind": "bed",
+      "sha256": "058ec9c0f173be45e58bacae7ef4e3c56b8e9ae49838ff9807205cdbced6aee5"
+    },
+    "truth/HG002.chr20.vcf.gz": {
+      "kind": "vcf",
+      "sha256": "4b1f96156904f862a2dabde3580410494406344fb7590663b05d53ae24f451bd"
+    },
+    "truth/HG002.chr20.bed": {
+      "kind": "bed",
+      "sha256": "52d9c15a5c5e4552da1b9111fbcb5514a8d65b4ed5ad95542f22ffdcdd16a3f3"
+    },
+    "truth/HG003.chr20.vcf.gz": {
+      "kind": "vcf",
+      "sha256": "345e95cba7dea1ea144d9aa5c6efeb058e8df16ea8908ba2659e25ce533e52be"
+    },
+    "truth/HG003.chr20.bed": {
+      "kind": "bed",
+      "sha256": "29d03d1395f3f55b1d25407fe53f782f528e30b386b7f8b4c0c8821c654b71f3"
+    },
+    "truth/HG005.chr20.vcf.gz": {
+      "kind": "vcf",
+      "sha256": "a87eddf0318acf9f6927c4587cae16c6eddcdb46075ff65a0c161e2e68afe4a6"
+    },
+    "truth/HG005.chr20.bed": {
+      "kind": "bed",
+      "sha256": "bec040c0b34e8aa81d6886c0caa21b8849338b1014734a2a62391e19702848d3"
+    }
+  },
+  "content_hash": "8144732925adaf3e98a087ae0cfcc234e9af0b99df5d8a2a8c9152209a499e76"
+}
