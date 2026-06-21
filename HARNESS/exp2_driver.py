@@ -36,7 +36,7 @@ R2 = f"{CB}/fastq/{SAMPLE}.chr20.R2.fastq.gz"
 BED = f"{CB}/truth/{SAMPLE}.chr20.bed"  # per-sample GIAB confident region
 SDF = f"{CB}/refs/GRCh38.sdf"
 TRUTH = f"{CB}/truth/{SAMPLE}.chr20.vcf.gz"  # frozen chr20 GIAB truth
-BIN = f"{CB}/conda/envs/giab/bin"
+BIN = os.environ.get("GIAB_BIN", f"{CB}/conda/envs/giab/bin")  # Studio default; Codespace overrides
 BASELINE = {"f1": 0.99, "margin": 0.02,
             "params": {"aligner": "bwa-mem2", "caller": "haplotypecaller", "ploidy": 2}}
 INPUT_ROOTS = [f"{CB}/fastq", f"{CB}/refs", f"{CB}/truth"]
