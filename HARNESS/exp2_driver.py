@@ -75,11 +75,23 @@ def _bash_runner(timeout):
 
 
 def _find_vcf(sandbox: str):
-    hits = sorted(glob.glob(f"{sandbox}/**/*.vcf.gz", recursive=True) +
-                  glob.glob(f"{sandbox}/**/*.vcf", recursive=True))
-    # prefer a final/filtered call set over intermediates
-    hits.sort(key=lambda p: (("recal" in p) + ("filter" in p) + ("haplotype" in p)), reverse=True)
-    return hits[0] if hits else None
+    # Agents often write the VCF to a self-named OUTDIR (an absolute path under $CB/sandbox, a sibling of
+    # the run sandbox), so search the whole sandbox tree, not just this run's dir. Prefer a final/filtered
+    # call set, then the most recently modified (the just-produced output for a single run).
+    roots = [sandbox, f"{CB}/sandbox"]
+    hits = []
+    for r in roots:
+        hits += glob.glob(f"{r}/**/*.vcf.gz", recursive=True) + glob.glob(f"{r}/**/*.vcf", recursive=True)
+    hits = sorted(set(hits))
+    if not hits:
+        return None
+    def _mtime(p):
+        try:
+            return os.path.getmtime(p)
+        except OSError:
+            return 0
+    hits.sort(key=lambda p: (("filter" in p) + ("haplotype" in p) + ("recal" in p), _mtime(p)), reverse=True)
+    return hits[0]
 
 
 def _read_vcf_text(path):
