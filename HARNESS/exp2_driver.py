@@ -74,24 +74,27 @@ def _bash_runner(timeout):
     return _run
 
 
-def _find_vcf(sandbox: str):
-    # Agents often write the VCF to a self-named OUTDIR (an absolute path under $CB/sandbox, a sibling of
-    # the run sandbox), so search the whole sandbox tree, not just this run's dir. Prefer a final/filtered
-    # call set, then the most recently modified (the just-produced output for a single run).
-    roots = [sandbox, f"{CB}/sandbox"]
-    hits = []
-    for r in roots:
-        hits += glob.glob(f"{r}/**/*.vcf.gz", recursive=True) + glob.glob(f"{r}/**/*.vcf", recursive=True)
-    hits = sorted(set(hits))
-    if not hits:
+def _vcf_snapshot():
+    return set(glob.glob(f"{CB}/sandbox/**/*.vcf.gz", recursive=True) +
+               glob.glob(f"{CB}/sandbox/**/*.vcf", recursive=True))
+
+
+def _new_vcf(before: set):
+    """VCF this run created, by diffing the whole sandbox tree against a pre-run snapshot. Agents write
+    to self-named OUTDIRs, so a tree-wide diff (not just the run dir) is needed; the diff ensures we
+    NEVER attribute a prior run's output (e.g. a leftover vcfeval tp-baseline) to a run that produced
+    none. Excludes vcfeval intermediates (tp/fp/fn/baseline), which are scorer output, not agent calls."""
+    new = [p for p in (_vcf_snapshot() - before)
+           if "/vcfeval/" not in p and not os.path.basename(p).startswith(("tp", "fp", "fn", "baseline"))]
+    if not new:
         return None
     def _mtime(p):
         try:
             return os.path.getmtime(p)
         except OSError:
             return 0
-    hits.sort(key=lambda p: (("filter" in p) + ("haplotype" in p) + ("recal" in p), _mtime(p)), reverse=True)
-    return hits[0]
+    new.sort(key=lambda p: (("filter" in p) + ("haplotype" in p) + ("recal" in p), _mtime(p)), reverse=True)
+    return new[0]
 
 
 def _read_vcf_text(path):
@@ -116,12 +119,13 @@ def execute_one(emitted, run_id, timeout):
     shutil.rmtree(sandbox, ignore_errors=True)
     Path(sandbox, "tmp").mkdir(parents=True, exist_ok=True)
     Path(sandbox, "run.sh").write_text(emitted.replace("```bash", "").replace("```", ""))
+    before = _vcf_snapshot()  # attribute only VCFs THIS run creates, never a prior arm's leftover
     exec_result = SE.run_script(emitted.replace("```bash", "").replace("```", ""),
                                 sandbox_root=sandbox, input_roots=INPUT_ROOTS,
                                 env_vars=inject_env(sandbox), base_env=dict(os.environ),
                                 bin_dirs=[BIN, "/usr/local/bin", "/usr/bin", "/bin"], timeout=timeout,
                                 runner=_bash_runner(timeout))
-    return exec_result, (_find_vcf(sandbox) if exec_result.get("executed") else None), sandbox
+    return exec_result, (_new_vcf(before) if exec_result.get("executed") else None), sandbox
 
 
 def process_record(rec, timeout, single=False):
