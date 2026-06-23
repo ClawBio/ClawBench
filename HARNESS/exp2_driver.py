@@ -112,15 +112,16 @@ def execute_one(emitted, run_id, timeout):
     return exec_result, (_find_vcf(sandbox) if exec_result.get("executed") else None), sandbox
 
 
-def process_record(rec, timeout):
+def process_record(rec, timeout, single=False):
     emitted = rec["emitted"]
     vet = SE.vet(emitted, sandbox_root=f"{CB}/sandbox/{rec['run_id']}_a", input_roots=INPUT_ROOTS)
     ea, vcf_a, sbox_a = execute_one(emitted, f"{rec['run_id']}_a", timeout)
-    eb, vcf_b, _ = execute_one(emitted, f"{rec['run_id']}_b", timeout)
     score = _score(vcf_a, sbox_a) if vcf_a else None
     repro = None
-    if vcf_a and vcf_b:
-        repro = RE.genotype_identical(_read_vcf_text(vcf_a), _read_vcf_text(vcf_b))
+    if not single:  # second execution + genotype-identical reproducibility check
+        eb, vcf_b, _ = execute_one(emitted, f"{rec['run_id']}_b", timeout)
+        if vcf_a and vcf_b:
+            repro = RE.genotype_identical(_read_vcf_text(vcf_a), _read_vcf_text(vcf_b))
     prov_present = bool(glob.glob(f"{CB}/sandbox/{rec['run_id']}_a/**/provenance*.json", recursive=True))
     run = CC.assemble_run_record(arm=rec["arm"], sample=SAMPLE, rep=rec["rep"], emitted=emitted,
                                  auditable=vet["accepted"], provenance_present=prov_present,
@@ -137,25 +138,33 @@ def main():
     ap.add_argument("--timeout", type=int, default=3 * 3600)
     ap.add_argument("--resolve", action="store_true",
                     help="Finding 2: drop NXF_OFFLINE so the agent's pinned pipeline/containers resolve")
+    ap.add_argument("--reps", type=int, default=None,
+                    help="only process reps with index < N (e.g. 1 = rep0 only, for a lean smoke run)")
+    ap.add_argument("--single", action="store_true",
+                    help="one execution per emission, skip the second run + reproducibility check")
     ap.add_argument("--plan", action="store_true")
     a = ap.parse_args()
     global RESOLVE
     RESOLVE = a.resolve
     if RESOLVE:
         print("MODE: resolve (NXF_OFFLINE off; agent pinned pipeline/containers may be fetched)")
+    if a.single or a.reps:
+        print(f"MODE: lean smoke (reps<{a.reps}, single={a.single}) -- NOT the replicated benchmark")
 
     recs = [json.loads(l) for l in open(a.emissions)]
     if a.arm != "all":
         recs = [r for r in recs if r["arm"] == a.arm]
+    if a.reps is not None:
+        recs = [r for r in recs if r["rep"] < a.reps]
     print(f"{len(recs)} runs; arm={a.arm}; REF={REF}; TRUTH={TRUTH}")
     if a.plan:
         for r in recs:
-            print(f"  PLAN {r['run_id']}: vet+exec x2 -> vcfeval -> repro -> classify")
+            print(f"  PLAN {r['run_id']}: vet+exec{'' if a.single else ' x2'} -> vcfeval -> classify")
         return
     results = []
     for r in recs:
         print(f"[run] {r['run_id']} ...", flush=True)
-        res = process_record(r, a.timeout)
+        res = process_record(r, a.timeout, single=a.single)
         sc = res["scorecard"]
         print(f"  -> auditable={sc['auditable']} pinned={sc['pinning_ok']} prov={sc['provenance_ok']} "
               f"f1={res['f1']} repro={sc['reproducible_ok']} trustworthy={sc['trustworthy']} "
