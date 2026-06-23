@@ -1,0 +1,56 @@
+name: exp2-native-pilot
+
+# Runs the Exp 2 chr20 calling gradient on a native x86 Linux runner (no emulation, native GATK),
+# to confirm the Studio chr20 pilot without the arm64/Rosetta confounds. No ssh, no interaction:
+# trigger with `gh workflow run exp2-native-pilot.yml`, results land as artifacts + in the job log.
+# Lives on main (so workflow_dispatch is discoverable) but checks out the Exp2 branch's code.
+on:
+  workflow_dispatch:
+    inputs:
+      arms:
+        description: "which arms (free_agent, skill_reasoning, both)"
+        default: "both"
+
+jobs:
+  pilot:
+    runs-on: ubuntu-latest        # x86_64, Docker preinstalled + running
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: exp2-calling-gradient        # the Exp2 code lives on this branch, not main
+
+      - name: Free disk space (need room for reference + SDF + sarek containers)
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL || true
+          sudo docker image prune -af || true
+          df -h /
+
+      - name: Install micromamba toolchain (native linux-64)
+        run: bash .devcontainer/setup.sh
+
+      - name: Fetch + normalise GIAB chr20 data (public, reproducible)
+        env:
+          CBWORK: ${{ github.workspace }}/cbwork
+        run: bash scripts/codespace_data.sh
+
+      - name: Run arms (free_agent + skill_reasoning) and print scorecards
+        env:
+          CBWORK: ${{ github.workspace }}/cbwork
+        run: bash scripts/codespace_run.sh
+
+      - name: Collect run logs
+        if: always()
+        env:
+          CBWORK: ${{ github.workspace }}/cbwork
+        run: |
+          mkdir -p artifacts
+          cp RESULTS/codespace_*.jsonl artifacts/ 2>/dev/null || true
+          find "$CBWORK/sandbox" -name run.log -exec sh -c 'd=$(basename $(dirname "$1")); cp "$1" "artifacts/$d.run.log"' _ {} \; 2>/dev/null || true
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exp2-native-pilot-results
+          path: artifacts/
