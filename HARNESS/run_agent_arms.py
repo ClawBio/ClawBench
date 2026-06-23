@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -23,8 +24,9 @@ import sandbox_executor as SE  # noqa: E402
 
 MODEL = "claude-sonnet-4-5-20250929"
 
-# Studio HG002 chr20 layout (the paths the agent is told to use)
-CB = "/Volumes/CPM-20Tb/CLAWBENCH-WORK"
+# HG002 chr20 layout (the paths the agent is told to use). Portable: defaults to a path writable on any
+# host (Linux CI/Codespace + macOS), overridable via CB so emissions match wherever they execute.
+CB = os.environ.get("CB", "/tmp/clawbench-work")
 SAMPLE = "HG002"
 R1 = f"{CB}/fastq/{SAMPLE}.chr20.R1.fastq.gz"
 R2 = f"{CB}/fastq/{SAMPLE}.chr20.R2.fastq.gz"
