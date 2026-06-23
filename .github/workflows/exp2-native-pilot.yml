@@ -31,18 +31,18 @@ jobs:
 
       - name: Fetch + normalise GIAB chr20 data (public, reproducible)
         env:
-          CBWORK: ${{ github.workspace }}/cbwork
+          CBWORK: /tmp/clawbench-work
         run: bash scripts/codespace_data.sh
 
       - name: Run arms (free_agent + skill_reasoning) and print scorecards
         env:
-          CBWORK: ${{ github.workspace }}/cbwork
+          CBWORK: /tmp/clawbench-work
         run: bash scripts/codespace_run.sh
 
       - name: Collect run logs
         if: always()
         env:
-          CBWORK: ${{ github.workspace }}/cbwork
+          CBWORK: /tmp/clawbench-work
         run: |
           mkdir -p artifacts
           cp RESULTS/codespace_*.jsonl artifacts/ 2>/dev/null || true
