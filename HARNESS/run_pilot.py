@@ -52,7 +52,7 @@ ENV_PATH = Path.home() / "dev" / "AGENTIC-AI" / ".env"
 MODEL_THROTTLE = {
     "gemini-2.5-flash": {"concurrency": 4, "min_interval": 0.3},
     "gpt-5.2": {"concurrency": 4, "min_interval": 0.2},
-    "qwen3.6-35b": {"concurrency": 2, "min_interval": 0.0},
+    "qwen3.6-35b": {"concurrency": 1, "min_interval": 0.0},  # MLX serialises; >1 only adds overhead
     "qwen2.5-72b": {"concurrency": 1, "min_interval": 0.0},
     "_default": {"concurrency": 6, "min_interval": 0.0},
 }
