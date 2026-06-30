@@ -6,7 +6,7 @@
   "x-provenance": {
     "principle": "A citation is a falsifiable claim, not a label. 'Cited but wrong' is the same hazard as 'missing'.",
     "oracles": "GWAS Catalog REST API (associations by rsid; study PMID + ancestry) and PubMed E-utilities (PMID resolves + topic terms).",
-    "trigger": "ancestry-risk-profiler PR #297 reached a third round with 5 of 6 high-reuse PMIDs resolving to the wrong paper (flagship APOL1 20566908 = a head-and-neck-cancer survey; real Genovese = 20413513)."
+    "trigger": "ancestry-risk-profiler PR #297 reached a third round with 5 of 6 high-reuse PMIDs resolving to the wrong paper (flagship APOL1 20566908 = a head-and-neck-cancer survey; real Genovese = 20647424)."
   },
   "type": "object",
   "additionalProperties": false,
