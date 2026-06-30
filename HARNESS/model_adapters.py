@@ -89,6 +89,39 @@ def google_adapter(model, client, retries=6, sleep=time.sleep):
     return call
 
 
+def ollama_adapter(model, client, retries=6, sleep=time.sleep):
+    """Open-weight arm: a model served locally by Ollama. Free, offline, frozen weights (reproducible).
+    `client.chat(model, system, prompt) -> str` is injectable so this is testable without a server.
+    Same retry contract as the API adapters; a dead/loading local server is treated as transient."""
+    def call(condition, prompt):
+        def _do():
+            return client.chat(model=model, system=SYSTEM, prompt=prompt)
+        return _with_retries(_do, retries=retries, sleep=sleep)
+    return call
+
+
+class OllamaClient:
+    """Thin stdlib (urllib) client for a local Ollama server. No new dependency, no API key."""
+
+    def __init__(self, host="http://localhost:11434", timeout=600):
+        self.host = host.rstrip("/")
+        self.timeout = timeout
+
+    def chat(self, *, model, system, prompt) -> str:
+        import json
+        import urllib.request
+        body = json.dumps({
+            "model": model, "stream": False,
+            "messages": [{"role": "system", "content": system},
+                         {"role": "user", "content": prompt}],
+            "options": {"temperature": 0},
+        }).encode()
+        req = urllib.request.Request(f"{self.host}/api/chat", data=body,
+                                     headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=self.timeout) as r:
+            return json.loads(r.read())["message"]["content"]
+
+
 # ---- real client construction (lazy) -------------------------------------------
 def make_adapters(env_path, models: dict) -> dict:
     """Build live adapters. `models` maps a run label -> (provider, model_id).
@@ -106,6 +139,8 @@ def make_adapters(env_path, models: dict) -> dict:
             import google.generativeai as genai
             genai.configure(api_key=keys["GOOGLE_API_KEY"])
             out[label] = google_adapter(model_id, genai.GenerativeModel(model_id))
+        elif provider == "ollama":
+            out[label] = ollama_adapter(model_id, OllamaClient())  # local, no key
         else:
             raise ValueError(f"unknown provider {provider!r}")
     return out

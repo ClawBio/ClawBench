@@ -98,3 +98,51 @@ def test_openai_adapter():
 def test_google_adapter():
     a = MA.google_adapter("gemini-2.5-pro", client=_FakeGoogle(), sleep=lambda *_: None)
     assert a("free_prompted", "prompt") == '{"classification": "Likely Pathogenic"}'
+
+
+# ---- ollama (local open-weight) adapter ----------------------------------------
+class _FakeOllama:
+    def __init__(self):
+        self.calls = []
+
+    def chat(self, *, model, system, prompt):
+        self.calls.append((model, system, prompt))
+        return '{"classification": "Benign"}'
+
+
+class _FlakyOllama:
+    """Fails transiently once (server still loading the model), then succeeds."""
+    def __init__(self):
+        self.n = 0
+
+    def chat(self, **kw):
+        self.n += 1
+        if self.n == 1:
+            raise ConnectionError("connection refused: model loading")
+        return '{"classification": "Pathogenic"}'
+
+
+def test_ollama_adapter_returns_text():
+    fake = _FakeOllama()
+    a = MA.ollama_adapter("qwen2.5:72b-instruct-q4_K_M", client=fake, sleep=lambda *_: None)
+    assert a("skill_execution", "prompt") == '{"classification": "Benign"}'
+    # passes through the model id and the shared SYSTEM prompt
+    assert fake.calls[0][0] == "qwen2.5:72b-instruct-q4_K_M"
+    assert fake.calls[0][1] == MA.SYSTEM
+
+
+def test_ollama_adapter_retries_transient_then_succeeds():
+    a = MA.ollama_adapter("qwen3.6:35b-mlx", client=_FlakyOllama(), sleep=lambda *_: None)
+    assert a("skill_execution", "prompt") == '{"classification": "Pathogenic"}'
+
+
+def test_ollama_adapter_exhausts_to_ratelimit():
+    class _Dead:
+        def chat(self, **kw):
+            raise TimeoutError("timed out")
+    a = MA.ollama_adapter("m", client=_Dead(), retries=2, sleep=lambda *_: None)
+    try:
+        a("skill_execution", "p")
+        assert False, "expected RateLimitExhausted"
+    except MA.RateLimitExhausted:
+        pass
