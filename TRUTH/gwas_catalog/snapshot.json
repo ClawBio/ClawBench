@@ -1,0 +1,4176 @@
+{
+  "associations": {
+    "rs11591147": [
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "18193044",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0007804",
+        "or_value": null,
+        "pmid": "22331829",
+        "trait": "LDL cholesterol change measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "GO_0036273",
+        "or_value": null,
+        "pmid": "22331829",
+        "trait": "response to statin"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0010351",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "cholesteryl ester measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "OBA_VT0005144",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "blood VLDL cholesterol amount"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022154",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "phospholipids in medium VLDL measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004612",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "high density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0008591",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0020944",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "Cholesteryl esters:total lipids ratio"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "OBA_VT0005144",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "blood VLDL cholesterol amount"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "36357675",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0020947",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "Triglycerides:total lipids ratio"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0008589",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "esterified cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "HP_0003124",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "hypercholesterolemia"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "EFO_0000493",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "family history"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022164",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "phospholipids in IDL measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022163",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "total lipids in large LDL"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022253",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesteryl esters to total lipids in medium VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "30926973",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022256",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesteryl esters to total lipids in small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022301",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "phospholipids in VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022236",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol to total lipids in large VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022176",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol in large LDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0020947",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "Triglycerides:total lipids ratio"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022268",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol in medium LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0020944",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "Cholesteryl esters:total lipids ratio"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "30275531",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022341",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "triglycerides to total lipids in very small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022246",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesteryl esters to total lipids in chylomicrons and extremely large VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022285",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol to total lipids in small HDL percentage "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0008589",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "esterified cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022335",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "triglycerides to total lipids in medium VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022174",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "phospholipids in large LDL measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0020943",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "Cholesterol:total lipids ratio"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004612",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "high density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "OBA_1001011",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "phospholipid amount"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0020946",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "Phospholipids:total lipids ratio"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0020946",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "Phospholipids:total lipids ratio"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022294",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "phospholipids in LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004529",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "lipid measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "OBA_1000840",
+        "or_value": null,
+        "pmid": "30698716",
+        "trait": "alcohol consumption quality"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "30698716",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022273",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "free cholesterol in very large HDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0008595",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "intermediate density lipoprotein measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "34887591",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "27005778",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0008591",
+        "or_value": null,
+        "pmid": "27005778",
+        "trait": "free cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022275",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol in very small VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022279",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol to total lipids in large HDL percentage "
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "EFO_0007010",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "drug use measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "33462484",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0020945",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "Free cholesterol:total lipids ratio"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "OBA_2050296",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "chylomicron amount"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004530",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "triglyceride measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "32154731",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0020946",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "Phospholipids:total lipids ratio"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0021899",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol in IDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0021187",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "hyperlipidemia"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022250",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesteryl esters to total lipids in large VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022301",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "phospholipids in VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022154",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "phospholipids in medium VLDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022329",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "triglycerides to total lipids in IDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022227",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol in small LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022156",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "total lipids in very small VLDL measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "36220816",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022279",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol to total lipids in large HDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0021661",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "coronary atherosclerosis"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "OBA_VT0005144",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "blood VLDL cholesterol amount"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0009696",
+        "or_value": null,
+        "pmid": "40537477",
+        "trait": "social deprivation"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "40537477",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0010815",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "remnant cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022239",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol to total lipids in medium VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022239",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol to total lipids in medium VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022340",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "triglycerides to total lipids in very large VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022269",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol in medium VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "36376304",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022245",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol to total lipids in very small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022224",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol in medium LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022319",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "triglycerides in large LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0020945",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "Free cholesterol:total lipids ratio"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022164",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "phospholipids in IDL measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022176",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "free cholesterol in large LDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022231",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol in very small VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "34594039",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0803367",
+        "or_value": null,
+        "pmid": "36653479",
+        "trait": "antihyperlipidemic drug use measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022168",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "total lipids in small LDL"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0008591",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "free cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004529",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "lipid measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022235",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol to total lipids in large LDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0001336",
+        "or_value": null,
+        "pmid": "34906840",
+        "trait": "familial hyperlipidemia"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0920021",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesteryl esters in VLDL measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022312",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "total lipids in very large HDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022182",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "cholesterol esters in medium VLDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0920028",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesteryl esters in small LDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022334",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "triglycerides to total lipids in medium LDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022163",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "total lipids in large LDL"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022180",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "total lipids in medium LDL"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "40436827",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0008595",
+        "or_value": null,
+        "pmid": "32150548",
+        "trait": "intermediate density lipoprotein measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0008591",
+        "or_value": null,
+        "pmid": "32150548",
+        "trait": "free cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "31217584",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022253",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesteryl esters to total lipids in medium VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022235",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol to total lipids in large LDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022312",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "total lipids in very large HDL measurement "
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005010",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "coronary artery disorder"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022284",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol to total lipids in medium VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "HP_0003077",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "Hyperlipidemia"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004530",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "triglyceride measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "28270201",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022168",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "total lipids in small LDL"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004732",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "lipoprotein measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022156",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "total lipids in very small VLDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0020943",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "Cholesterol:total lipids ratio"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022273",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol in very large HDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022151",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "concentration of very small VLDL particles"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022272",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol in small VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022186",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol esters in medium LDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022249",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesteryl esters to total lipids in large LDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "OBA_2050296",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "chylomicron amount"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "32203549",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022297",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "phospholipids in small LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022241",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol to total lipids in small LDL percentage "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022165",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "cholesterol esters in large LDL measurement"
+      },
+      {
+        "ancestries": [
+          "AMR"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "34887591",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0021901",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol in large LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022181",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol in IDL measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004329",
+        "or_value": null,
+        "pmid": "30698716",
+        "trait": "alcohol drinking"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0920025",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesteryl esters in small VLDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022180",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "total lipids in medium LDL"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022259",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesteryl esters to total lipids in very small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "33339817",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022179",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "total cholesterol in small LDL"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022227",
+        "or_value": null,
+        "pmid": "40307439",
+        "trait": "cholesterol in small LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022294",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "phospholipids in LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022171",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "total cholesterol in small VLDL"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022160",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "concentration of large LDL particles measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022244",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol to total lipids in very large VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022274",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "free cholesterol in very large VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022229",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol in very large HDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022280",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol to total lipids in large LDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0008595",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "intermediate density lipoprotein measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "HP_0003124",
+        "or_value": null,
+        "pmid": "39789286",
+        "trait": "hypercholesterolemia"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022227",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol in small LDL measurement "
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "32226016",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022228",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol in small VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0008589",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "esterified cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022183",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "phospholipids in medium LDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022233",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol to total lipids in IDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022341",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "triglycerides to total lipids in very small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "AMR"
+        ],
+        "efo_id": "EFO_0005689",
+        "or_value": null,
+        "pmid": "34887591",
+        "trait": "non-high density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0008589",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "esterified cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022272",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "free cholesterol in small VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022297",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "phospholipids in small LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022242",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol to total lipids in small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0020946",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "Phospholipids:total lipids ratio"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022225",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol in medium VLDL measurement "
+      },
+      {
+        "ancestries": [],
+        "efo_id": "MONDO_0005010",
+        "or_value": null,
+        "pmid": "29212778",
+        "trait": "coronary artery disorder"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022275",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol in very small VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022247",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesteryl esters to total lipids in IDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005010",
+        "or_value": 0.778,
+        "pmid": "36474045",
+        "trait": "coronary artery disorder"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022270",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "free cholesterol in small HDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022231",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "cholesterol in very small VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022338",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "triglycerides to total lipids in small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022287",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol to total lipids in small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0021899",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol in IDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022287",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol to total lipids in small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022182",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol esters in medium VLDL measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "GO_0036273",
+        "or_value": null,
+        "pmid": "31969989",
+        "trait": "response to statin"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "EFO_0007804",
+        "or_value": null,
+        "pmid": "31969989",
+        "trait": "LDL cholesterol change measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022258",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesteryl esters to total lipids in very large VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0920023",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesteryl esters in LDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022329",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "triglycerides to total lipids in IDL percentage "
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "24507774",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005010",
+        "or_value": null,
+        "pmid": "35285134",
+        "trait": "coronary artery disorder"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004694",
+        "or_value": null,
+        "pmid": "35285134",
+        "trait": "factor XI measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022163",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "total lipids in large LDL"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022250",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesteryl esters to total lipids in large VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022176",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol in large LDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022340",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "triglycerides to total lipids in very large VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022335",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "triglycerides to total lipids in medium VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022269",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol in medium VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022338",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "triglycerides to total lipids in small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022152",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "concentration of medium VLDL particles"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022242",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol to total lipids in small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022161",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "total lipids in IDL"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022144",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "triglycerides in very small VLDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022332",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "triglycerides to total lipids in large VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022174",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "phospholipids in large LDL measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022181",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "free cholesterol in IDL measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022271",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "free cholesterol in small LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022166",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "concentration of small LDL particles measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0010815",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "remnant cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "33462484",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004612",
+        "or_value": null,
+        "pmid": "36376304",
+        "trait": "high density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022308",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "total lipids in LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "OBA_2050114",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "VLDL particle size"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022183",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "phospholipids in medium LDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022160",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "concentration of large LDL particles measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "OBA_1000199",
+        "or_value": null,
+        "pmid": "35285134",
+        "trait": "von Willebrand factor quality"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "32226016",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022224",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol in medium LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022186",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "cholesterol esters in medium LDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0021901",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol in large LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022266",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol in LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022162",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "total cholesterol in medium VLDL"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "30670697",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0003940",
+        "or_value": null,
+        "pmid": "30670697",
+        "trait": "physical activity"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "OBA_2050113",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "LDL particle size"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022272",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol in small VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022334",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "triglycerides to total lipids in medium LDL percentage "
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004630",
+        "or_value": null,
+        "pmid": "35285134",
+        "trait": "factor VIII measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0008591",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022238",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol to total lipids in medium LDL percentage "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022322",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "triglycerides in medium LDL measurement "
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "31217584",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022183",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "phospholipids in medium LDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022273",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol in very large HDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "40436827",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0010815",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "remnant cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022289",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol to total lipids in very large VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "29507422",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022161",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "total lipids in IDL"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022148",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "total lipids in small VLDL"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022285",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol to total lipids in small HDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "OBA_2050113",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "LDL particle size"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005010",
+        "or_value": 1.25,
+        "pmid": "28714975",
+        "trait": "coronary artery disorder"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022268",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol in medium LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022266",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol in LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022300",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "phospholipids in very small VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022256",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesteryl esters to total lipids in small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005010",
+        "or_value": null,
+        "pmid": "38965376",
+        "trait": "coronary artery disorder"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022231",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol in very small VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022184",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "total cholesterol in IDL"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "25961943",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022297",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "phospholipids in small LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022281",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol to total lipids in large VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022271",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol in small LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022185",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "total cholesterol in medium LDL"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "30275531",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022181",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol in IDL measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0010351",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "cholesteryl ester measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022229",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol in very large HDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022156",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "total lipids in very small VLDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005010",
+        "or_value": null,
+        "pmid": "37947095",
+        "trait": "coronary artery disorder"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022168",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "total lipids in small LDL"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022308",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "total lipids in LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022323",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "triglycerides in small LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022236",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol to total lipids in large VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005010",
+        "or_value": null,
+        "pmid": "30104761",
+        "trait": "coronary artery disorder"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022331",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "triglycerides to total lipids in large LDL percentage "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022296",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "phospholipids in small HDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022233",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol to total lipids in IDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022241",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol to total lipids in small LDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022247",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesteryl esters to total lipids in IDL percentage "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022275",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "free cholesterol in very small VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0022167",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "total cholesterol in large LDL"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022284",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol to total lipids in medium VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022312",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "total lipids in very large HDL measurement "
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004611",
+        "or_value": null,
+        "pmid": "36220816",
+        "trait": "low density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022332",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "triglycerides to total lipids in large VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004612",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "high density lipoprotein cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022271",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol in small LDL measurement "
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "OBA_0000061",
+        "or_value": null,
+        "pmid": "35285134",
+        "trait": "circulating fibrinogen levels"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022238",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol to total lipids in medium LDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022146",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "phospholipids in small VLDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "OBA_2050113",
+        "or_value": null,
+        "pmid": "35213538",
+        "trait": "LDL particle size"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022174",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "phospholipids in large LDL measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022290",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "free cholesterol to total lipids in very small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022331",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "triglycerides to total lipids in large LDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022165",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesterol esters in large LDL measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "34594039",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022259",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "cholesteryl esters to total lipids in very small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0010815",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "remnant cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022172",
+        "or_value": null,
+        "pmid": "39091897",
+        "trait": "concentration of medium LDL particles measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022225",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol in medium VLDL measurement "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022290",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "free cholesterol to total lipids in very small VLDL percentage "
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022161",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "total lipids in IDL"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "OBA_1001011",
+        "or_value": null,
+        "pmid": "38448586",
+        "trait": "phospholipid amount"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022164",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "phospholipids in IDL measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "29507422",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "EFO_0004574",
+        "or_value": null,
+        "pmid": "33339817",
+        "trait": "total cholesterol measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0022228",
+        "or_value": null,
+        "pmid": "36764567",
+        "trait": "cholesterol in small VLDL measurement "
+      }
+    ],
+    "rs2981582": [
+      {
+        "ancestries": [
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004989",
+        "or_value": 1.26,
+        "pmid": "17529967",
+        "trait": "breast carcinoma"
+      },
+      {
+        "ancestries": [
+          "EAS"
+        ],
+        "efo_id": "MONDO_0004989",
+        "or_value": 0.86,
+        "pmid": "37340002",
+        "trait": "breast carcinoma"
+      },
+      {
+        "ancestries": [
+          "EAS"
+        ],
+        "efo_id": "MONDO_0004989",
+        "or_value": 1.18,
+        "pmid": "27354352",
+        "trait": "breast carcinoma"
+      }
+    ],
+    "rs429358": [
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004670",
+        "or_value": null,
+        "pmid": "21123754",
+        "trait": "beta-amyloid 1-42 measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004763",
+        "or_value": null,
+        "pmid": "21123754",
+        "trait": "p-tau measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004760",
+        "or_value": null,
+        "pmid": "21123754",
+        "trait": "t-tau measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": null,
+        "pmid": "21123754",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": null,
+        "pmid": "23419831",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0005194",
+        "or_value": null,
+        "pmid": "23419831",
+        "trait": "amyloid-beta measurement"
+      },
+      {
+        "ancestries": [
+          "AMR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 2.19,
+        "pmid": "39295643",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 2.92,
+        "pmid": "31473137",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 5.24,
+        "pmid": "31055733",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "EFO_0009268",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "family history of Alzheimer\u2019s disease"
+      },
+      {
+        "ancestries": [
+          "AFR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 0.41932878,
+        "pmid": "40708016",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "AFR"
+        ],
+        "efo_id": "EFO_0009268",
+        "or_value": 0.41932878,
+        "pmid": "40708016",
+        "trait": "family history of Alzheimer\u2019s disease"
+      },
+      {
+        "ancestries": [
+          "AFR"
+        ],
+        "efo_id": "MONDO_0001627",
+        "or_value": 0.41932878,
+        "pmid": "40708016",
+        "trait": "dementia"
+      },
+      {
+        "ancestries": [
+          "AFR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 2.9,
+        "pmid": "41268768",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 3.07,
+        "pmid": "42237039",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0001627",
+        "or_value": 3.07,
+        "pmid": "42237039",
+        "trait": "dementia"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": null,
+        "pmid": "39998322",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "EFO_0009268",
+        "or_value": null,
+        "pmid": "39998322",
+        "trait": "family history of Alzheimer\u2019s disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_1001870",
+        "or_value": null,
+        "pmid": "34493870",
+        "trait": "late-onset Alzheimer's disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 1.798,
+        "pmid": "39129223",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0001627",
+        "or_value": 1.798,
+        "pmid": "39129223",
+        "trait": "dementia"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0009268",
+        "or_value": 1.798,
+        "pmid": "39129223",
+        "trait": "family history of Alzheimer\u2019s disease"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 1.788,
+        "pmid": "38184787",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 3.245,
+        "pmid": "34122051",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0006514",
+        "or_value": null,
+        "pmid": "29860282",
+        "trait": "Alzheimer's disease biomarker measurement"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 4.22,
+        "pmid": "37700353",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 2.39,
+        "pmid": "30979435",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [],
+        "efo_id": "MONDO_0004975",
+        "or_value": 4.348,
+        "pmid": "34336000",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": null,
+        "pmid": "39023044",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [],
+        "efo_id": "MONDO_0004648",
+        "or_value": 1.69,
+        "pmid": "31473137",
+        "trait": "vascular dementia"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 3.8628085,
+        "pmid": "30636644",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "AFR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": null,
+        "pmid": "36543923",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "AFR"
+        ],
+        "efo_id": "EFO_0009268",
+        "or_value": null,
+        "pmid": "36543923",
+        "trait": "family history of Alzheimer\u2019s disease"
+      },
+      {
+        "ancestries": [
+          "AFR"
+        ],
+        "efo_id": "MONDO_0001627",
+        "or_value": null,
+        "pmid": "36543923",
+        "trait": "dementia"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 3.1,
+        "pmid": "40676597",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 2.722,
+        "pmid": "35694926",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0007488",
+        "or_value": 4.24,
+        "pmid": "37700353",
+        "trait": "Lewy body dementia"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "AMR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 2.03,
+        "pmid": "41755704",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0009268",
+        "or_value": 1.6,
+        "pmid": "41755704",
+        "trait": "family history of Alzheimer\u2019s disease"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 2.55,
+        "pmid": "41298473",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": null,
+        "pmid": "33589840",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0009268",
+        "or_value": null,
+        "pmid": "33589840",
+        "trait": "family history of Alzheimer\u2019s disease"
+      },
+      {
+        "ancestries": [
+          "EAS"
+        ],
+        "efo_id": "EFO_0006514",
+        "or_value": null,
+        "pmid": "41804841",
+        "trait": "Alzheimer's disease biomarker measurement"
+      },
+      {
+        "ancestries": [
+          "EAS"
+        ],
+        "efo_id": "EFO_1001870",
+        "or_value": 3.97,
+        "pmid": "41951582",
+        "trait": "late-onset Alzheimer's disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 2.256,
+        "pmid": "33223526",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0004975",
+        "or_value": 3.32,
+        "pmid": "33637690",
+        "trait": "Alzheimer disease"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0004847",
+        "or_value": 3.32,
+        "pmid": "33637690",
+        "trait": "age at onset"
+      }
+    ],
+    "rs73885319": [
+      {
+        "ancestries": [
+          "AFR"
+        ],
+        "efo_id": "MONDO_0005300",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "chronic kidney disease"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "OBA_2050096",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "serum creatinine amount"
+      },
+      {
+        "ancestries": [
+          "AFR"
+        ],
+        "efo_id": "EFO_0010134",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "kidney transplant"
+      },
+      {
+        "ancestries": [
+          "AFR"
+        ],
+        "efo_id": "MONDO_0100313",
+        "or_value": null,
+        "pmid": "36623684",
+        "trait": "focal segmental glomerulosclerosis"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS"
+        ],
+        "efo_id": "MONDO_0005300",
+        "or_value": 1.51,
+        "pmid": "31178898",
+        "trait": "chronic kidney disease"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0002462",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "glomerulonephritis"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "EFO_0010690",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "renal dialysis"
+      },
+      {
+        "ancestries": [
+          "AFR"
+        ],
+        "efo_id": "MONDO_0005240",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "kidney disorder"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0001530",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "secondary hyperparathyroidism of renal origin"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0001106",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "kidney failure"
+      }
+    ],
+    "rs7903146": [
+      {
+        "ancestries": [
+          "EAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.54,
+        "pmid": "19401414",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.4,
+        "pmid": "20581827",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.37,
+        "pmid": "18372903",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.46,
+        "pmid": "22101970",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.51,
+        "pmid": "23209189",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.71,
+        "pmid": "17668382",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.33,
+        "pmid": "20694148",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "SAS"
+        ],
+        "efo_id": "EFO_0000195",
+        "or_value": 1.33,
+        "pmid": "20694148",
+        "trait": "metabolic syndrome"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.37,
+        "pmid": "17463246",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.34,
+        "pmid": "17463248",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.48,
+        "pmid": "19734900",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.19,
+        "pmid": "23300278",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.26,
+        "pmid": "22693455",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.49,
+        "pmid": "19056611",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.38,
+        "pmid": "17460697",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.48,
+        "pmid": "23945395",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.36,
+        "pmid": "25102180",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.4,
+        "pmid": "24509480",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.65,
+        "pmid": "17293876",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.37,
+        "pmid": "24390345",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.39,
+        "pmid": "22885922",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.559,
+        "pmid": "34737425",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.66,
+        "pmid": "30470734",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "EFO_0004997",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "type 2 diabetes nephropathy"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0006842",
+        "or_value": null,
+        "pmid": "38627641",
+        "trait": "diabetes mellitus biomarker"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.33,
+        "pmid": "35551307",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": null,
+        "pmid": "32541925",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "EFO_0009924",
+        "or_value": null,
+        "pmid": "34594039",
+        "trait": "Drugs used in diabetes use measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005015",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "EFO_0000493",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "family history"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005147",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "type 1 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "EFO_0009924",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "Drugs used in diabetes use measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005406",
+        "or_value": 1.22,
+        "pmid": "35220425",
+        "trait": "gestational diabetes"
+      },
+      {
+        "ancestries": [
+          "EAS"
+        ],
+        "efo_id": "MONDO_0005406",
+        "or_value": null,
+        "pmid": "37779084",
+        "trait": "gestational diabetes"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0007800",
+        "or_value": null,
+        "pmid": "33619380",
+        "trait": "body fat percentage"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": null,
+        "pmid": "33619380",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": null,
+        "pmid": "35393509",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.22,
+        "pmid": "41298473",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": null,
+        "pmid": "30595370",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.58,
+        "pmid": "33479058",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": null,
+        "pmid": "39379762",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AMR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": null,
+        "pmid": "39024449",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005090",
+        "or_value": 1.53,
+        "pmid": "30470734",
+        "trait": "schizophrenia"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": null,
+        "pmid": "38374256",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.34,
+        "pmid": "31118516",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.37,
+        "pmid": "30297969",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AFR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.32,
+        "pmid": "31049640",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.366,
+        "pmid": "35587468",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": null,
+        "pmid": "30054458",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005147",
+        "or_value": null,
+        "pmid": "34594039",
+        "trait": "type 1 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "SAS"
+        ],
+        "efo_id": "OBA_2001013",
+        "or_value": null,
+        "pmid": "37308106",
+        "trait": "age of onset of type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.4,
+        "pmid": "26961502",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AFR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": null,
+        "pmid": "29691896",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AMR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.36,
+        "pmid": "28254843",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": null,
+        "pmid": "28869590",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "GO_0036273",
+        "or_value": 1.3,
+        "pmid": "40754711",
+        "trait": "response to statin"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005148",
+        "or_value": 1.3,
+        "pmid": "40754711",
+        "trait": "type 2 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EUR"
+        ],
+        "efo_id": "MONDO_0005147",
+        "or_value": 1.31,
+        "pmid": "41298473",
+        "trait": "type 1 diabetes mellitus"
+      },
+      {
+        "ancestries": [
+          "EUR"
+        ],
+        "efo_id": "EFO_0009924",
+        "or_value": null,
+        "pmid": "31015401",
+        "trait": "Drugs used in diabetes use measurement"
+      },
+      {
+        "ancestries": [
+          "AFR",
+          "AMR",
+          "EAS",
+          "EUR",
+          "SAS"
+        ],
+        "efo_id": "EFO_0004340",
+        "or_value": null,
+        "pmid": "33619380",
+        "trait": "body mass index"
+      }
+    ]
+  },
+  "pmid_titles": {
+    "16415884": "Variant of transcription factor 7-like 2 (TCF7L2) gene confers risk of type 2 diabetes.",
+    "17478679": "A common variant on chromosome 9p21 affects the risk of myocardial infarction.",
+    "17529973": "A genome-wide association study identifies alleles in FGFR2 associated with risk of sporadic postmenopausal breast cancer.",
+    "18193044": "Six new loci associated with blood low-density lipoprotein cholesterol, high-density lipoprotein cholesterol or triglycerides in humans.",
+    "20566908": "Health professional perspective on disability in head and neck cancer.",
+    "20647424": "Association of trypanolytic ApoL1 variants with kidney disease in African Americans.",
+    "22158537": "Meta-analysis of genome-wide association studies identifies eight new loci for type 2 diabetes in east Asians.",
+    "23945395": "Genome-wide association study identifies three novel loci for type 2 diabetes.",
+    "24162737": "Meta-analysis of 74,046 individuals identifies 11 new susceptibility loci for Alzheimer's disease.",
+    "27005778": "Genome-wide study for circulating metabolites identifies 62 loci and reveals novel systemic effects of LPA."
+  },
+  "pmid_topic": {
+    "16415884": [
+      "confers",
+      "diabetes",
+      "factor",
+      "gene",
+      "like",
+      "risk",
+      "tcf7l2",
+      "transcription",
+      "type",
+      "variant"
+    ],
+    "17478679": [
+      "9p21",
+      "affects",
+      "chromosome",
+      "common",
+      "infarction",
+      "myocardial",
+      "risk",
+      "the",
+      "variant"
+    ],
+    "17529973": [
+      "alleles",
+      "associated",
+      "association",
+      "breast",
+      "cancer",
+      "fgfr2",
+      "genome",
+      "identifies",
+      "postmenopausal",
+      "risk",
+      "sporadic",
+      "study",
+      "wide",
+      "with"
+    ],
+    "18193044": [
+      "associated",
+      "blood",
+      "cholesterol",
+      "density",
+      "high",
+      "humans",
+      "lipoprotein",
+      "loci",
+      "low",
+      "new",
+      "six",
+      "triglycerides",
+      "with"
+    ],
+    "20566908": [
+      "and",
+      "cancer",
+      "disability",
+      "head",
+      "health",
+      "neck",
+      "perspective",
+      "professional"
+    ],
+    "20647424": [
+      "african",
+      "americans",
+      "apol1",
+      "association",
+      "disease",
+      "kidney",
+      "trypanolytic",
+      "variants",
+      "with"
+    ],
+    "22158537": [
+      "analysis",
+      "asians",
+      "association",
+      "diabetes",
+      "east",
+      "eight",
+      "for",
+      "genome",
+      "identifies",
+      "loci",
+      "meta",
+      "new",
+      "studies",
+      "type",
+      "wide"
+    ],
+    "23945395": [
+      "association",
+      "diabetes",
+      "for",
+      "genome",
+      "identifies",
+      "loci",
+      "novel",
+      "study",
+      "three",
+      "type",
+      "wide"
+    ],
+    "24162737": [
+      "046",
+      "alzheimer",
+      "analysis",
+      "disease",
+      "for",
+      "identifies",
+      "individuals",
+      "loci",
+      "meta",
+      "new",
+      "susceptibility"
+    ],
+    "27005778": [
+      "and",
+      "circulating",
+      "effects",
+      "for",
+      "genome",
+      "identifies",
+      "loci",
+      "lpa",
+      "metabolites",
+      "novel",
+      "reveals",
+      "study",
+      "systemic",
+      "wide"
+    ]
+  }
+}
