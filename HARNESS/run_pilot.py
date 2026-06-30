@@ -36,14 +36,24 @@ PILOT_MODELS = {
     "claude-sonnet-4-5": ("anthropic", "claude-sonnet-4-5-20250929"),
     "gemini-2.5-flash": ("google", "gemini-2.5-flash"),
 }
+# Open-weight arm: local models served by Ollama (free, offline, frozen weights). The open/frontier
+# contrast is a Phase-A deliverable; these run on the SAME pilot variants for an apples-to-apples join.
+OPEN_MODELS = {
+    "qwen3.6-35b": ("ollama", "qwen3.6:35b-mlx"),
+    "qwen2.5-72b": ("ollama", "qwen2.5:72b-instruct-q4_K_M"),
+}
+MODELS_REGISTRY = {**PILOT_MODELS, **OPEN_MODELS}
 PILOT_CONDITIONS = ["free_prompted", "skill_reasoning", "skill_execution"]
 ENV_PATH = Path.home() / "dev" / "AGENTIC-AI" / ".env"
 
 # Per-model throttle: Gemini Tier-1 has tight RPM/TPM limits, so cap its concurrency and space its
-# call-starts; the others run wide open. Spacing is enforced across all workers for a model.
+# call-starts; the others run wide open. Local Ollama models serialise on one machine, so cap their
+# concurrency low (the 72B is memory-heavy -> 1) to avoid thrash. Spacing is enforced across workers.
 MODEL_THROTTLE = {
     "gemini-2.5-flash": {"concurrency": 4, "min_interval": 0.3},
     "gpt-5.2": {"concurrency": 4, "min_interval": 0.2},
+    "qwen3.6-35b": {"concurrency": 2, "min_interval": 0.0},
+    "qwen2.5-72b": {"concurrency": 1, "min_interval": 0.0},
     "_default": {"concurrency": 6, "min_interval": 0.0},
 }
 
@@ -186,6 +196,9 @@ def main() -> None:
     ap.add_argument("--reps", type=int, default=5)
     ap.add_argument("--conditions", default=None, help="comma-separated subset of conditions (default: all 3)")
     ap.add_argument("--workers", type=int, default=9)
+    ap.add_argument("--models", default=None,
+                    help="comma-separated label subset of MODELS_REGISTRY (default: the 3 frontier "
+                         "models). E.g. --models qwen3.6-35b for the open-weight arm.")
     ap.add_argument("--smoke", type=int, default=0, help="run only the first N variants at reps=1")
     ap.add_argument("--finalize", action="store_true", help="only recompute endpoints from checkpoint")
     args = ap.parse_args()
@@ -193,6 +206,11 @@ def main() -> None:
     if args.finalize:
         finalize(args.checkpoint, args.results_dir, title="pilot")
         return
+
+    if args.models:
+        models = {label: MODELS_REGISTRY[label] for label in args.models.split(",")}
+    else:
+        models = PILOT_MODELS
 
     variants = load_pilot_variants(args.pilot, args.manifest)
     skill_md = args.skill_md.read_text()
@@ -204,9 +222,9 @@ def main() -> None:
         reps = 1
         args.checkpoint = args.results_dir / "pilot_smoke.jsonl"
         title = "pilot-smoke"
-        print(f"SMOKE: {len(variants)} variants x {len(PILOT_CONDITIONS)} conditions x 1 rep x {len(PILOT_MODELS)} models")
+        print(f"SMOKE: {len(variants)} variants x {len(PILOT_CONDITIONS)} conditions x 1 rep x {len(models)} models")
 
-    run(variants, PILOT_MODELS, conditions, reps, args.checkpoint, skill_md, workers=args.workers)
+    run(variants, models, conditions, reps, args.checkpoint, skill_md, workers=args.workers)
     finalize(args.checkpoint, args.results_dir,
              title="pilot-smoke" if args.smoke else "pilot")
 
