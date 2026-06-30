@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ClawBio/ClawBench/SCHEMAS/effect_size_provenance_schema.json",
+  "title": "ClawBench effect-size provenance contract",
+  "description": "Structural contract for one association entry emitted by a ClawBio skill that reports effect sizes or ancestry-stratified disease risk (e.g. ancestry-risk-profiler). Every entry must name the variant, the trait (with an EFO id), the ancestry, the effect, and a resolvable source. Structural rules live here; semantic cross-checks (does the cited PMID actually report this variant/trait/ancestry in GWAS Catalog?) are enforced by HARNESS/validate_provenance.py and reported with machine-readable error codes. See ClawBio/ClawBench#3.",
+  "x-provenance": {
+    "principle": "A citation is a falsifiable claim, not a label. 'Cited but wrong' is the same hazard as 'missing'.",
+    "oracles": "GWAS Catalog REST API (associations by rsid; study PMID + ancestry) and PubMed E-utilities (PMID resolves + topic terms).",
+    "trigger": "ancestry-risk-profiler PR #297 reached a third round with 5 of 6 high-reuse PMIDs resolving to the wrong paper (flagship APOL1 20566908 = a head-and-neck-cancer survey; real Genovese = 20647424)."
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["variant", "trait", "ancestry", "effect", "source"],
+  "properties": {
+    "variant": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["rsid"],
+      "properties": {
+        "rsid": { "type": "string", "pattern": "^rs[0-9]+$" }
+      }
+    },
+    "trait": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["label", "efo_id"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "efo_id": { "type": "string", "pattern": "^(EFO|MONDO|HP|Orphanet)_[0-9]+$" }
+      }
+    },
+    "ancestry": { "enum": ["AFR", "AMR", "EAS", "EUR", "SAS"] },
+    "effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["measure", "value"],
+      "properties": {
+        "measure": { "enum": ["OR", "beta", "HR", "RR"] },
+        "value": { "type": "number" },
+        "ci_low": { "type": "number" },
+        "ci_high": { "type": "number" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["pmid"],
+      "properties": {
+        "pmid": { "type": "string", "pattern": "^[0-9]{6,9}$" },
+        "gwas_catalog_accession": { "type": "string", "pattern": "^GCST[0-9]+$" }
+      }
+    }
+  }
+}
